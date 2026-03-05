@@ -718,8 +718,17 @@
             let c = confSnap.exists() ? confSnap.data() : {}; let d = uDoc.exists() ? uDoc.data() : ME.data; GLOBAL_CONFIG = c; ME.data = d; ME.voted = d.voted; localStorage.setItem('evote_session', JSON.stringify(ME));
             if (el('v-name')) el('v-name').innerText = d.nama; if (el('p-user')) el('p-user').value = ME.token; if (el('p-tpl')) el('p-tpl').value = d.tp_lahir || ''; if (el('p-tgl')) el('p-tgl').value = d.tg_lahir || ''; if (el('p-alm')) el('p-alm').value = d.alamat || ''; if (d.foto && d.foto.length > 50) { el('p-img').src = d.foto; el('p-img').style.display='block'; el('p-txt').style.display='none'; }
             if (el('p-prov')) { el('p-prov').innerHTML = '<option value="">Pilih Provinsi</option>'; for (let k in WIL) { el('p-prov').innerHTML += `<option value="${k}">${k}</option>`; } el('p-prov').value = d.prov || ''; ldKabProf(d.kab); }
-            if (ME.voted) { el('alert-ok').classList.remove('d-none'); el('vote-area').classList.add('d-none'); el('v-wait').classList.add('d-none'); } else { el('alert-ok').classList.add('d-none'); let cands = []; candSnap.forEach(d => { let dx=d.data(); dx.id=d.id; cands.push(dx); }); cands.sort((a,b) => a.no - b.no); let h = ''; cands.forEach(cand => { const sData = JSON.stringify(cand).replace(/'/g, "&#39;"); h += `<div class="col-md-6 col-lg-4 mb-4"><div class="card-box v-card h-100 p-0 overflow-hidden position-relative shadow-sm"><div class="position-absolute top-0 start-0 bg-primary text-white px-3 py-1 rounded-bottom-end fw-bold z-1" style="font-size:1.2rem">No. ${cand.no}</div><img src="${cand.foto||''}" style="width:100%;height:250px;object-fit:cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"><div class="p-4 text-center"><h4 class="fw-bold mb-1">${cand.nama}</h4><div class="text-muted small mb-3 text-truncate">${cand.visi||''}</div><button class="btn btn-sm btn-outline-info w-100 mb-2 rounded-pill fw-bold" onclick='viewCandProfile(${sData})'><i class="bi bi-info-circle-fill me-1"></i> LIHAT PROFIL</button><button class="btn btn-primary w-100 py-2 rounded-pill fw-bold" onclick="vote('${cand.id}','${cand.nama}')">COBLOS NO ${cand.no}</button></div></div></div>`; }); el('g-vote').innerHTML = h || '<div class="col-12 text-center py-5"><h4>Belum ada kandidat</h4></div>'; }
-            if(c.StartTime_TS) START_TIME = c.StartTime_TS; if(c.EndTime_TS) END_TIME = c.EndTime_TS; updateVoterTimer(); if (window.POLL) clearInterval(window.POLL); window.POLL = setInterval(updateVoterTimer, 1000); load(0);
+            
+            if (ME.voted) { 
+                el('alert-ok').classList.remove('d-none'); el('vote-area').classList.add('d-none'); el('v-wait').classList.add('d-none'); 
+            } else { 
+                el('alert-ok').classList.add('d-none'); let cands = []; candSnap.forEach(d => { let dx=d.data(); dx.id=d.id; cands.push(dx); }); cands.sort((a,b) => a.no - b.no); let h = ''; 
+                cands.forEach(cand => { const sData = JSON.stringify(cand).replace(/'/g, "&#39;"); h += `<div class="col-md-6 col-lg-4 mb-4"><div class="card-box v-card h-100 p-0 overflow-hidden position-relative shadow-sm"><div class="position-absolute top-0 start-0 bg-primary text-white px-3 py-1 rounded-bottom-end fw-bold z-1" style="font-size:1.2rem">No. ${cand.no}</div><img src="${cand.foto||''}" style="width:100%;height:250px;object-fit:cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"><div class="p-4 text-center"><h4 class="fw-bold mb-1">${cand.nama}</h4><div class="text-muted small mb-3 text-truncate">${cand.visi||''}</div><button class="btn btn-sm btn-outline-info w-100 mb-2 rounded-pill fw-bold" onclick='viewCandProfile(${sData})'><i class="bi bi-info-circle-fill me-1"></i> LIHAT PROFIL</button><button class="btn btn-primary w-100 py-2 rounded-pill fw-bold" onclick="vote('${cand.id}','${cand.nama}')">COBLOS NO ${cand.no}</button></div></div></div>`; }); 
+                el('g-vote').innerHTML = h || '<div class="col-12 text-center py-5"><h4>Belum ada kandidat</h4></div>'; 
+            }
+            if(c.StartTime_TS) START_TIME = c.StartTime_TS; if(c.EndTime_TS) END_TIME = c.EndTime_TS; 
+            updateVoterTimer(); if (window.POLL) clearInterval(window.POLL); window.POLL = setInterval(updateVoterTimer, 1000); 
+            load(0);
         } catch(e) { load(0); Swal.fire('Error Database', e.message, 'error'); }
     }
 
@@ -739,7 +748,27 @@
 
     async function saveProfile(e) { e.preventDefault(); load(1); let passTxt = el('p-pass').value.trim(); const d = { tp_lahir: el('p-tpl').value, tg_lahir: el('p-tgl').value, alamat: el('p-alm').value, prov: el('p-prov').value, kab: el('p-kab').value, foto: el('p-b64').value }; try { if(passTxt !== "") d.pass = await makeHash(passTxt); await window.updateDoc(window.doc(window.db, "voters", ME.token), d); ME.data = { ...ME.data, ...d }; localStorage.setItem('evote_session',JSON.stringify(ME)); load(0); Swal.fire('Sukses','Data berhasil disimpan','success'); refVoter(); } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); } }
 
-    // --- LIVE COUNT TICK (ANTI TUMPUK & ANTI NYANGKUT) ---
+    // --- FUNGSI UPDATEVOTERTIMER YANG HILANG (SUDAH DIKEMBALIKAN) ---
+    function updateVoterTimer() {
+        try {
+            const elArea = el('vote-area'), elWait = el('v-wait'), elClosed = el('v-closed'), elTxtWait = el('timer-voter-wait'), elTxtRun = el('timer-voter');
+            if (!elArea || !elWait) return;
+            if (ME.voted) { elArea.classList.add('d-none'); elWait.classList.add('d-none'); if(elClosed) elClosed.classList.add('d-none'); return; }
+            
+            const now = new Date().getTime(); let status = 'OPEN', timeLeft = 0;
+            if (START_TIME && !isNaN(START_TIME)) {
+                if (now < START_TIME) { status = 'WAIT'; timeLeft = START_TIME - now; } 
+                else if (END_TIME && !isNaN(END_TIME) && now >= END_TIME) { status = 'CLOSED'; } 
+                else if (END_TIME) { timeLeft = END_TIME - now; }
+            }
+            
+            if (status === 'WAIT') { elWait.classList.remove('d-none'); elArea.classList.add('d-none'); if(elClosed) elClosed.classList.add('d-none'); if(elTxtWait) elTxtWait.innerText = formatTime(timeLeft); } 
+            else if (status === 'CLOSED') { if(elClosed) elClosed.classList.remove('d-none'); elWait.classList.add('d-none'); elArea.classList.add('d-none'); } 
+            else { elArea.classList.remove('d-none'); elWait.classList.add('d-none'); if(elClosed) elClosed.classList.add('d-none'); if(elTxtRun) elTxtRun.innerText = END_TIME ? "Sisa: " + formatTime(timeLeft) : "BERLANGSUNG"; }
+        } catch (e) {}
+    }
+
+    // --- LIVE COUNT TICK ---
     async function tick() {
         if (window.isTickRunning) return; 
         window.isTickRunning = true;
@@ -754,7 +783,7 @@
             const candSnap = await window.getDocs(window.collection(window.db, "candidates"));
             let cands = []; let totValid = 0;
             candSnap.forEach(d => { let dx=d.data(); dx.id=d.id; cands.push(dx); totValid += (dx.suara || 0); });
-            GLOBAL_CANDS = cands; // Simpan untuk backup
+            GLOBAL_CANDS = cands; 
 
             const votSnap = await window.getDocs(window.collection(window.db, "voters"));
             let totVoters = votSnap.size; let totVoted = 0;
@@ -774,7 +803,6 @@
                 el('race-area').innerHTML = h;
             } else { el('race-area').innerHTML = '<div class="text-center text-white py-5">Belum ada data kandidat.</div>'; }
 
-            // CEK WAKTU HABIS (PASTI MATIKAN LAYAR HITAM)
             const now = new Date().getTime();
             if (END_TIME && now >= END_TIME) {
                 if (POLL) { clearTimeout(POLL); clearInterval(POLL); }
@@ -784,17 +812,13 @@
 
         } catch (err) { 
             console.error('Tick Error:', err); 
-            // FAILSAFE: JIKA FIREBASE ERROR KARENA RATE LIMIT DI DETIK TERAKHIR
             const now = new Date().getTime();
             if (END_TIME && now >= END_TIME) {
                 if (POLL) { clearTimeout(POLL); clearInterval(POLL); }
-                el('live-final').style.display = 'none'; // WAJIB MATI
-                if (!window.shownResult) { showWinnerModal({c: GLOBAL_CANDS || []}); } // MUNCULKAN BACKUP
+                el('live-final').style.display = 'none';
+                if (!window.shownResult) { showWinnerModal({c: GLOBAL_CANDS || []}); }
             }
-        } finally {
-            window.isTickRunning = false;
-            updateTimer();
-        }
+        } finally { window.isTickRunning = false; updateTimer(); }
     }
 
     // TIMERS & UI HELPERS
@@ -809,7 +833,6 @@
             let timeLeft = END_TIME - now;
             tm.innerText = formatTime(timeLeft); 
             
-            // TURBO MODE (20 DETIK TERAKHIR)
             if (timeLeft <= 20000 && !window.fastPollActive) {
                 window.fastPollActive = true;
                 if(POLL) { clearTimeout(POLL); clearInterval(POLL); }
@@ -819,12 +842,7 @@
         } 
         else if (END_TIME && now >= END_TIME) { 
             tm.innerText = "WAKTU HABIS"; tm.classList.add('text-danger'); 
-            if(!isEnded) { 
-                isEnded = true; 
-                if(POLL) { clearTimeout(POLL); clearInterval(POLL); } 
-                el('live-final').style.display = 'flex'; 
-                setTimeout(() => { tick(); }, 500); 
-            } 
+            if(!isEnded) { isEnded = true; if(POLL) { clearTimeout(POLL); clearInterval(POLL); } el('live-final').style.display = 'flex'; setTimeout(() => { tick(); }, 500); } 
         } 
         else { tm.innerText = "BERLANGSUNG"; if(!isStarted) { isStarted=true; tick(); } }
     }
