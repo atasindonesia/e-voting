@@ -11,118 +11,45 @@
 
 <style>
   /* --- GLOBAL CSS --- */
-  html, body { 
-      background: #f1f5f9; 
-      font-family: 'Segoe UI', sans-serif; 
-      font-size: 14px; 
-      overflow-x: hidden; 
-      width: 100%; 
-      min-height: 100vh;
-      min-height: 100dvh; 
-      margin: 0; 
-      padding: 0; 
-  }
+  html, body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; font-size: 14px; overflow-x: hidden; width: 100%; min-height: 100vh; margin: 0; padding: 0; }
   img { max-width: 100%; height: auto; }
   .view-section { display: none !important; width: 100%; min-height: 100vh; }
   .view-active { display: block !important; animation: fadeIn 0.4s; }
   @keyframes fadeIn { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
   
   /* --- SIDEBAR & LAYOUT --- */
-  .sidebar { 
-      width: 260px; height: 100vh; height: 100dvh;
-      position: fixed; top: 0; left: 0; 
-      background: #0f172a; color: white; 
-      padding: 20px; z-index: 1050; 
-      transition: transform 0.3s ease-in-out; 
-      transform: translateX(0); 
-  }
-  .content { 
-      margin-left: 260px; padding: 20px; 
-      transition: margin-left 0.3s ease-in-out; width: auto; 
-  }
-  .sidebar-overlay { 
-      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-      background: rgba(0,0,0,0.5); z-index: 1040; backdrop-filter: blur(2px);
-  }
+  .sidebar { width: 260px; height: 100vh; position: fixed; top: 0; left: 0; background: #0f172a; color: white; padding: 20px; z-index: 1050; transition: transform 0.3s; }
+  .content { margin-left: 260px; padding: 20px; transition: margin-left 0.3s; width: auto; }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1040; backdrop-filter: blur(2px); }
   .sidebar-overlay.show { display: block !important; }
 
-  @media(max-width:768px){ 
-      .sidebar{ transform:translateX(-100%); } 
-      .sidebar.show{ transform:translateX(0); } 
-      .content{ margin-left:0; width: 100%; padding: 15px; } 
-  }
-  @media(max-width:480px){
-      .race-card { flex-direction: column !important; text-align: center; }
-      .race-card .d-flex { justify-content: center; width: 100%; }
-      .cand-thumb { width: 80px; height: 80px; margin-bottom: 10px; }
-      .rank-1 { transform: scale(1) !important; } 
-  }
+  @media(max-width:768px){ .sidebar{ transform:translateX(-100%); } .sidebar.show{ transform:translateX(0); } .content{ margin-left:0; width: 100%; padding: 15px; } }
+  @media(max-width:480px){ .race-card { flex-direction: column !important; text-align: center; } .cand-thumb { width: 80px; height: 80px; margin-bottom: 10px; } .rank-1 { transform: scale(1) !important; } }
   
-  /* --- COMPONENTS --- */
-  .nav-item { 
-      padding: 12px; border-radius: 8px; cursor: pointer; color: #94a3b8; 
-      display: flex; gap: 10px; align-items: center; margin-bottom: 5px; transition:0.2s; 
-  }
+  .nav-item { padding: 12px; border-radius: 8px; cursor: pointer; color: #94a3b8; display: flex; gap: 10px; align-items: center; margin-bottom: 5px; transition:0.2s; }
   .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); color: white; }
   
-  .card-box { 
-      background: white; border-radius: 12px; padding: 20px; 
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border:1px solid #e2e8f0; 
-  }
+  .card-box { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border:1px solid #e2e8f0; }
   #v-login .card-box { width: 90%; max-width: 400px; margin: auto; }
   
-  #loader { 
-      position: fixed; inset: 0; background: rgba(255,255,255,0.98); 
-      z-index: 99999; display: flex; flex-direction: column; 
-      justify-content: center; align-items: center; 
-  }
-  #error-box { 
-      display: none; margin-top: 20px; color: #dc3545; font-weight: bold; 
-      border: 1px solid #dc3545; padding: 15px; border-radius: 8px; 
-      background: #fff; text-align:center; 
-  }
+  #loader { position: fixed; inset: 0; background: rgba(255,255,255,0.98); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  #error-box { display: none; margin-top: 20px; color: #dc3545; font-weight: bold; border: 1px solid #dc3545; padding: 15px; border-radius: 8px; background: #fff; text-align:center; }
   
-  .live-header { 
-      background: #1e293b; padding: 20px; color: white; 
-      border-bottom: 4px solid #f59e0b; position: sticky; top:0; z-index:100; width: 100%; 
-  }
-  .race-card { 
-      background: white; padding: 15px; border-radius: 12px; 
-      display: flex; align-items: center; gap: 15px; margin-bottom: 12px; 
-      transition: 0.5s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-      border:1px solid white; position: relative; justify-content: space-between; 
-  }
-  .rank-1 { 
-      background: linear-gradient(to right, #fffbeb, #fff); border: 2px solid #fbbf24; 
-      transform: scale(1.02); z-index:10; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3); 
-  }
+  .live-header { background: #1e293b; padding: 20px; color: white; border-bottom: 4px solid #f59e0b; position: sticky; top:0; z-index:100; width: 100%; }
+  .race-card { background: white; padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; margin-bottom: 12px; transition: 0.5s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border:1px solid white; justify-content: space-between; }
+  .rank-1 { background: linear-gradient(to right, #fffbeb, #fff); border: 2px solid #fbbf24; transform: scale(1.02); z-index:10; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3); }
   .text-gold { color: #fbbf24 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
   .text-silver { color: #94a3b8 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
   .cand-thumb { width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid #eee; flex-shrink:0; }
-  .img-dummy { 
-      background: #f8fafc; border: 2px dashed #cbd5e1; display: flex; 
-      align-items: center; justify-content: center; color: #94a3b8; 
-      font-weight: bold; transition:0.2s; 
-  }
+  .img-dummy { background: #f8fafc; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-weight: bold; transition:0.2s; }
   .cand-admin-img { width: 80px; height: 100px; object-fit: cover; border-radius: 8px; background: #eee; flex-shrink: 0; }
   
-  #live-final { 
-      position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
-      z-index: 10000; flex-direction: column; justify-content: center; 
-      align-items: center; color: white; display: none; 
-  }
-  #btn-scroll-top { 
-      position: fixed; bottom: 80px; right: 20px; z-index: 900; 
-      width: 45px; height: 45px; border-radius: 50%; background: #0d6efd; 
-      color: white; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); 
-      display: none; align-items: center; justify-content: center; font-size: 20px; transition: 0.3s; 
-  }
-  #btn-scroll-top:active { transform: scale(0.9); }
+  #live-final { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; flex-direction: column; justify-content: center; align-items: center; color: white; display: none; }
+  #btn-scroll-top { position: fixed; bottom: 80px; right: 20px; z-index: 900; width: 45px; height: 45px; border-radius: 50%; background: #0d6efd; color: white; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; font-size: 20px; transition: 0.3s; }
   .live-footer { text-align: center; color: rgba(255,255,255,0.5); font-size: 11px; bottom: 80px; margin-top: 30px; padding: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
   .blink-red { animation: blinker 1.5s linear infinite; color: #dc3545; font-weight: bold; }
   @keyframes blinker { 50% { opacity: 0.5; } }
   .eye-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6c757d; z-index: 10; } 
-  .form-floating .eye-icon { top: 50%; }
   .modal-backdrop { z-index: 1050; } .modal { z-index: 1060; } #mCrop { z-index: 1070 !important; }
 </style>
 </head>
@@ -143,7 +70,7 @@
   <div id="live-final">
      <div class="spinner-grow text-warning mb-4" style="width: 4rem; height: 4rem;"></div>
      <h1 class="fw-bold text-warning display-4 text-center">FINALISASI HASIL...</h1>
-     <p class="lead text-white-50 text-center px-3">Mohon tunggu, sistem sedang merekapitulasi suara terakhir secara akurat.</p>
+     <p class="lead text-white-50 text-center px-3">Sistem sedang memverifikasi data terakhir...</p>
   </div>
 
   <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleMenu()"></div>
@@ -285,7 +212,6 @@
                <div class="card-box">
                    <h5 class="fw-bold mb-3">Akun Admin</h5>
                    <form onsubmit="changeAdmin(event)">
-                       <div class="mb-2"><label class="small fw-bold">Username Admin Lama</label><input id="admUserOld" class="form-control" value="admin" readonly></div>
                        <div class="mb-2"><label class="small fw-bold">Username Baru</label><input id="admUser" class="form-control" required></div>
                        <div class="mb-3 position-relative">
                            <label class="small fw-bold">Password Baru</label>
@@ -298,7 +224,6 @@
            </div>
         </div>
       </div>
-      <footer class="mt-5 mb-3 text-center text-muted small border-top pt-3">&copy; 2026 E-Voting Realtime System. All Right Reserved. <br><a href="#" data-bs-toggle="modal" data-bs-target="#mPrivacy">Privacy Policy</a> &bull; Created by : <a href="https://www.fary-edtech.my.id/" target="_blank">Fary EdTech</a></footer>
     </div>
   </div>
 
@@ -370,7 +295,7 @@
               <form onsubmit="saveProfile(event)">
                   <div class="text-center mb-4">
                       <div class="img-dummy mx-auto rounded-circle shadow-sm position-relative overflow-hidden" style="width:120px;height:120px;cursor:pointer" onclick="el('p-file').click()">
-                          <img id="p-img" src="" style="width:100%;height:100%;object-fit:cover;display:none" onerror="this.style.display='none'; document.getElementById('p-txt').style.display='block';">
+                          <img id="p-img" src="" style="width:100%;height:100%;object-fit:cover;display:none">
                           <span id="p-txt"><i class="bi bi-camera"></i> Ganti Foto</span>
                       </div>
                       <input type="file" id="p-file" hidden onchange="initCrop(this,'p')">
@@ -401,7 +326,6 @@
               </form>
           </div>
       </div>
-      <footer class="mt-5 mb-3 text-center text-muted small border-top pt-3">&copy; 2026 E-Voting Realtime System. All Right Reserved. <br><a href="#" data-bs-toggle="modal" data-bs-target="#mPrivacy">Privacy Policy</a> &bull; Created by : <a href="https://www.fary-edtech.my.id/" target="_blank">Fary EdTech</a></footer>
     </div>
   </div>
 
@@ -430,7 +354,6 @@
 
     <div class="container mt-4 pb-5" style="max-width:800px" id="race-area"></div>
     <div id="live-wait" class="d-none container mt-5 text-center"><h1 class="display-1 text-danger mb-4"><i class="bi bi-hourglass-split"></i></h1><h2 class="fw-bold mb-3">WAKTU PEMILIHAN BELUM DIBUKA</h2><p class="lead text-white-50">Mohon bersabar, data kandidat akan muncul otomatis.</p><div class="display-3 fw-bold text-danger mt-4 font-monospace blink-red" id="timer-live-wait">--:--:--</div></div>
-    <div class="live-footer">Keterangan: Data perhitungan suara (Live Count) diperbarui secara otomatis. Kami berkomitmen menyajikan data yang transparan, akurat dengan berpedoman teguh pada asas LUBeR JurDil.</div>
   </div>
 
   <div class="modal fade" id="mWin" data-bs-backdrop="static">
@@ -442,7 +365,7 @@
               <h2 class="fw-bold text-dark" id="win-name">Nama</h2>
               <p class="lead text-muted">Memperoleh suara terbanyak!</p>
               <div class="display-3 fw-bold text-primary" id="win-score">0</div>
-              <button type="button" class="btn btn-secondary mt-4 px-5 fw-bold" data-bs-dismiss="modal">TUTUP</button>
+              <button type="button" class="btn btn-secondary mt-4 px-5 fw-bold" onclick="window.location.reload()">TUTUP & REFRESH</button>
           </div>
       </div>
   </div>
@@ -455,7 +378,7 @@
               <p class="text-muted">Perolehan suara tertinggi sama kuat:</p>
               <div id="draw-list" class="my-4"></div>
               <h3 class="fw-bold text-dark">Total Suara: <span id="draw-score">0</span></h3>
-              <button type="button" class="btn btn-secondary mt-4 px-5 fw-bold" data-bs-dismiss="modal">TUTUP</button>
+              <button type="button" class="btn btn-secondary mt-4 px-5 fw-bold" onclick="window.location.reload()">TUTUP & REFRESH</button>
           </div>
       </div>
   </div>
@@ -484,10 +407,10 @@
               </div>
               <div class="modal-body">
                   <button class="btn btn-sm btn-outline-success w-100 mb-3" onclick="dlTemp()"><i class="bi bi-download"></i> Download Template CSV</button>
-                  <p class="small text-muted">Format: Username,Password,Nama,NIA</p>
-                  <input type="file" id="csvFileInput" class="form-control mb-2" accept=".csv" onchange="readCSVFile(this)">
-<textarea id="csvIn" class="form-control mb-2 font-monospace small" rows="4" placeholder="Atau paste isi CSV di sini..."></textarea>
-                  <button class="btn btn-success w-100" onclick="runImport()">Proses Import</button>
+                  <p class="small text-muted mb-1">Upload File CSV:</p>
+                  <input type="file" id="csvFileInput" class="form-control mb-3" accept=".csv" onchange="readCSVFile(this)">
+                  <textarea id="csvIn" class="form-control mb-2 font-monospace small" rows="4" placeholder="Atau paste isi CSV di sini..."></textarea>
+                  <button class="btn btn-success w-100 mt-2" onclick="runImport()">Proses Import</button>
               </div>
           </div>
       </div>
@@ -616,8 +539,6 @@
                   <p class="small text-muted">Sistem ini mengumpulkan data berupa Username, Password (Enkripsi), Nama, NIA, dan Pilihan Suara Anda. Data digunakan semata-mata untuk keperluan verifikasi pemilihan.</p>
                   <h6>2. Asas Kerahasiaan</h6>
                   <p class="small text-muted">Pilihan suara Anda bersifat RAHASIA. Sistem memisahkan antara identitas pemilih dengan pilihan kandidat di database, sehingga admin pun tidak dapat melihat siapa memilih siapa (LUBER JURDIL).</p>
-                  <h6>3. Keamanan Data</h6>
-                  <p class="small text-muted">Password disimpan dalam bentuk Hash (terenkripsi satu arah). Kami menyarankan Anda segera mengganti password default setelah login pertama kali.</p>
               </div>
               <div class="modal-footer"><button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">SAYA MENGERTI</button></div>
           </div>
@@ -655,13 +576,13 @@
       window.deleteDoc = deleteDoc;
       window.runTransaction = runTransaction;
       
-      // Tanda bahwa module sudah termuat
+      // FIREBASE READY TRIGGER
       window.firebaseLoaded = true;
-      if (window.checkFirebase) window.checkFirebase();
+      if (typeof window.checkFirebase === 'function') window.checkFirebase();
   </script>
 
   <script>
-    // --- DATA WILAYAH STATIS ---
+    // --- DATA WILAYAH ---
     const WIL = {
         "Jambi": ["Kab. Tebo", "Kab. Bungo", "Kota Jambi", "Kab. Merangin", "Kab. Batanghari"],
         "Sumatera Barat": ["Kota Padang", "Kab. Dharmasraya", "Kota Bukittinggi", "Kab. Solok"],
@@ -714,7 +635,7 @@
         return parseDateSafe(v); 
     }
 
-    // INIT YANG AMAN
+    // INIT
     window.onload = function() {
         load(1);
         if (window.firebaseLoaded) {
@@ -737,16 +658,13 @@
                     el('live-logo').src = GLOBAL_CONFIG.Logo; 
                 }
             }
-
             const sesiLokal = localStorage.getItem('evote_session'); 
             if (sesiLokal) { 
                 ME = JSON.parse(sesiLokal); 
                 if (ME.role === 'admin') { nav('admin'); refAdmin(); } else { nav('voter'); refVoter(); } 
             }
             load(0);
-        } catch(e) { 
-            load(0); 
-        }
+        } catch(e) { load(0); }
     }
 
     // LOGIN
@@ -763,7 +681,6 @@
                     isFound = true; ME = { status: 'success', role: 'admin', token: doc.id, data: { nama: data.nama, user: data.user } };
                 }
             });
-
             if (!isFound) {
                 const hashPass = await makeHash(p);
                 const vDoc = await window.getDoc(window.doc(window.db, "voters", u));
@@ -774,22 +691,19 @@
                     }
                 }
             }
-
             load(0);
             if (isFound) {
                 localStorage.setItem('evote_session', JSON.stringify(ME));
                 if (ME.role === 'admin') { nav('admin'); refAdmin(); } else { nav('voter'); refVoter(); }
                 Swal.fire('Berhasil', 'Selamat datang', 'success');
-            } else { 
-                Swal.fire('Gagal', 'Username atau Password salah!', 'error'); 
-            }
+            } else { Swal.fire('Gagal', 'Username atau Password salah!', 'error'); }
         } catch (error) { load(0); Swal.fire('Error DB', error.message, 'error'); }
     }
 
     function logout(){ localStorage.removeItem('evote_session'); ME={}; nav('login'); }
     function checkLogin(){ if(ME.role) { if(ME.role=='admin')nav('admin'); else nav('voter'); } else nav('login'); }
 
-    // ADMIN NAV
+    // ADMIN
     function admNav(p) { 
         document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); 
         event.currentTarget.classList.add('active'); 
@@ -895,59 +809,33 @@
                 </tr>`;
             });
             el('t-voter').innerHTML = hv || '<tr><td colspan="4" class="text-center py-4">Data tidak ditemukan</td></tr>';
-            
             load(0);
         } catch(e) { load(0); Swal.fire('Error Database', e.message, 'error'); }
     }
 
     function pg(d) { 
-        let n = PG + d; 
-        const maxPg = Math.ceil(ALL_VOTERS.length / 20) || 1; 
-        if(n < 1) n = 1; 
-        if(n > maxPg) n = maxPg; 
-        refAdmin(n, el('vSearch').value); 
+        let n = PG + d; const maxPg = Math.ceil(ALL_VOTERS.length / 20) || 1; 
+        if(n < 1) n = 1; if(n > maxPg) n = maxPg; refAdmin(n, el('vSearch').value); 
     }
-    
     function searchVoter() { refAdmin(1, el('vSearch').value); }
     
     function viewData(d, type) {
        let h = `
-       <div class="text-center mb-4">
-           <img src="${d.foto||''}" class="shadow rounded" style="width:150px;height:200px;object-fit:cover" onerror="this.style.display='none'">
-       </div>
+       <div class="text-center mb-4"><img src="${d.foto||''}" class="shadow rounded" style="width:150px;height:200px;object-fit:cover" onerror="this.style.display='none'"></div>
        <table class="table table-bordered align-middle">`;
-       
        if(type == 'c') {
-           h += `
-           <tr><th width="30%">No Urut</th><td class="fw-bold text-primary fs-5">${d.no}</td></tr>
-           <tr><th>Nama Kandidat</th><td>${d.nama}</td></tr>
-           <tr><th>NIA</th><td>${d.nia||'-'}</td></tr>
-           <tr><th>Visi</th><td>${d.visi||'-'}</td></tr>
-           <tr><th>Misi</th><td>${d.misi||'-'}</td></tr>`;
+           h += `<tr><th width="30%">No Urut</th><td class="fw-bold text-primary fs-5">${d.no}</td></tr><tr><th>Nama Kandidat</th><td>${d.nama}</td></tr><tr><th>NIA</th><td>${d.nia||'-'}</td></tr><tr><th>Visi</th><td>${d.visi||'-'}</td></tr><tr><th>Misi</th><td>${d.misi||'-'}</td></tr>`;
        } else {
            let statusBadge = d.voted ? '<span class="badge bg-success">SUDAH MEMILIH</span>' : '<span class="badge bg-secondary">BELUM</span>';
-           h += `
-           <tr><th>Nama</th><td>${d.nama}</td></tr>
-           <tr><th>Username</th><td>${d.user}</td></tr>
-           <tr><th>Wilayah</th><td>${d.prov||'-'}, ${d.kab||'-'}</td></tr>
-           <tr><th>Status</th><td>${statusBadge}</td></tr>`;
+           h += `<tr><th>Nama</th><td>${d.nama}</td></tr><tr><th>Username</th><td>${d.user}</td></tr><tr><th>Wilayah</th><td>${d.prov||'-'}, ${d.kab||'-'}</td></tr><tr><th>Status</th><td>${statusBadge}</td></tr>`;
        }
-       h += '</table>'; 
-       el('viewBody').innerHTML = h; 
-       new bootstrap.Modal('#mView').show();
+       h += '</table>'; el('viewBody').innerHTML = h; new bootstrap.Modal('#mView').show();
     }
 
     // CRUD ADMIN
     async function subCand(e) {
         e.preventDefault(); load(1); let id = el('cid').value;
-        const d = { 
-            no: parseInt(el('cno').value) || 0, 
-            nama: el('cnm').value, nia: el('cnia').value, 
-            tp_lahir: el('ctpl').value, tg_lahir: el('ctgl').value, 
-            jk: el('cjk').value, alamat: el('calm').value, 
-            visi: el('cvis').value, misi: el('cmis').value, 
-            foto: el('cfn').value ? el('cfn').value : el('cfo').value 
-        };
+        const d = { no: parseInt(el('cno').value) || 0, nama: el('cnm').value, nia: el('cnia').value, tp_lahir: el('ctpl').value, tg_lahir: el('ctgl').value, jk: el('cjk').value, alamat: el('calm').value, visi: el('cvis').value, misi: el('cmis').value, foto: el('cfn').value ? el('cfn').value : el('cfo').value };
         try {
             if (id) { await window.updateDoc(window.doc(window.db, "candidates", id), d); } 
             else { d.suara = 0; await window.setDoc(window.doc(window.collection(window.db, "candidates")), d); }
@@ -958,13 +846,7 @@
     async function subVoter(e) {
         e.preventDefault(); load(1);
         let id = el('vu').value.trim(); let passTxt = el('vp').value.trim();
-        const d = { 
-            nama: el('vnm').value, nia: el('vnia').value, 
-            tp_lahir: el('vtpl').value, tg_lahir: el('vtgl').value, 
-            jk: el('vjk').value, alamat: el('valm').value, 
-            prov: el('vprv').value, kab: el('vkb').value, 
-            foto: el('vfn').value ? el('vfn').value : el('vfo').value 
-        };
+        const d = { nama: el('vnm').value, nia: el('vnia').value, tp_lahir: el('vtpl').value, tg_lahir: el('vtgl').value, jk: el('vjk').value, alamat: el('valm').value, prov: el('vprv').value, kab: el('vkb').value, foto: el('vfn').value ? el('vfn').value : el('vfo').value };
         try {
             if(passTxt !== "") d.pass = await makeHash(passTxt);
             const docRef = window.doc(window.db, "voters", id); 
@@ -978,33 +860,14 @@
 
     async function del(t,i) { 
         Swal.fire({title:'Hapus data?',icon:'warning',showCancelButton:true}).then(async r=>{ 
-            if(r.isConfirmed){ 
-                load(1); 
-                try { 
-                    await window.deleteDoc(window.doc(window.db, t, i)); 
-                    load(0); refAdmin(); 
-                } catch(e) { 
-                    load(0); Swal.fire('Gagal',e.message,'error'); 
-                } 
-            } 
+            if(r.isConfirmed){ load(1); try { await window.deleteDoc(window.doc(window.db, t, i)); load(0); refAdmin(); } catch(e) { load(0); Swal.fire('Gagal',e.message,'error'); } } 
         }); 
     }
 
     async function saveSet(e) {
         e.preventDefault(); load(1);
-        const d = { 
-            OrgName: el('setOrg').value, OrgFullName: el('setOrgFull').value, 
-            OrgLegal: el('setOrgLegal').value, OrgAddress: el('setOrgAddr').value, 
-            Judul: el('setJudul').value, 
-            StartTime: el('setStart').value, StartTime_TS: getTimeStamp(el('setStart').value), 
-            EndTime: el('setEnd').value, EndTime_TS: getTimeStamp(el('setEnd').value), 
-            Web: el('setWeb').value, Email: el('setEmail').value, HP: el('setHP').value, 
-            Logo: el('logoNew').value ? el('logoNew').value : el('logoPrev').src 
-        };
-        try { 
-            await window.setDoc(window.doc(window.db, "config", "utama"), d, { merge: true }); 
-            load(0); Swal.fire('Sukses', 'Pengaturan tersimpan!', 'success'); 
-        } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
+        const d = { OrgName: el('setOrg').value, OrgFullName: el('setOrgFull').value, OrgLegal: el('setOrgLegal').value, OrgAddress: el('setOrgAddr').value, Judul: el('setJudul').value, StartTime: el('setStart').value, StartTime_TS: getTimeStamp(el('setStart').value), EndTime: el('setEnd').value, EndTime_TS: getTimeStamp(el('setEnd').value), Web: el('setWeb').value, Email: el('setEmail').value, HP: el('setHP').value, Logo: el('logoNew').value ? el('logoNew').value : el('logoPrev').src };
+        try { await window.setDoc(window.doc(window.db, "config", "utama"), d, { merge: true }); load(0); Swal.fire('Sukses', 'Pengaturan tersimpan!', 'success'); } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
     }
     
     async function changeAdmin(e) {
@@ -1021,6 +884,11 @@
         } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
     }
 
+    function readCSVFile(input) {
+        const file = input.files[0];
+        if (file) { const reader = new FileReader(); reader.onload = function(e) { el('csvIn').value = e.target.result; }; reader.readAsText(file); }
+    }
+
     async function runImport() {
         load(1);
         try {
@@ -1029,27 +897,16 @@
                 let row = csv[i].split(',');
                 if(row.length >= 3 && row[0]) {
                     let vUser = row[0].trim(); let vPass = await makeHash(row[1] ? row[1].trim() : '123');
-                    await window.setDoc(window.doc(window.db, "voters", vUser), { 
-                        nama: row[2]?row[2].trim():'', nia: row[3]?row[3].trim():'', 
-                        pass: vPass, voted: false 
-                    }, {merge:true});
-                    count++;
+                    await window.setDoc(window.doc(window.db, "voters", vUser), { nama: row[2]?row[2].trim():'', nia: row[3]?row[3].trim():'', pass: vPass, voted: false }, {merge:true}); count++;
                 }
             }
             load(0); bootstrap.Modal.getInstance(el('mImport')).hide(); refAdmin(); Swal.fire('Selesai', count + ' data diimpor', 'success');
         } catch(e) { load(0); Swal.fire('Gagal', e.message, 'error'); }
     }
-    function dlTemp(){ 
-        const b=new Blob(["Username,Password,Nama,NIA\nuser1,123,Budi,12345"],{type:'text/csv'}); 
-        const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Template.csv'; a.click(); 
-    }
+    function dlTemp(){ const b=new Blob(["Username,Password,Nama,NIA\nuser1,123,Budi,12345"],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Template.csv'; a.click(); }
 
     // VOTER AREA
-    function voterNav(p) { 
-        ['vote','profil'].forEach(x=>el('vp-'+x).classList.add('d-none')); 
-        el('vp-'+p).classList.remove('d-none'); 
-        if(window.innerWidth<768) toggleMenu(); 
-    }
+    function voterNav(p) { ['vote','profil'].forEach(x=>el('vp-'+x).classList.add('d-none')); el('vp-'+p).classList.remove('d-none'); if(window.innerWidth<768) toggleMenu(); }
 
     async function refVoter() {
         if (!ME || !ME.token) return logout();
@@ -1086,19 +943,7 @@
                 let h = '';
                 cands.forEach(cand => {
                     const sData = JSON.stringify(cand).replace(/'/g, "&#39;");
-                    h += `
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card-box v-card h-100 p-0 overflow-hidden position-relative shadow-sm">
-                            <div class="position-absolute top-0 start-0 bg-primary text-white px-3 py-1 rounded-bottom-end fw-bold z-1" style="font-size:1.2rem">No. ${cand.no}</div>
-                            <img src="${cand.foto||''}" style="width:100%;height:250px;object-fit:cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
-                            <div class="p-4 text-center">
-                                <h4 class="fw-bold mb-1">${cand.nama}</h4>
-                                <div class="text-muted small mb-3 text-truncate">${cand.visi||''}</div>
-                                <button class="btn btn-sm btn-outline-info w-100 mb-2 rounded-pill fw-bold" onclick='viewCandProfile(${sData})'><i class="bi bi-info-circle-fill me-1"></i> LIHAT PROFIL</button>
-                                <button class="btn btn-primary w-100 py-2 rounded-pill fw-bold" onclick="vote('${cand.id}','${cand.nama}')">COBLOS NO ${cand.no}</button>
-                            </div>
-                        </div>
-                    </div>`;
+                    h += `<div class="col-md-6 col-lg-4 mb-4"><div class="card-box v-card h-100 p-0 overflow-hidden position-relative shadow-sm"><div class="position-absolute top-0 start-0 bg-primary text-white px-3 py-1 rounded-bottom-end fw-bold z-1" style="font-size:1.2rem">No. ${cand.no}</div><img src="${cand.foto||''}" style="width:100%;height:250px;object-fit:cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"><div class="p-4 text-center"><h4 class="fw-bold mb-1">${cand.nama}</h4><div class="text-muted small mb-3 text-truncate">${cand.visi||''}</div><button class="btn btn-sm btn-outline-info w-100 mb-2 rounded-pill fw-bold" onclick='viewCandProfile(${sData})'><i class="bi bi-info-circle-fill me-1"></i> LIHAT PROFIL</button><button class="btn btn-primary w-100 py-2 rounded-pill fw-bold" onclick="vote('${cand.id}','${cand.nama}')">COBLOS NO ${cand.no}</button></div></div></div>`;
                 });
                 el('g-vote').innerHTML = h || '<div class="col-12 text-center py-5"><h4>Belum ada kandidat</h4></div>';
             }
@@ -1123,11 +968,7 @@
                     await window.runTransaction(window.db, async (transaction) => {
                         const voterDoc = await transaction.get(voterRef);
                         if (!voterDoc.exists() || voterDoc.data().voted) { throw "Anda sudah memilih!"; }
-                        if (candRef) { 
-                            const candDoc = await transaction.get(candRef); 
-                            const newSuara = (candDoc.data().suara || 0) + 1; 
-                            transaction.update(candRef, { suara: newSuara }); 
-                        }
+                        if (candRef) { const candDoc = await transaction.get(candRef); const newSuara = (candDoc.data().suara || 0) + 1; transaction.update(candRef, { suara: newSuara }); }
                         transaction.update(voterRef, { voted: true });
                     });
                     ME.voted = true; localStorage.setItem('evote_session', JSON.stringify(ME)); refVoter();
@@ -1148,7 +989,7 @@
         } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
     }
 
-    // LIVE COUNT
+    // LIVE COUNT TICK
     async function tick() {
         try {
             const confSnap = await window.getDoc(window.doc(window.db, "config", "utama"));
@@ -1170,97 +1011,45 @@
 
             if (cands.length > 0) {
                 cands.sort((a, b) => { if (b.suara !== a.suara) return (b.suara||0) - (a.suara||0); return a.no - b.no; });
+                let h = '';
                 const topScore = cands[0].suara || 0;
                 const winnersCount = cands.filter(x => x.suara === topScore && x.suara > 0).length;
 
-                let h = '';
                 cands.forEach((cand, i) => {
                     let pct = totVoted > 0 ? ((cand.suara || 0) / totVoted * 100).toFixed(2) : 0;
                     let cls = (i === 0 && cand.suara > 0) ? 'rank-1' : 'border-0'; let barW = (pct < 1 && cand.suara > 0) ? 1 : pct;
                     let trophyHTML = (cand.suara === topScore && cand.suara > 0) ? `<i class="bi bi-trophy-fill ${winnersCount > 1 ? 'text-secondary' : 'text-warning'} ms-2 fs-4"></i>` : '';
                     
-                    h += `
-                    <div class="race-card ${cls} position-relative mb-3">
-                        <div class="fw-bold fs-3 text-secondary ms-2 text-center" style="min-width:40px">#${cand.no}</div>
-                        <img src="${cand.foto||''}" class="cand-thumb shadow-sm" onerror="this.src='https://via.placeholder.com/60'">
-                        <div class="flex-fill">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <div class="fw-bold fs-5 text-dark d-flex align-items-center">${cand.nama} ${trophyHTML}</div>
-                                <div class="fw-bold fs-4 text-dark">${cand.suara||0}</div>
-                            </div>
-                            <div class="progress" style="height:10px;background:#e2e8f0;border-radius:5px">
-                                <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" style="width:${barW}%"></div>
-                            </div>
-                            <div class="text-end small text-muted mt-1 fw-bold">${pct}% Suara</div>
-                        </div>
-                    </div>`;
+                    h += `<div class="race-card ${cls} position-relative mb-3"><div class="fw-bold fs-3 text-secondary ms-2 text-center" style="min-width:40px">#${cand.no}</div><img src="${cand.foto||''}" class="cand-thumb shadow-sm" onerror="this.src='https://via.placeholder.com/60'"><div class="flex-fill"><div class="d-flex justify-content-between align-items-center mb-1"><div class="fw-bold fs-5 text-dark d-flex align-items-center">${cand.nama} ${trophyHTML}</div><div class="fw-bold fs-4 text-dark">${cand.suara||0}</div></div><div class="progress" style="height:10px;background:#e2e8f0;border-radius:5px"><div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" style="width:${barW}%"></div></div><div class="text-end small text-muted mt-1 fw-bold">${pct}% Suara</div></div></div>`;
                 });
                 el('race-area').innerHTML = h;
 
-               const now = new Date().getTime();
-               const now = new Date().getTime();
+                // LOGIKA BARU FINALISASI TANPA DELAY!
+                const now = new Date().getTime();
                 if (END_TIME && now >= END_TIME) {
-                    if (POLL) clearTimeout(POLL); // Matikan refresh lambat 20 detik
+                    if (POLL) clearTimeout(POLL); // Matikan polling lambat
                     if (!window.shownResult) {
-                        el('live-final').style.display = 'none'; // Matikan layar hitam
-                        showWinnerModal({c:cands}); // Langsung munculkan piala tanpa nunggu!
+                        el('live-final').style.display = 'none'; // Matikan layar hitam secara instan
+                        showWinnerModal({c: cands}); // Langsung munculkan piala tanpa nunggu!
                     }
                 }
-
-            } else { el('race-area').innerHTML = '<div class="text-center text-white py-5">Belum ada data kandidat.</div>'; }
+            } else { 
+                el('race-area').innerHTML = '<div class="text-center text-white py-5">Belum ada data kandidat.</div>'; 
+                // Proteksi jika data kosong saat waktu habis
+                const now = new Date().getTime();
+                if (END_TIME && now >= END_TIME) {
+                    if (POLL) clearTimeout(POLL);
+                    if (!window.shownResult) { el('live-final').style.display = 'none'; showWinnerModal({c: []}); }
+                }
+            }
             updateTimer();
         } catch (err) { console.log('Tick Error:', err); }
     }
 
-    // UI HELPERS & TIMERS
-    function togglePass(id) { 
-        const i=el(id),c=el('icon-'+id); 
-        if(i.type==="password"){ i.type="text"; c.classList.remove('bi-eye-slash'); c.classList.add('bi-eye'); }
-        else { i.type="password"; c.classList.remove('bi-eye'); c.classList.add('bi-eye-slash'); } 
-    }
-    
-    function formatTime(ms) { 
-        if(ms<0) return "00:00:00"; 
-        const h=Math.floor((ms%(1000*60*60*24))/(1000*60*60));
-        const m=Math.floor((ms%(1000*60*60))/(1000*60));
-        const s=Math.floor((ms%(1000*60))/1000); 
-        return `${h}j ${m}m ${s}d`; 
-    }
-    
-    function toggleMenu() { 
-        const sb=el('sb'), sbV=el('sb-voter'), over=el('sidebar-overlay'); 
-        if(sb){ sb.classList.toggle('show'); if(sb.classList.contains('show')) over.classList.add('show'); else over.classList.remove('show'); } 
-        if(sbV){ sbV.classList.toggle('show'); if(sbV.classList.contains('show')) over.classList.add('show'); else over.classList.remove('show'); } 
-    }
-    
-    window.onscroll = () => { 
-        const btn = el('btn-scroll-top'); 
-        if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) btn.style.display = "flex"; else btn.style.display = "none"; 
-    };
-    
-    function nav(id) {
-      document.querySelectorAll('.view-section').forEach(x=>x.classList.remove('view-active')); el('v-'+id).classList.add('view-active');
-      if(POLL) clearTimeout(POLL);
-      if(id=='live') { isEnded = false; isStarted = false; isFinalizing = false; tick(); const loopTick = () => { const t=Math.floor(Math.random()*5000)+20000; POLL=setTimeout(()=>{tick();loopTick();},t); }; loopTick(); setInterval(updateTimer, 1000); }
-    }
-
-    function updateVoterTimer() {
-        try {
-            const elArea = el('vote-area'), elWait = el('v-wait'), elClosed = el('v-closed'), elTxtWait = el('timer-voter-wait'), elTxtRun = el('timer-voter');
-            if (!elArea || !elWait) return;
-            if (ME.voted) { elArea.classList.add('d-none'); elWait.classList.add('d-none'); if(elClosed) elClosed.classList.add('d-none'); return; }
-            const now = new Date().getTime(); let status = 'OPEN', timeLeft = 0;
-            if (START_TIME && !isNaN(START_TIME)) {
-                if (now < START_TIME) { status = 'WAIT'; timeLeft = START_TIME - now; } else if (END_TIME && !isNaN(END_TIME) && now >= END_TIME) { status = 'CLOSED'; } else if (END_TIME) { timeLeft = END_TIME - now; }
-            }
-            if (status === 'WAIT') { elWait.classList.remove('d-none'); elArea.classList.add('d-none'); if(elClosed) elClosed.classList.add('d-none'); if(elTxtWait) elTxtWait.innerText = formatTime(timeLeft); } 
-            else if (status === 'CLOSED') { if(elClosed) elClosed.classList.remove('d-none'); elWait.classList.add('d-none'); elArea.classList.add('d-none'); } 
-            else { elArea.classList.remove('d-none'); elWait.classList.add('d-none'); if(elClosed) elClosed.classList.add('d-none'); if(elTxtRun) elTxtRun.innerText = END_TIME ? "Sisa: " + formatTime(timeLeft) : "BERLANGSUNG"; }
-        } catch (e) { }
-    }
-
-   function updateTimer() {
+    // TIMERS & UI HELPERS
+    function updateTimer() {
         if(!START_TIME) return; const now = new Date().getTime(); const tm = el('timer-live'); if(!tm) return;
+        
         if(now < START_TIME) { 
             el('live-wait').classList.remove('d-none'); el('race-area').classList.add('d-none'); tm.classList.add('text-danger'); tm.innerText = formatTime(START_TIME - now); if(el('timer-live-wait')) el('timer-live-wait').innerText = formatTime(START_TIME - now); 
         } 
@@ -1269,11 +1058,11 @@
         } 
         else if (END_TIME && now >= END_TIME) { 
             tm.innerText = "WAKTU HABIS"; tm.classList.add('text-danger'); 
-            // SAAT WAKTU HABIS: Langsung munculkan layar hitam dan PAKSA hitung suara detik itu juga!
+            // SAAT WAKTU HABIS: Langsung panggil hitungan final!
             if(!isEnded) { 
                 isEnded = true; 
                 el('live-final').style.display = 'flex'; 
-                tick(); 
+                tick(); // Sedot data final saat ini juga
             } 
         } 
         else { 
@@ -1283,216 +1072,81 @@
 
     function showWinnerModal(d) {
         if (window.shownResult) return; 
-        window.shownResult = true; // TANDAI SUDAH TAMPIL AGAR TIDAK NGULANG
+        window.shownResult = true; 
         
+        if (!d.c || d.c.length === 0) {
+            Swal.fire('Data Kosong', 'Waktu habis, tapi belum ada kandidat terdaftar.', 'info');
+            return;
+        }
+
         const topScore = d.c[0].suara || 0; 
         if (topScore <= 0) {
-            Swal.fire('Hasil Seri / Kosong', 'Waktu habis, tapi belum ada suara yang masuk.', 'info');
+            Swal.fire('Hasil Kosong', 'Waktu pemilihan habis, tapi tidak ada suara yang masuk.', 'info');
             return;
         }
         
         const winners = d.c.filter(x => x.suara === topScore);
         if (winners.length > 1) {
-            let drawListHTML = ''; 
-            winners.forEach(w => { 
-                drawListHTML += `
-                <div class="d-flex align-items-center gap-3 border p-2 rounded mb-2 bg-white shadow-sm">
-                    <img src="${w.foto||'https://via.placeholder.com/50'}" class="rounded-circle border" style="width:50px;height:50px;object-fit:cover">
-                    <div class="fw-bold text-dark text-start flex-fill">${w.nama}<div class="small text-muted">No: ${w.no}</div></div>
-                    <div class="fw-bold fs-5 text-secondary">${w.suara}</div>
-                </div>`; 
-            });
+            let drawListHTML = ''; winners.forEach(w => { drawListHTML += `<div class="d-flex align-items-center gap-3 border p-2 rounded mb-2 bg-white shadow-sm"><img src="${w.foto||'https://via.placeholder.com/50'}" class="rounded-circle border" style="width:50px;height:50px;object-fit:cover"><div class="fw-bold text-dark text-start flex-fill">${w.nama}<div class="small text-muted">No: ${w.no}</div></div><div class="fw-bold fs-5 text-secondary">${w.suara}</div></div>`; });
             el('draw-list').innerHTML = drawListHTML; el('draw-score').innerText = topScore; new bootstrap.Modal('#mDraw').show();
         } else {
             const winner = winners[0]; el('win-img').src = winner.foto||'https://via.placeholder.com/150'; el('win-name').innerText = winner.nama; el('win-score').innerText = winner.suara; new bootstrap.Modal('#mWin').show();
         }
     }
 
+    function togglePass(id) { const i=el(id),c=el('icon-'+id); if(i.type==="password"){ i.type="text"; c.classList.remove('bi-eye-slash'); c.classList.add('bi-eye'); } else { i.type="password"; c.classList.remove('bi-eye'); c.classList.add('bi-eye-slash'); } }
+    function formatTime(ms) { if(ms<0) return "00:00:00"; const h=Math.floor((ms%(1000*60*60*24))/(1000*60*60)); const m=Math.floor((ms%(1000*60*60))/(1000*60)); const s=Math.floor((ms%(1000*60))/1000); return `${h}j ${m}m ${s}d`; }
+    function toggleMenu() { const sb=el('sb'), sbV=el('sb-voter'), over=el('sidebar-overlay'); if(sb){ sb.classList.toggle('show'); if(sb.classList.contains('show')) over.classList.add('show'); else over.classList.remove('show'); } if(sbV){ sbV.classList.toggle('show'); if(sbV.classList.contains('show')) over.classList.add('show'); else over.classList.remove('show'); } }
+    window.onscroll = () => { const btn = el('btn-scroll-top'); if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) btn.style.display = "flex"; else btn.style.display = "none"; };
+    
+    function nav(id) {
+      document.querySelectorAll('.view-section').forEach(x=>x.classList.remove('view-active')); el('v-'+id).classList.add('view-active');
+      if(POLL) clearTimeout(POLL);
+      if(id=='live') { isEnded = false; isStarted = false; isFinalizing = false; tick(); const loopTick = () => { const t=Math.floor(Math.random()*5000)+20000; POLL=setTimeout(()=>{tick();loopTick();},t); }; loopTick(); setInterval(updateTimer, 1000); }
+    }
+
     // MODAL, WILAYAH, CROPPER
-    function mdlCand(c){ 
-        el('cid').value = c?c.id:''; el('cno').value = c?c.no:''; el('cnm').value = c?c.nama:''; el('cnia').value = c?c.nia||'':''; el('ctpl').value = c?c.tp_lahir||'':''; el('ctgl').value = c?c.tg_lahir||'':''; el('cjk').value = c?c.jk||'L':'L'; el('calm').value = c?c.alamat||'':''; el('cvis').value = c?c.visi||'':''; el('cmis').value = c?c.misi||'':''; el('cfo').value = c?c.foto||'':''; el('cfn').value = ''; 
-        if(c&&c.foto){ el('cpr').src=c.foto; el('cpr').style.display='block'; el('cpt').style.display='none'; } else { el('cpr').style.display='none'; el('cpt').style.display='block'; } 
-        new bootstrap.Modal('#mCand').show(); 
-    }
-    
-    function mdlVoter(v){ 
-        el('vu').value = v?v.user:''; el('vu').readOnly = !!v; el('vp').value = ''; el('vnm').value = v?v.nama||'':''; el('vnia').value = v?v.nia||'':''; el('vtpl').value = v?v.tp_lahir||'':''; el('vtgl').value = v?v.tg_lahir||'':''; el('vjk').value = v?v.jk||'L':'L'; el('valm').value = v?v.alamat||'':''; 
-        el('vprv').innerHTML='<option value="">Pilih Provinsi</option>';
-        for(let k in WIL) el('vprv').innerHTML += `<option value="${k}">${k}</option>`;
-        el('vprv').value = v?v.prov||'':'';
-        ldKab();
-        if(v) el('vkb').value = v.kab||'';
-        el('vfo').value = v?v.foto||'':''; el('vfn').value = ''; 
-        if(v&&v.foto){ el('vpr').src=v.foto; el('vpr').style.display='block'; el('vpt').style.display='none'; } else { el('vpr').style.display='none'; el('vpt').style.display='block'; } 
-        new bootstrap.Modal('#mVoter').show(); 
-    }
-
-    function ldKab(){
-        let p = el('vprv').value; let k = el('vkb');
-        k.innerHTML='<option value="">Pilih Kab/Kota</option>';
-        if(WIL[p]) WIL[p].sort().forEach(x=>k.innerHTML+=`<option value="${x}">${x}</option>`);
-    }
-
-    function ldKabProf(defaultVal = null) {
-        let p = el('p-prov').value; let k = el('p-kab');
-        k.innerHTML = '<option value="">Pilih Kab/Kota</option>';
-        if(p && WIL[p]) { WIL[p].sort().forEach(x => { k.innerHTML += `<option value="${x}">${x}</option>`; }); }
-        if (defaultVal) { k.value = defaultVal; }
-    }
-
-    function viewCandProfile(d) { 
-        let h = `
-        <div class="text-center mb-3"><h5 class="fw-bold text-primary">DETAIL KANDIDAT NO. ${d.no}</h5></div>
-        <div class="text-center mb-4"><img src="${d.foto||''}" class="shadow rounded border" style="width:160px;height:220px;object-fit:cover" onerror="this.src='https://via.placeholder.com/150'"></div>
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped align-middle small">
-                <tr><th width="35%" class="bg-light">Nama Lengkap</th><td class="fw-bold">${d.nama}</td></tr>
-                <tr><th class="bg-light">NIA</th><td>${d.nia||'-'}</td></tr>
-                <tr><th class="bg-light">TTL</th><td>${d.tp_lahir||'-'}, ${d.tg_lahir||'-'}</td></tr>
-                <tr><th class="bg-light">Jenis Kelamin</th><td>${d.jk==='L'?'Laki-Laki':'Perempuan'}</td></tr>
-                <tr><th class="bg-light">Visi</th><td>${d.visi||'-'}</td></tr>
-                <tr><th class="bg-light">Misi</th><td>${d.misi ? d.misi.replace(/\n/g, '<br>') : '-'}</td></tr>
-            </table>
-        </div>`; 
-        el('viewBody').innerHTML = h; new bootstrap.Modal('#mView').show(); 
-    }
-    
-    function initCrop(i,t){ 
-        if(i.files[0]){ 
-            TGT=t; const r=new FileReader(); 
-            r.onload=e=>{ 
-                el('img-crop').src = e.target.result; new bootstrap.Modal('#mCrop').show(); 
-                if(CROP){ CROP.destroy(); CROP=null; } 
-                setTimeout(()=>{ CROP=new Cropper(el('img-crop'),{aspectRatio:t=='logo'?1:0.75,viewMode:1,autoCropArea:1}); },300); 
-            }; 
-            r.readAsDataURL(i.files[0]); 
-        } 
-    }
-    
-    function doCrop(){ 
-        if(!CROP) return; 
-        const w=TGT=='logo'?150:300, h=TGT=='logo'?150:400; let b64; 
-        if(TGT=='logo') b64=CROP.getCroppedCanvas({width:w,height:h}).toDataURL('image/png'); 
-        else b64=CROP.getCroppedCanvas({width:w,height:h,fillColor:'#fff'}).toDataURL('image/jpeg',0.6); 
-        
-        if(TGT=='logo'){ el('logoNew').value=b64; el('logoPrev').src=b64; el('logoPrev').style.display='block'; el('logoTxt').style.display='none'; } 
-        else if(TGT=='p'){ el('p-b64').value=b64; el('p-img').src=b64; el('p-img').style.display='block'; el('p-txt').style.display='none'; } 
-        else if(TGT=='c'){ el('cfn').value=b64; el('cpr').src=b64; el('cpr').style.display='block'; el('cpt').style.display='none'; } 
-        else if(TGT=='v'){ el('vfn').value=b64; el('vpr').src=b64; el('vpr').style.display='block'; el('vpt').style.display='none'; } 
-        bootstrap.Modal.getInstance(el('mCrop')).hide(); 
-    }
+    function mdlCand(c){ el('cid').value = c?c.id:''; el('cno').value = c?c.no:''; el('cnm').value = c?c.nama:''; el('cnia').value = c?c.nia||'':''; el('ctpl').value = c?c.tp_lahir||'':''; el('ctgl').value = c?c.tg_lahir||'':''; el('cjk').value = c?c.jk||'L':'L'; el('calm').value = c?c.alamat||'':''; el('cvis').value = c?c.visi||'':''; el('cmis').value = c?c.misi||'':''; el('cfo').value = c?c.foto||'':''; el('cfn').value = ''; if(c&&c.foto){ el('cpr').src=c.foto; el('cpr').style.display='block'; el('cpt').style.display='none'; } else { el('cpr').style.display='none'; el('cpt').style.display='block'; } new bootstrap.Modal('#mCand').show(); }
+    function mdlVoter(v){ el('vu').value = v?v.user:''; el('vu').readOnly = !!v; el('vp').value = ''; el('vnm').value = v?v.nama||'':''; el('vnia').value = v?v.nia||'':''; el('vtpl').value = v?v.tp_lahir||'':''; el('vtgl').value = v?v.tg_lahir||'':''; el('vjk').value = v?v.jk||'L':'L'; el('valm').value = v?v.alamat||'':''; el('vprv').innerHTML='<option value="">Pilih Provinsi</option>'; for(let k in WIL) el('vprv').innerHTML += `<option value="${k}">${k}</option>`; el('vprv').value = v?v.prov||'':''; ldKab(); if(v) el('vkb').value = v.kab||''; el('vfo').value = v?v.foto||'':''; el('vfn').value = ''; if(v&&v.foto){ el('vpr').src=v.foto; el('vpr').style.display='block'; el('vpt').style.display='none'; } else { el('vpr').style.display='none'; el('vpt').style.display='block'; } new bootstrap.Modal('#mVoter').show(); }
+    function ldKab(){ let p = el('vprv').value; let k = el('vkb'); k.innerHTML='<option value="">Pilih Kab/Kota</option>'; if(WIL[p]) WIL[p].sort().forEach(x=>k.innerHTML+=`<option value="${x}">${x}</option>`); }
+    function ldKabProf(defaultVal = null) { let p = el('p-prov').value; let k = el('p-kab'); k.innerHTML = '<option value="">Pilih Kab/Kota</option>'; if(p && WIL[p]) { WIL[p].sort().forEach(x => { k.innerHTML += `<option value="${x}">${x}</option>`; }); } if (defaultVal) { k.value = defaultVal; } }
+    function viewCandProfile(d) { let h = `<div class="text-center mb-3"><h5 class="fw-bold text-primary">DETAIL KANDIDAT NO. ${d.no}</h5></div><div class="text-center mb-4"><img src="${d.foto||''}" class="shadow rounded border" style="width:160px;height:220px;object-fit:cover" onerror="this.src='https://via.placeholder.com/150'"></div><div class="table-responsive"><table class="table table-bordered table-striped align-middle small"><tr><th width="35%" class="bg-light">Nama Lengkap</th><td class="fw-bold">${d.nama}</td></tr><tr><th class="bg-light">NIA</th><td>${d.nia||'-'}</td></tr><tr><th class="bg-light">TTL</th><td>${d.tp_lahir||'-'}, ${d.tg_lahir||'-'}</td></tr><tr><th class="bg-light">Jenis Kelamin</th><td>${d.jk==='L'?'Laki-Laki':'Perempuan'}</td></tr><tr><th class="bg-light">Visi</th><td>${d.visi||'-'}</td></tr><tr><th class="bg-light">Misi</th><td>${d.misi ? d.misi.replace(/\n/g, '<br>') : '-'}</td></tr></table></div>`; el('viewBody').innerHTML = h; new bootstrap.Modal('#mView').show(); }
+    function initCrop(i,t){ if(i.files[0]){ TGT=t; const r=new FileReader(); r.onload=e=>{ el('img-crop').src = e.target.result; new bootstrap.Modal('#mCrop').show(); if(CROP){ CROP.destroy(); CROP=null; } setTimeout(()=>{ CROP=new Cropper(el('img-crop'),{aspectRatio:t=='logo'?1:0.75,viewMode:1,autoCropArea:1}); },300); }; r.readAsDataURL(i.files[0]); } }
+    function doCrop(){ if(!CROP) return; const w=TGT=='logo'?150:300, h=TGT=='logo'?150:400; let b64; if(TGT=='logo') b64=CROP.getCroppedCanvas({width:w,height:h}).toDataURL('image/png'); else b64=CROP.getCroppedCanvas({width:w,height:h,fillColor:'#fff'}).toDataURL('image/jpeg',0.6); if(TGT=='logo'){ el('logoNew').value=b64; el('logoPrev').src=b64; el('logoPrev').style.display='block'; el('logoTxt').style.display='none'; } else if(TGT=='p'){ el('p-b64').value=b64; el('p-img').src=b64; el('p-img').style.display='block'; el('p-txt').style.display='none'; } else if(TGT=='c'){ el('cfn').value=b64; el('cpr').src=b64; el('cpr').style.display='block'; el('cpt').style.display='none'; } else if(TGT=='v'){ el('vfn').value=b64; el('vpr').src=b64; el('vpr').style.display='block'; el('vpt').style.display='none'; } bootstrap.Modal.getInstance(el('mCrop')).hide(); }
 
     // --- FITUR CETAK PDF ---
     async function execPdf(htmlContent, filename) {
         load(1);
-        
-        // Buat elemen sementara di memori (agar tidak terbaca "kosong" oleh pembuat PDF)
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = htmlContent;
-        
-        const opt = { 
-            margin: 0.5, 
-            filename: filename, 
-            image: { type: 'jpeg', quality: 0.98 }, 
-            // useCORS: true sangat wajib agar foto kandidat/logo dari internet bisa masuk PDF!
-            html2canvas: { scale: 2, useCORS: true }, 
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } 
-        };
-        
-        await html2pdf().set(opt).from(tempDiv).save();
+        const container = el('pdf-container');
+        container.innerHTML = htmlContent;
+        container.style.display = 'block';
+        const opt = { margin: 0.5, filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
+        await html2pdf().set(opt).from(container).save();
+        container.style.display = 'none';
         load(0);
     }
-
     function dlCard(username) {
         const u = ALL_VOTERS.find(x => x.user === username) || ME.data;
         if(!u) return Swal.fire('Error', 'Data pemilih tidak ditemukan', 'error');
-
         const c = GLOBAL_CONFIG;
-        let html = `
-        <div style="font-family:'Helvetica',sans-serif; margin:0; padding:20px;">
-            <div style="width:550px; height:300px; padding:15px; border:2px solid #333; border-radius:10px; position:relative; overflow:hidden; background:#fff;">
-                <div style="border-bottom:2px solid #000; padding-bottom:10px; display:flex; align-items:center; gap:10px;">
-                    ${c.Logo ? `<img src="${c.Logo}" style="width:60px; height:60px; object-fit:contain;">` : ''}
-                    <div style="flex:1; text-align:center;">
-                        <h2 style="margin:0; font-size:14px; text-transform:uppercase;">${c.OrgFullName||'ORGANISASI'}</h2>
-                        <h1 style="margin:0; font-size:16px; text-transform:uppercase;">${c.OrgName||''}</h1>
-                        <p style="margin:2px 0 0; font-size:10px;">${c.OrgAddress||''}</p>
-                    </div>
-                </div>
-                <div style="text-align:center; margin:10px 0; font-weight:bold; font-size:14px; text-decoration:underline;">KARTU PESERTA PEMILIH</div>
-                <div style="display:flex; gap:15px; margin-top:10px; align-items:center;">
-                    <div style="width:100px; height:130px; border:1px solid #ddd; padding:3px; background:#fff; display:flex; justify-content:center; overflow:hidden;">
-                        <img src="${u.foto || 'https://via.placeholder.com/150'}" style="width:100%; height:100%; object-fit:cover;">
-                    </div>
-                    <div style="flex:1; font-size:12px;">
-                        <table style="width:100%; border-collapse:collapse;">
-                            <tr><td width="30%" style="padding:3px 0;"><b>Nama</b></td><td>: ${u.nama||'-'}</td></tr>
-                            <tr><td style="padding:3px 0;"><b>ID/NIA</b></td><td>: ${u.user||'-'}</td></tr>
-                            <tr><td style="padding:3px 0;"><b>TTL</b></td><td>: ${u.tp_lahir||'-'}, ${u.tg_lahir||'-'}</td></tr>
-                            <tr><td style="padding:3px 0;"><b>Wilayah</b></td><td>: ${u.prov||'-'}, ${u.kab||'-'}</td></tr>
-                        </table>
-                    </div>
-                </div>
-                <div style="position:absolute; bottom:0; left:0; right:0; background:#f1f5f9; padding:8px; font-size:10px; text-align:center; border-top:1px solid #ddd;">
-                    Kartu ini adalah bukti sah sebagai pemilih pada ${c.Judul||'Pemilihan'}.
-                </div>
-            </div>
-        </div>`;
+        let html = `<div style="font-family:'Helvetica',sans-serif; margin:0; padding:20px;"><div style="width:550px; height:300px; padding:15px; border:2px solid #333; border-radius:10px; position:relative; overflow:hidden; background:#fff;"><div style="border-bottom:2px solid #000; padding-bottom:10px; display:flex; align-items:center; gap:10px;">${c.Logo ? `<img src="${c.Logo}" style="width:60px; height:60px; object-fit:contain;">` : ''}<div style="flex:1; text-align:center;"><h2 style="margin:0; font-size:14px; text-transform:uppercase;">${c.OrgFullName||'ORGANISASI'}</h2><h1 style="margin:0; font-size:16px; text-transform:uppercase;">${c.OrgName||''}</h1><p style="margin:2px 0 0; font-size:10px;">${c.OrgAddress||''}</p></div></div><div style="text-align:center; margin:10px 0; font-weight:bold; font-size:14px; text-decoration:underline;">KARTU PESERTA PEMILIH</div><div style="display:flex; gap:15px; margin-top:10px; align-items:center;"><div style="width:100px; height:130px; border:1px solid #ddd; padding:3px; background:#fff; display:flex; justify-content:center; overflow:hidden;"><img src="${u.foto || 'https://via.placeholder.com/150'}" style="width:100%; height:100%; object-fit:cover;"></div><div style="flex:1; font-size:12px;"><table style="width:100%; border-collapse:collapse;"><tr><td width="30%" style="padding:3px 0;"><b>Nama</b></td><td>: ${u.nama||'-'}</td></tr><tr><td style="padding:3px 0;"><b>ID/NIA</b></td><td>: ${u.user||'-'}</td></tr><tr><td style="padding:3px 0;"><b>TTL</b></td><td>: ${u.tp_lahir||'-'}, ${u.tg_lahir||'-'}</td></tr><tr><td style="padding:3px 0;"><b>Wilayah</b></td><td>: ${u.prov||'-'}, ${u.kab||'-'}</td></tr></table></div></div><div style="position:absolute; bottom:0; left:0; right:0; background:#f1f5f9; padding:8px; font-size:10px; text-align:center; border-top:1px solid #ddd;">Kartu ini adalah bukti sah sebagai pemilih pada ${c.Judul||'Pemilihan'}.</div></div></div>`;
         execPdf(html, `Kartu_${username}.pdf`);
     }
-
     function dlPdf() {
         const c = GLOBAL_CONFIG; const s = c.stats || {}; const cands = GLOBAL_CANDS || [];
         let dateStr = new Date().toLocaleString('id-ID');
-        let html = `
-        <div style="font-family:sans-serif; padding:20px;">
-            <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">
-                ${c.Logo ? `<img src="${c.Logo}" style="width:80px;height:80px;object-fit:contain;"><br>` : ''}
-                <h3 style="margin:2px 0;">${c.OrgFullName||'ORGANISASI'}</h3>
-                <h2 style="margin:2px 0;">${c.OrgName||''}</h2>
-            </div>
-            <h3 style="text-align:center;">${c.Judul||'LAPORAN HASIL PEMILIHAN'}</h3>
-            <div style="margin-bottom:20px; font-size:12px;"><b>Waktu Cetak:</b> ${dateStr}<br><b>Total DPT:</b> ${s.tot||0} Pemilih</div>
-            <h4>A. PEROLEHAN SUARA KANDIDAT</h4>
-            <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:12px;">
-                <thead><tr><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">No</th><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">Nama Kandidat</th><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">Jumlah Suara</th><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">Persentase</th></tr></thead>
-                <tbody>`;
-        cands.forEach(cand => {
-            let pct = s.vot > 0 ? ((cand.suara/s.vot)*100).toFixed(2) : 0;
-            html += `<tr><td style="border:1px solid #000; padding:6px; text-align:center;">${cand.no}</td><td style="border:1px solid #000; padding:6px;">${cand.nama}</td><td style="border:1px solid #000; padding:6px; text-align:center;"><b>${cand.suara||0}</b></td><td style="border:1px solid #000; padding:6px; text-align:center;">${pct}%</td></tr>`;
-        });
-        html += `</tbody></table>
-            <h4 style="margin-top:30px;">B. REKAPITULASI SUARA</h4>
-            <table style="width:60%; border-collapse:collapse; font-size:12px;">
-                <tr><td style="border:1px solid #000; padding:6px;">Total Suara Sah</td><td style="border:1px solid #000; padding:6px; text-align:center;">${s.valid||0}</td></tr>
-                <tr><td style="border:1px solid #000; padding:6px;">Total Abstain</td><td style="border:1px solid #000; padding:6px; text-align:center;">${s.abstain||0}</td></tr>
-                <tr style="background:#eee;"><td style="border:1px solid #000; padding:6px;"><b>TOTAL SUARA MASUK</b></td><td style="border:1px solid #000; padding:6px; text-align:center;"><b>${s.vot||0}</b></td></tr>
-                <tr><td style="border:1px solid #000; padding:6px;">Belum Memilih</td><td style="border:1px solid #000; padding:6px; text-align:center;">${s.belum||0}</td></tr>
-            </table>
-        </div>`;
+        let html = `<div style="font-family:sans-serif; padding:20px;"><div style="text-align:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">${c.Logo ? `<img src="${c.Logo}" style="width:80px;height:80px;object-fit:contain;"><br>` : ''}<h3 style="margin:2px 0;">${c.OrgFullName||'ORGANISASI'}</h3><h2 style="margin:2px 0;">${c.OrgName||''}</h2></div><h3 style="text-align:center;">${c.Judul||'LAPORAN HASIL PEMILIHAN'}</h3><div style="margin-bottom:20px; font-size:12px;"><b>Waktu Cetak:</b> ${dateStr}<br><b>Total DPT:</b> ${s.tot||0} Pemilih</div><h4>A. PEROLEHAN SUARA KANDIDAT</h4><table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:12px;"><thead><tr><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">No</th><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">Nama Kandidat</th><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">Jumlah Suara</th><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">Persentase</th></tr></thead><tbody>`;
+        cands.forEach(cand => { let pct = s.vot > 0 ? ((cand.suara/s.vot)*100).toFixed(2) : 0; html += `<tr><td style="border:1px solid #000; padding:6px; text-align:center;">${cand.no}</td><td style="border:1px solid #000; padding:6px;">${cand.nama}</td><td style="border:1px solid #000; padding:6px; text-align:center;"><b>${cand.suara||0}</b></td><td style="border:1px solid #000; padding:6px; text-align:center;">${pct}%</td></tr>`; });
+        html += `</tbody></table><h4 style="margin-top:30px;">B. REKAPITULASI SUARA</h4><table style="width:60%; border-collapse:collapse; font-size:12px;"><tr><td style="border:1px solid #000; padding:6px;">Total Suara Sah</td><td style="border:1px solid #000; padding:6px; text-align:center;">${s.valid||0}</td></tr><tr><td style="border:1px solid #000; padding:6px;">Total Abstain</td><td style="border:1px solid #000; padding:6px; text-align:center;">${s.abstain||0}</td></tr><tr style="background:#eee;"><td style="border:1px solid #000; padding:6px;"><b>TOTAL SUARA MASUK</b></td><td style="border:1px solid #000; padding:6px; text-align:center;"><b>${s.vot||0}</b></td></tr><tr><td style="border:1px solid #000; padding:6px;">Belum Memilih</td><td style="border:1px solid #000; padding:6px; text-align:center;">${s.belum||0}</td></tr></table></div>`;
         execPdf(html, 'Laporan_Resmi.pdf');
     }
-
     function dlCandPdf() {
         const c = GLOBAL_CONFIG; const cands = GLOBAL_CANDS || [];
         let html = `<div style="font-family:sans-serif; padding:20px;"><div style="text-align:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">${c.Logo ? `<img src="${c.Logo}" style="width:80px;height:80px;object-fit:contain;"><br>` : ''}<h3 style="margin:2px 0;">${c.OrgFullName||'ORGANISASI'}</h3><h2 style="margin:2px 0;">${c.OrgName||''}</h2></div><h3 style="text-align:center;">DAFTAR KANDIDAT</h3>`;
-        cands.forEach(cand => {
-            html += `<div style="border:1px solid #000; padding:15px; margin-bottom:15px; page-break-inside:avoid;"><table width="100%"><tr><td width="120" style="vertical-align:top;"><img src="${cand.foto||'https://via.placeholder.com/150'}" style="width:100px;height:130px;object-fit:cover;border:1px solid #ccc;"><h2 style="text-align:center;margin:5px 0;">NO: ${cand.no}</h2></td><td style="vertical-align:top;padding-left:15px;"><h3>${cand.nama}</h3><p><b>NIA:</b> ${cand.nia||'-'}<br><b>TTL:</b> ${cand.tp_lahir||'-'}, ${cand.tg_lahir||'-'}</p><hr><div style="text-decoration:underline;font-weight:bold;margin-bottom:5px;">VISI:</div><p>${cand.visi||'-'}</p><div style="text-decoration:underline;font-weight:bold;margin-bottom:5px;">MISI:</div><p>${cand.misi||'-'}</p></td></tr></table></div>`;
-        });
+        cands.forEach(cand => { html += `<div style="border:1px solid #000; padding:15px; margin-bottom:15px; page-break-inside:avoid;"><table width="100%"><tr><td width="120" style="vertical-align:top;"><img src="${cand.foto||'https://via.placeholder.com/150'}" style="width:100px;height:130px;object-fit:cover;border:1px solid #ccc;"><h2 style="text-align:center;margin:5px 0;">NO: ${cand.no}</h2></td><td style="vertical-align:top;padding-left:15px;"><h3>${cand.nama}</h3><p><b>NIA:</b> ${cand.nia||'-'}<br><b>TTL:</b> ${cand.tp_lahir||'-'}, ${cand.tg_lahir||'-'}</p><hr><div style="text-decoration:underline;font-weight:bold;margin-bottom:5px;">VISI:</div><p>${cand.visi||'-'}</p><div style="text-decoration:underline;font-weight:bold;margin-bottom:5px;">MISI:</div><p>${cand.misi||'-'}</p></td></tr></table></div>`; });
         html += `</div>`;
         execPdf(html, 'Data_Kandidat.pdf');
     }
-
-    function readCSVFile(input) {
-    const file = input.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            el('csvIn').value = e.target.result;
-        };
-        reader.readAsText(file);
-    }
-}
   </script>
 </body>
 </html>
