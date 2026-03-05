@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>E-Voting Realtime System</title> 
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+
+<style>
+  /* --- GLOBAL CSS --- */
+  html, body { 
+      background: #f1f5f9; 
+      font-family: 'Segoe UI', sans-serif; 
+      font-size: 14px; 
+      overflow-x: hidden; 
+      width: 100%; 
+      min-height: 100vh;
+      min-height: 100dvh; 
+      margin: 0; 
+      padding: 0; 
+  }
+  img { max-width: 100%; height: auto; }
+  .view-section { display: none !important; width: 100%; min-height: 100vh; }
+  .view-active { display: block !important; animation: fadeIn 0.4s; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
+  
+  /* --- SIDEBAR & LAYOUT --- */
+  .sidebar { 
+      width: 260px; height: 100vh; height: 100dvh;
+      position: fixed; top: 0; left: 0; 
+      background: #0f172a; color: white; 
+      padding: 20px; z-index: 1050; 
+      transition: transform 0.3s ease-in-out; 
+      transform: translateX(0); 
+  }
+  .content { 
+      margin-left: 260px; padding: 20px; 
+      transition: margin-left 0.3s ease-in-out; width: auto; 
+  }
+  .sidebar-overlay { 
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+      background: rgba(0,0,0,0.5); z-index: 1040; backdrop-filter: blur(2px);
+  }
+  .sidebar-overlay.show { display: block !important; }
+
+  @media(max-width:768px){ 
+      .sidebar{ transform:translateX(-100%); } 
+      .sidebar.show{ transform:translateX(0); } 
+      .content{ margin-left:0; width: 100%; padding: 15px; } 
+  }
+  @media(max-width:480px){
+      .race-card { flex-direction: column !important; text-align: center; }
+      .race-card .d-flex { justify-content: center; width: 100%; }
+      .cand-thumb { width: 80px; height: 80px; margin-bottom: 10px; }
+      .rank-1 { transform: scale(1) !important; } 
+  }
+  
+  /* --- COMPONENTS --- */
+  .nav-item { 
+      padding: 12px; border-radius: 8px; cursor: pointer; color: #94a3b8; 
+      display: flex; gap: 10px; align-items: center; margin-bottom: 5px; transition:0.2s; 
+  }
+  .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); color: white; }
+  
+  .card-box { 
+      background: white; border-radius: 12px; padding: 20px; 
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border:1px solid #e2e8f0; 
+  }
+  #v-login .card-box { width: 90%; max-width: 400px; margin: auto; }
+  
+  #loader { 
+      position: fixed; inset: 0; background: rgba(255,255,255,0.98); 
+      z-index: 99999; display: flex; flex-direction: column; 
+      justify-content: center; align-items: center; 
+  }
+  #error-box { 
+      display: none; margin-top: 20px; color: #dc3545; font-weight: bold; 
+      border: 1px solid #dc3545; padding: 15px; border-radius: 8px; 
+      background: #fff; text-align:center; 
+  }
+  
+  .live-header { 
+      background: #1e293b; padding: 20px; color: white; 
+      border-bottom: 4px solid #f59e0b; position: sticky; top:0; z-index:100; width: 100%; 
+  }
+  .race-card { 
+      background: white; padding: 15px; border-radius: 12px; 
+      display: flex; align-items: center; gap: 15px; margin-bottom: 12px; 
+      transition: 0.5s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+      border:1px solid white; position: relative; justify-content: space-between; 
+  }
+  .rank-1 { 
+      background: linear-gradient(to right, #fffbeb, #fff); border: 2px solid #fbbf24; 
+      transform: scale(1.02); z-index:10; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3); 
+  }
+  .text-gold { color: #fbbf24 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+  .text-silver { color: #94a3b8 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+  .cand-thumb { width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid #eee; flex-shrink:0; }
+  .img-dummy { 
+      background: #f8fafc; border: 2px dashed #cbd5e1; display: flex; 
+      align-items: center; justify-content: center; color: #94a3b8; 
+      font-weight: bold; transition:0.2s; 
+  }
+  .cand-admin-img { width: 80px; height: 100px; object-fit: cover; border-radius: 8px; background: #eee; flex-shrink: 0; }
+  
+  #live-final { 
+      position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
+      z-index: 10000; flex-direction: column; justify-content: center; 
+      align-items: center; color: white; display: none; 
+  }
+  #btn-scroll-top { 
+      position: fixed; bottom: 80px; right: 20px; z-index: 900; 
+      width: 45px; height: 45px; border-radius: 50%; background: #0d6efd; 
+      color: white; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); 
+      display: none; align-items: center; justify-content: center; font-size: 20px; transition: 0.3s; 
+  }
+  #btn-scroll-top:active { transform: scale(0.9); }
+  .live-footer { text-align: center; color: rgba(255,255,255,0.5); font-size: 11px; bottom: 80px; margin-top: 30px; padding: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+  .blink-red { animation: blinker 1.5s linear infinite; color: #dc3545; font-weight: bold; }
+  @keyframes blinker { 50% { opacity: 0.5; } }
+  .eye-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6c757d; z-index: 10; } 
+  .form-floating .eye-icon { top: 50%; }
+  .modal-backdrop { z-index: 1050; } .modal { z-index: 1060; } #mCrop { z-index: 1070 !important; }
+</style>
+</head>
+<body>
+
+  <button id="btn-scroll-top" onclick="window.scrollTo({top:0, behavior:'smooth'})"><i class="bi bi-arrow-up"></i></button>
+
+  <div id="loader">
+    <div class="spinner-border text-primary" id="spin" style="width: 3rem; height: 3rem;"></div>
+    <div class="mt-3 fw-bold text-secondary" id="load-text">Memuat Sistem...</div>
+    <div id="error-box">
+       <i class="bi bi-exclamation-triangle-fill me-2"></i>KONEKSI LAMBAT/ERROR<br>
+       <button class="btn btn-sm btn-danger mt-2 px-4" onclick="location.reload()">Refresh Halaman</button>
+       <button class="btn btn-sm btn-secondary mt-2 px-4" onclick="forceEnter()">Paksa Masuk</button>
+    </div>
+  </div>
+
+  <div id="live-final">
+     <div class="spinner-grow text-warning mb-4" style="width: 4rem; height: 4rem;"></div>
+     <h1 class="fw-bold text-warning display-4 text-center">FINALISASI HASIL...</h1>
+     <p class="lead text-white-50 text-center px-3">Mohon tunggu, sistem sedang merekapitulasi suara terakhir secara akurat.</p>
+  </div>
+
+  <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleMenu()"></div>
+
+  <div id="pdf-container" style="display:none; position:absolute; top:-9999px; left:-9999px; background:#fff; width:800px; padding:20px;"></div>
+
+  <div id="v-login" class="view-section view-active bg-light">
+    <div class="min-vh-100 d-flex align-items-center justify-content-center p-3">
+      <div class="card-box text-center p-5 shadow-lg border-0" style="width:100%; max-width:400px">
+        <div class="mb-4 d-flex justify-content-center">
+          <div id="login-logo-div" class="img-dummy rounded-circle" style="width:120px;height:120px;">LOGO</div>
+          <img id="login-logo" src="" style="width:140px;height:140px;display:none;background:transparent;object-fit:contain">
+        </div>
+        <h4 class="fw-bold text-dark mb-1" id="login-org">LOADING....</h4><br>
+        <h5 class="fw-bold text-dark mb-1">E-VOTING REALTIME SYSTEM</h5>
+        <p class="text-muted small mb-4">Silakan login untuk memberikan suara</p>
+        <div class="form-floating mb-3 text-start">
+            <input id="logUser" class="form-control" placeholder="Username">
+            <label>Username / NIA</label>
+        </div>
+        <div class="form-floating mb-4 text-start position-relative">
+            <input type="password" id="logPass" class="form-control pe-5" placeholder="Password">
+            <label>Password</label>
+            <span class="eye-icon" onclick="togglePass('logPass')"><i class="bi bi-eye-slash" id="icon-logPass"></i></span>
+        </div>
+        <button class="btn btn-primary btn-lg w-100 mb-3 fw-bold" onclick="login()">MASUK <i class="bi bi-box-arrow-in-right"></i></button>
+        <button class="btn btn-outline-secondary w-100" onclick="nav('live')"><i class="bi bi-bar-chart-line"></i> LIVE COUNT</button>
+        <div class="text-center mt-4 pt-3 border-top">
+            <small class="text-muted" style="font-size:11px">&copy; 2026 E-Voting Realtime System. Hak Cipta Dilindungi. <br><a href="#" class="text-decoration-none text-muted" data-bs-toggle="modal" data-bs-target="#mPrivacy">Kebijakan Privasi</a> &bull; Created by : <a href="https://www.fary-edtech.my.id/" target="_blank">Fary EdTech</a></small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="v-admin" class="view-section">
+    <div class="sidebar" id="sb">
+      <div class="d-flex align-items-center gap-2 mb-5 px-2">
+          <div class="bg-primary rounded px-2 py-1 fw-bold">E</div> 
+          <h5 class="fw-bold m-0">ADMIN PANEL</h5>
+      </div>
+      <div class="nav-item active" onclick="admNav('dash')"><i class="bi bi-grid-fill"></i> Dashboard</div>
+      <div class="nav-item" onclick="admNav('cand')"><i class="bi bi-person-badge-fill"></i> Kandidat</div>
+      <div class="nav-item" onclick="admNav('voter')"><i class="bi bi-people-fill"></i> Data Pemilih</div>
+      <div class="nav-item" onclick="admNav('set')"><i class="bi bi-gear-fill"></i> Pengaturan</div>
+      <div class="nav-item text-danger mt-5" onclick="logout()"><i class="bi bi-power"></i> Logout</div>
+    </div>
+    <div class="content">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+         <button class="btn btn-dark d-md-none shadow" onclick="toggleMenu()"><i class="bi bi-list"></i> Menu</button>
+         <button class="btn btn-sm btn-outline-primary" onclick="refAdmin()"><i class="bi bi-arrow-clockwise"></i> Refresh Data</button>
+      </div>
+      
+      <div id="pg-dash">
+        <h3 class="fw-bold mb-4 text-dark">Ringkasan Pemilihan</h3>
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-md-3"><div class="card-box bg-primary text-white h-100"><h3 class="fw-bold m-0" id="st-tot">0</h3><small>Total DPT</small></div></div>
+          <div class="col-6 col-md-3"><div class="card-box bg-success text-white h-100"><h3 class="fw-bold m-0" id="st-vot">0</h3><small>Suara Masuk</small></div></div>
+          <div class="col-6 col-md-3"><div class="card-box bg-secondary text-white h-100"><h3 class="fw-bold m-0" id="st-abstain">0</h3><small>Abstain</small></div></div>
+          <div class="col-6 col-md-3"><div class="card-box bg-warning text-dark h-100"><h3 class="fw-bold m-0" id="st-belum">0</h3><small>Belum</small></div></div>
+        </div>
+        <h5 class="fw-bold mb-3 border-bottom pb-2">Perolehan Suara Kandidat</h5>
+        <div class="row g-3" id="dash-cands"></div>
+      </div>
+
+      <div id="pg-cand" class="d-none">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold m-0">Data Kandidat</h3>
+            <div>
+                <button class="btn btn-secondary me-2" onclick="dlCandPdf()"><i class="bi bi-file-earmark-pdf"></i> PDF Data</button>
+                <button class="btn btn-primary" onclick="mdlCand()"><i class="bi bi-plus-lg"></i> Tambah</button>
+            </div>
+        </div>
+        <div class="row g-3" id="g-cand"></div>
+      </div>
+
+      <div id="pg-voter" class="d-none">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold m-0">Data Pemilih (DPT)</h3>
+            <div class="d-flex gap-2">
+                <button class="btn btn-success btn-sm" onclick="new bootstrap.Modal('#mImport').show()"><i class="bi bi-file-earmark-spreadsheet"></i> Import CSV</button>
+                <button class="btn btn-primary btn-sm" onclick="mdlVoter()"><i class="bi bi-person-plus"></i> Tambah Manual</button>
+            </div>
+        </div>
+        <div class="card-box p-0 overflow-hidden">
+          <div class="p-3 bg-light border-bottom d-flex justify-content-between">
+              <input id="vSearch" class="form-control form-control-sm border-secondary" style="width:250px" placeholder="Cari Username/Nama..." onkeyup="if(event.key==='Enter') searchVoter()">
+              <button class="btn btn-sm btn-dark" onclick="searchVoter()">Cari</button>
+          </div>
+          <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                  <thead class="bg-light text-secondary">
+                      <tr><th class="ps-4">User</th><th>Nama</th><th>Status</th><th class="text-end pe-4">Aksi</th></tr>
+                  </thead>
+                  <tbody id="t-voter"></tbody>
+              </table>
+          </div>
+          <div class="p-3 d-flex justify-content-between align-items-center border-top">
+              <small>Page: <span id="vPage">1</span></small>
+              <div class="btn-group">
+                  <button class="btn btn-sm btn-outline-secondary" onclick="pg(-1)">&lt;</button>
+                  <button class="btn btn-sm btn-outline-secondary" onclick="pg(1)">&gt;</button>
+              </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="pg-set" class="d-none">
+        <div class="row g-4">
+           <div class="col-md-7">
+             <div class="card-box mb-4">
+               <h5 class="fw-bold mb-3 border-bottom pb-2">Konfigurasi Umum</h5>
+               <form onsubmit="saveSet(event)">
+                 <div class="text-center mb-4 p-3 bg-light rounded">
+                     <div onclick="el('logoFile').click()" class="img-dummy shadow-sm" style="width:120px;height:120px;margin:0 auto;cursor:pointer;border-radius:15px;overflow:hidden">
+                         <img id="logoPrev" src="" style="width:100%;height:100%;object-fit:cover;display:none">
+                         <span id="logoTxt"><i class="bi bi-camera fs-3"></i><br>Ganti Logo</span>
+                     </div>
+                     <input type="file" id="logoFile" hidden onchange="initCrop(this,'logo')">
+                     <input type="hidden" id="logoNew">
+                 </div>
+                 <div class="mb-3"><label class="small fw-bold">Judul Pemilihan</label><input id="setJudul" class="form-control" required></div>
+                 <div class="mb-3"><label class="small fw-bold">Nama Organisasi</label><input id="setOrg" class="form-control" required></div>
+                 <div class="mb-3"><label class="small fw-bold">Nama Panjang Organisasi (Kop)</label><input id="setOrgFull" class="form-control"></div>
+                 <div class="mb-3"><label class="small fw-bold">Badan Hukum / SK</label><input id="setOrgLegal" class="form-control"></div>
+                 <div class="mb-3"><label class="small fw-bold">Alamat Lengkap</label><textarea id="setOrgAddr" class="form-control" rows="2"></textarea></div>
+                 <div class="row g-2 mb-3"><div class="col-md-6"><label class="small fw-bold">Website</label><input id="setWeb" class="form-control"></div><div class="col-md-6"><label class="small fw-bold">Email</label><input id="setEmail" class="form-control"></div></div>
+                 <div class="mb-3"><label class="small fw-bold">HP Admin</label><input id="setHP" class="form-control"></div>
+                 <div class="row mb-4"><div class="col-6"><label class="small fw-bold">Waktu Mulai</label><input type="datetime-local" id="setStart" class="form-control"></div><div class="col-6"><label class="small fw-bold">Waktu Selesai</label><input type="datetime-local" id="setEnd" class="form-control"></div></div>
+                 <button class="btn btn-primary w-100 fw-bold py-2"><i class="bi bi-save"></i> SIMPAN PENGATURAN</button>
+               </form>
+             </div>
+           </div>
+           <div class="col-md-5">
+               <div class="card-box mb-3 bg-primary text-white border-0">
+                   <h5><i class="bi bi-file-earmark-pdf"></i> Laporan Hasil</h5>
+                   <p class="small opacity-75">Download hasil rekapitulasi pemilihan.</p>
+                   <button class="btn btn-light text-primary w-100 fw-bold" onclick="dlPdf()">DOWNLOAD PDF</button>
+               </div>
+               <div class="card-box">
+                   <h5 class="fw-bold mb-3">Akun Admin</h5>
+                   <form onsubmit="changeAdmin(event)">
+                       <div class="mb-2"><label class="small fw-bold">Username Admin Lama</label><input id="admUserOld" class="form-control" value="admin" readonly></div>
+                       <div class="mb-2"><label class="small fw-bold">Username Baru</label><input id="admUser" class="form-control" required></div>
+                       <div class="mb-3 position-relative">
+                           <label class="small fw-bold">Password Baru</label>
+                           <input type="password" id="admPass" class="form-control pe-5" required>
+                           <span class="eye-icon" onclick="togglePass('admPass')" style="top: 32px;"><i class="bi bi-eye-slash" id="icon-admPass"></i></span>
+                       </div>
+                       <button class="btn btn-dark w-100">UPDATE ADMIN</button>
+                   </form>
+               </div>
+           </div>
+        </div>
+      </div>
+      <footer class="mt-5 mb-3 text-center text-muted small border-top pt-3">&copy; 2026 E-Voting Realtime System. All Right Reserved. <br><a href="#" data-bs-toggle="modal" data-bs-target="#mPrivacy">Privacy Policy</a> &bull; Created by : <a href="https://www.fary-edtech.my.id/" target="_blank">Fary EdTech</a></footer>
+    </div>
+  </div>
+
+  <div id="v-voter" class="view-section">
+    <div class="sidebar" id="sb-voter">
+        <div class="d-flex align-items-center gap-2 mb-5 px-2">
+            <div class="bg-success rounded px-2 py-1 fw-bold">V</div> 
+            <h5 class="fw-bold m-0">AREA PEMILIH</h5>
+        </div>
+        <div class="nav-item active" onclick="voterNav('vote')"><i class="bi bi-check2-circle"></i> Bilik Suara</div>
+        <div class="nav-item" onclick="voterNav('profil')"><i class="bi bi-person-circle"></i> Profil Saya</div>
+        <div class="nav-item text-danger mt-5" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</div>
+    </div>
+    <div class="content">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+         <button class="btn btn-dark d-md-none shadow" onclick="toggleMenu()"><i class="bi bi-list"></i> Menu</button>
+         <button class="btn btn-sm btn-outline-primary" onclick="refVoter()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+          <h4 class="fw-bold m-0 text-dark">Selamat Datang, <span id="v-name" class="text-primary">User</span></h4>
+      </div>
+      
+      <div id="vp-vote">
+        <div id="alert-ok" class="alert alert-success d-none text-center p-5 rounded-4 shadow-sm">
+            <h1 class="display-1 text-success mb-3"><i class="bi bi-patch-check-fill"></i></h1>
+            <h3 class="fw-bold">TERIMA KASIH!</h3>
+            <p class="lead">Suara Anda telah berhasil dicatat.</p>
+            <button class="btn btn-outline-success mt-3" onclick="nav('live')">Lihat Hasil Sementara</button>
+        </div>
+
+        <div id="v-wait" class="d-none text-center p-5">
+            <i class="bi bi-clock-history display-1 text-danger"></i>
+            <h2 class="fw-bold text-danger mt-3">PEMILIHAN BELUM DIBUKA</h2>
+            <p class="lead text-muted">Bilik suara akan terbuka otomatis dalam:</p>
+            <h1 class="fw-bold blink-red display-4 font-monospace text-danger" id="timer-voter-wait">00:00:00</h1>
+        </div>
+
+        <div id="v-closed" class="d-none text-center p-5">
+            <h1 class="display-1 text-secondary"><i class="bi bi-x-octagon-fill"></i></h1>
+            <h2 class="text-secondary fw-bold">WAKTU HABIS</h2>
+            <p class="lead text-muted">Masa pemilihan telah berakhir.</p>
+        </div>
+        
+        <div id="vote-area" class="d-none">
+            <div class="text-center mb-4">
+                <div id="timer-badge" class="badge bg-danger fs-5 shadow-sm px-4 py-2">
+                    <i class="bi bi-stopwatch"></i> <span id="timer-voter" class="font-monospace">--:--:--</span>
+                </div>
+            </div>
+            
+            <div class="row g-4 justify-content-center mb-5" id="g-vote"></div>
+            
+            <div id="btn-abstain" class="text-center pt-4 border-top">
+                <button class="btn btn-light text-muted border px-4 py-2 small" onclick="vote('ABSTAIN','GOLPUT')">
+                    <i class="bi bi-x-circle"></i> SAYA INGIN ABSTAIN (GOLPUT)
+                </button>
+            </div>
+        </div>
+      </div>
+      
+      <div id="vp-profil" class="d-none">
+          <div class="card-box mx-auto mb-3 text-center" style="max-width:600px; background: #e0f2fe; border: 1px dashed #0ea5e9;">
+              <h6 class="fw-bold text-primary m-0"><i class="bi bi-card-heading"></i> KARTU PEMILIH</h6>
+              <p class="small text-muted mb-2">Simpan kartu ini sebagai bukti hak pilih Anda.</p>
+              <button type="button" class="btn btn-sm btn-primary rounded-pill px-4" onclick="dlCard(ME.token)"><i class="bi bi-download"></i> UNDUH KARTU SAYA (PDF)</button>
+          </div>
+          <div class="card-box mx-auto" style="max-width:600px">
+              <h5 class="fw-bold mb-4 border-bottom pb-2">Update Profil</h5>
+              <form onsubmit="saveProfile(event)">
+                  <div class="text-center mb-4">
+                      <div class="img-dummy mx-auto rounded-circle shadow-sm position-relative overflow-hidden" style="width:120px;height:120px;cursor:pointer" onclick="el('p-file').click()">
+                          <img id="p-img" src="" style="width:100%;height:100%;object-fit:cover;display:none" onerror="this.style.display='none'; document.getElementById('p-txt').style.display='block';">
+                          <span id="p-txt"><i class="bi bi-camera"></i> Ganti Foto</span>
+                      </div>
+                      <input type="file" id="p-file" hidden onchange="initCrop(this,'p')">
+                      <input type="hidden" id="p-b64">
+                  </div>
+                  <div class="form-floating mb-2">
+                      <input id="p-user" class="form-control bg-light" readonly>
+                      <label>Username (Terkunci)</label>
+                  </div>
+                  <div class="form-floating mb-3 position-relative">
+                      <input type="password" id="p-pass" class="form-control pe-5" placeholder="Kosongkan jika tidak ubah">
+                      <label>Password Baru</label>
+                      <span class="eye-icon" onclick="togglePass('p-pass')"><i class="bi bi-eye-slash" id="icon-p-pass"></i></span>
+                  </div>
+                  <div class="row g-2 mb-2">
+                      <div class="col-6"><label class="small fw-bold">Tempat Lahir</label><input id="p-tpl" class="form-control"></div>
+                      <div class="col-6"><label class="small fw-bold">Tanggal Lahir</label><input type="date" id="p-tgl" class="form-control"></div>
+                  </div>
+                  <div class="mb-3">
+                      <label class="small fw-bold">Alamat Lengkap</label>
+                      <textarea id="p-alm" class="form-control" rows="2"></textarea>
+                  </div>
+                  <div class="row g-2 mb-4">
+                      <div class="col-md-6"><label class="small fw-bold mb-1">Provinsi</label><select id="p-prov" class="form-select bg-light" onchange="ldKabProf()"></select></div>
+                      <div class="col-md-6"><label class="small fw-bold mb-1">Kab/Kota</label><select id="p-kab" class="form-select bg-light"></select></div>
+                  </div>
+                  <button class="btn btn-primary w-100 py-2 fw-bold">SIMPAN PERUBAHAN</button>
+              </form>
+          </div>
+      </div>
+      <footer class="mt-5 mb-3 text-center text-muted small border-top pt-3">&copy; 2026 E-Voting Realtime System. All Right Reserved. <br><a href="#" data-bs-toggle="modal" data-bs-target="#mPrivacy">Privacy Policy</a> &bull; Created by : <a href="https://www.fary-edtech.my.id/" target="_blank">Fary EdTech</a></footer>
+    </div>
+  </div>
+
+  <div id="v-live" class="view-section bg-dark text-white min-vh-100">
+    <div class="live-header shadow d-flex align-items-center justify-content-between">
+       <div class="d-flex align-items-center gap-3">
+           <img id="live-logo" src="" class="bg-white rounded-circle p-1" style="width:60px;height:60px;object-fit:cover;display:none">
+           <div><h4 class="fw-bold m-0" id="live-org">LOADING...</h4><div class="small opacity-75" id="live-judul">Mohon Tunggu</div></div>
+       </div>
+       <div class="text-end">
+         <div class="small opacity-50 font-monospace" id="label-timer">WAKTU</div>
+         <h2 class="fw-bold m-0 font-monospace" id="timer-live">--:--:--</h2>
+         <button class="btn btn-sm btn-outline-light mt-2 rounded-pill px-3" onclick="checkLogin()">LOGIN SYSTEM</button>
+         <button class="btn btn-sm btn-light text-dark rounded-circle ms-2" onclick="tick()" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
+       </div>
+    </div>
+    
+    <div class="container mt-4">
+       <div class="row g-2 justify-content-center text-center">
+          <div class="col-3 col-md-2"><div class="bg-success p-2 rounded shadow-sm"><div class="h4 fw-bold m-0" id="s-masuk">0</div><small style="font-size:10px">MASUK</small></div></div>
+          <div class="col-3 col-md-2"><div class="bg-secondary p-2 rounded shadow-sm"><div class="h4 fw-bold m-0" id="s-abstain">0</div><small style="font-size:10px">ABSTAIN</small></div></div>
+          <div class="col-3 col-md-2"><div class="bg-warning text-dark p-2 rounded shadow-sm"><div class="h4 fw-bold m-0" id="s-belum">0</div><small style="font-size:10px">BELUM</small></div></div>
+          <div class="col-3 col-md-2"><div class="bg-primary p-2 rounded shadow-sm"><div class="h4 fw-bold m-0" id="s-total">0</div><small style="font-size:10px">TOTAL</small></div></div>
+       </div>
+    </div>
+
+    <div class="container mt-4 pb-5" style="max-width:800px" id="race-area"></div>
+    <div id="live-wait" class="d-none container mt-5 text-center"><h1 class="display-1 text-danger mb-4"><i class="bi bi-hourglass-split"></i></h1><h2 class="fw-bold mb-3">WAKTU PEMILIHAN BELUM DIBUKA</h2><p class="lead text-white-50">Mohon bersabar, data kandidat akan muncul otomatis.</p><div class="display-3 fw-bold text-danger mt-4 font-monospace blink-red" id="timer-live-wait">--:--:--</div></div>
+    <div class="live-footer">Keterangan: Data perhitungan suara (Live Count) diperbarui secara otomatis. Kami berkomitmen menyajikan data yang transparan, akurat dengan berpedoman teguh pada asas LUBeR JurDil.</div>
+  </div>
+
+  <div class="modal fade" id="mWin" data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content text-center p-5 border-0 shadow-lg" style="background: linear-gradient(135deg, #fff, #fef9c3);">
+              <h1 class="text-warning mb-3 display-1"><i class="bi bi-trophy-fill"></i></h1>
+              <h2 class="fw-bold">HASIL AKHIR</h2>
+              <img id="win-img" src="" class="rounded-circle my-4 mx-auto shadow border border-5 border-warning" style="width:180px;height:180px;object-fit:cover">
+              <h2 class="fw-bold text-dark" id="win-name">Nama</h2>
+              <p class="lead text-muted">Memperoleh suara terbanyak!</p>
+              <div class="display-3 fw-bold text-primary" id="win-score">0</div>
+              <button type="button" class="btn btn-secondary mt-4 px-5 fw-bold" data-bs-dismiss="modal">TUTUP</button>
+          </div>
+      </div>
+  </div>
+
+  <div class="modal fade" id="mDraw" data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content text-center p-5 border-0 shadow-lg" style="background: linear-gradient(135deg, #fff, #e2e8f0);">
+              <h1 class="text-secondary mb-3 display-1"><i class="bi bi-people-fill"></i></h1>
+              <h2 class="fw-bold">HASIL SERI (DRAW)</h2>
+              <p class="text-muted">Perolehan suara tertinggi sama kuat:</p>
+              <div id="draw-list" class="my-4"></div>
+              <h3 class="fw-bold text-dark">Total Suara: <span id="draw-score">0</span></h3>
+              <button type="button" class="btn btn-secondary mt-4 px-5 fw-bold" data-bs-dismiss="modal">TUTUP</button>
+          </div>
+      </div>
+  </div>
+  
+  <div class="modal fade" id="mCrop" data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content bg-dark">
+              <div class="modal-header border-0">
+                  <h5 class="text-white">Sesuaikan Foto</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body p-0 text-center">
+                  <div style="height:400px;background:#000"><img id="img-crop" style="max-width:100%;max-height:100%"></div>
+              </div>
+              <div class="modal-footer border-0 p-2">
+                  <button class="btn btn-primary w-100 py-2 fw-bold" onclick="doCrop()">POTONG & GUNAKAN</button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <div class="modal fade" id="mImport">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5>Import CSV</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                  <button class="btn btn-sm btn-outline-success w-100 mb-3" onclick="dlTemp()"><i class="bi bi-download"></i> Download Template CSV</button>
+                  <p class="small text-muted">Format: Username,Password,Nama,NIA</p>
+                  <textarea id="csvIn" class="form-control mb-2 font-monospace small" rows="8"></textarea>
+                  <button class="btn btn-success w-100" onclick="runImport()">Proses Import</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  
+  <div class="modal fade" id="mView">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-body p-4" id="viewBody"></div>
+              <div class="modal-footer py-1"><button class="btn btn-sm btn-secondary w-100" data-bs-dismiss="modal">Tutup</button></div>
+          </div>
+      </div>
+  </div>
+  
+  <div class="modal fade" id="mCand">
+      <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5>Form Kandidat</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                  <form onsubmit="subCand(event)">
+                      <input type="hidden" id="cid"><input type="hidden" id="cfo"><input type="hidden" id="cfn">
+                      <div class="row">
+                          <div class="col-md-4 text-center mb-3">
+                              <div class="img-dummy mx-auto shadow-sm" style="width:140px;height:180px;cursor:pointer;border-radius:10px" onclick="el('cfl').click()">
+                                  <img id="cpr" src="" style="width:100%;height:100%;object-fit:cover;display:none;border-radius:10px">
+                                  <span id="cpt">FOTO</span>
+                              </div>
+                              <input type="file" id="cfl" hidden onchange="initCrop(this,'c')">
+                          </div>
+                          <div class="col-md-8">
+                              <div class="row g-2 mb-2">
+                                  <div class="col-3">
+                                      <div class="form-floating"><input type="number" id="cno" class="form-control" placeholder="No"><label>No Urut</label></div>
+                                  </div>
+                                  <div class="col">
+                                      <div class="form-floating"><input id="cnm" class="form-control" placeholder="Nama" required><label>Nama Lengkap</label></div>
+                                  </div>
+                              </div>
+                              <input id="cnia" class="form-control mb-2" placeholder="NIA">
+                              <div class="row g-2 mb-2">
+                                  <div class="col-5"><input id="ctpl" class="form-control" placeholder="Tempat Lahir"></div>
+                                  <div class="col-4"><input type="date" id="ctgl" class="form-control"></div>
+                                  <div class="col-3">
+                                      <select id="cjk" class="form-select"><option value="L">L</option><option value="P">P</option></select>
+                                  </div>
+                              </div>
+                              <textarea id="calm" class="form-control mb-2" placeholder="Alamat Lengkap" rows="2"></textarea>
+                              <textarea id="cvis" class="form-control mb-2" placeholder="Visi" rows="2"></textarea>
+                              <textarea id="cmis" class="form-control mb-2" placeholder="Misi" rows="2"></textarea>
+                              <button class="btn btn-primary w-100 py-2">SIMPAN DATA</button>
+                          </div>
+                      </div>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </div>
+  
+  <div class="modal fade" id="mVoter">
+      <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5>Form Pemilih</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                  <form onsubmit="subVoter(event)">
+                      <input type="hidden" id="vfo"><input type="hidden" id="vfn">
+                      <div class="row">
+                          <div class="col-md-4 text-center mb-3">
+                              <div class="img-dummy mx-auto shadow-sm" style="width:140px;height:180px;cursor:pointer;border-radius:10px" onclick="el('vfl').click()">
+                                  <img id="vpr" src="" style="width:100%;height:100%;object-fit:cover;display:none;border-radius:10px">
+                                  <span id="vpt">FOTO</span>
+                              </div>
+                              <input type="file" id="vfl" hidden onchange="initCrop(this,'v')">
+                          </div>
+                          <div class="col-md-8">
+                              <div class="row g-2 mb-2">
+                                  <div class="col">
+                                      <div class="form-floating"><input id="vu" class="form-control" placeholder="User" required><label>Username/ID</label></div>
+                                  </div>
+                                  <div class="col">
+                                      <div class="form-floating position-relative">
+                                          <input id="vp" type="password" class="form-control pe-5" placeholder="Pass">
+                                          <label>Password</label>
+                                          <span class="eye-icon" onclick="togglePass('vp')"><i class="bi bi-eye-slash" id="icon-vp"></i></span>
+                                      </div>
+                                  </div>
+                              </div>
+                              <input id="vnm" class="form-control mb-2" placeholder="Nama Lengkap" required>
+                              <div class="row g-2 mb-2">
+                                  <div class="col-6"><input id="vnia" class="form-control" placeholder="NIA/NIP"></div>
+                                  <div class="col-6"><input id="vjab" class="form-control" placeholder="Jabatan"></div>
+                              </div>
+                              <div class="row g-2 mb-2">
+                                  <div class="col-5"><input id="vtpl" class="form-control" placeholder="Tempat Lahir"></div>
+                                  <div class="col-4"><input type="date" id="vtgl" class="form-control"></div>
+                                  <div class="col-3">
+                                      <select id="vjk" class="form-select"><option value="L">L</option><option value="P">P</option></select>
+                                  </div>
+                              </div>
+                              <textarea id="valm" class="form-control mb-2" placeholder="Alamat Lengkap" rows="2"></textarea>
+                              <div class="row g-2 mb-2">
+                                  <div class="col-6"><select id="vprv" class="form-select" onchange="ldKab()"></select></div>
+                                  <div class="col-6"><select id="vkb" class="form-select"></select></div>
+                              </div>
+                              <button class="btn btn-primary w-100 mt-2 py-2">SIMPAN DATA</button>
+                          </div>
+                      </div>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <div class="modal fade" id="mPrivacy">
+      <div class="modal-dialog modal-dialog-scrollable">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title fw-bold"><i class="bi bi-shield-lock"></i> Kebijakan Privasi</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                  <h6>1. Pengumpulan Data</h6>
+                  <p class="small text-muted">Sistem ini mengumpulkan data berupa Username, Password (Enkripsi), Nama, NIA, dan Pilihan Suara Anda. Data digunakan semata-mata untuk keperluan verifikasi pemilihan.</p>
+                  <h6>2. Asas Kerahasiaan</h6>
+                  <p class="small text-muted">Pilihan suara Anda bersifat RAHASIA. Sistem memisahkan antara identitas pemilih dengan pilihan kandidat di database, sehingga admin pun tidak dapat melihat siapa memilih siapa (LUBER JURDIL).</p>
+                  <h6>3. Keamanan Data</h6>
+                  <p class="small text-muted">Password disimpan dalam bentuk Hash (terenkripsi satu arah). Kami menyarankan Anda segera mengganti password default setelah login pertama kali.</p>
+              </div>
+              <div class="modal-footer"><button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">SAYA MENGERTI</button></div>
+          </div>
+      </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+  <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+      import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, runTransaction } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCpKoO7YTTUZDzjsrAwRLHsVK90D3r-VWA",
+        authDomain: "evoting-atas-indonesia.firebaseapp.com",
+        projectId: "evoting-atas-indonesia",
+        storageBucket: "evoting-atas-indonesia.firebasestorage.app",
+        messagingSenderId: "359162925950",
+        appId: "1:359162925950:web:7ace1476b7b45eb4e8592f"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app, "evoting-atas-indonesia");
+
+      window.db = db;
+      window.collection = collection;
+      window.getDocs = getDocs;
+      window.doc = doc;
+      window.getDoc = getDoc;
+      window.setDoc = setDoc;
+      window.updateDoc = updateDoc;
+      window.deleteDoc = deleteDoc;
+      window.runTransaction = runTransaction;
+      
+      // Tanda bahwa module sudah termuat
+      window.firebaseLoaded = true;
+      if (window.checkFirebase) window.checkFirebase();
+  </script>
+
+  <script>
+    // --- DATA WILAYAH STATIS ---
+    const WIL = {
+        "Jambi": ["Kab. Tebo", "Kab. Bungo", "Kota Jambi", "Kab. Merangin", "Kab. Batanghari"],
+        "Sumatera Barat": ["Kota Padang", "Kab. Dharmasraya", "Kota Bukittinggi", "Kab. Solok"],
+        "Riau": ["Pekanbaru", "Dumai", "Kampar"],
+        "Lainnya": ["Luar Daerah"]
+    };
+
+    let ME={}, CROP=null, TGT='', POLL=null, PG=1, START_TIME=null, END_TIME=null;
+    let isEnded = false, isStarted = false, isFinalizing = false;
+    let ALL_VOTERS = []; 
+    let GLOBAL_CONFIG = {}; 
+    let GLOBAL_CANDS = []; 
+    const el = i => document.getElementById(i);
+
+    async function makeHash(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    setTimeout(() => { 
+        if(el('loader').style.display !== 'none') { 
+            el('spin').style.display='none'; 
+            el('error-box').style.display='block'; 
+        } 
+    }, 8000);
+
+    const load = s => { 
+        if(s) { el('loader').style.display = 'flex'; el('spin').style.display = 'block'; el('error-box').style.display = 'none'; } 
+        else { el('loader').style.display = 'none'; } 
+    }
+    
+    function forceEnter(){ load(0); }
+
+    function parseDateSafe(str) {
+         if(!str) return null;
+         try { 
+             let t = new Date(str).getTime(); 
+             if(!isNaN(t)) return t; 
+             let parts = str.split('T'); 
+             if(parts.length < 2) return null; 
+             let d = parts[0].split('-'); let tm = parts[1].split(':'); 
+             return new Date(d[0], d[1]-1, d[2], tm[0], tm[1]).getTime(); 
+         } catch(e) { return null; }
+    }
+    function getTimeStamp(v) { 
+        if (!v) return null; 
+        if (typeof v === 'number') return v; 
+        return parseDateSafe(v); 
+    }
+
+    // INIT YANG AMAN
+    window.onload = function() {
+        load(1);
+        if (window.firebaseLoaded) {
+            initApp();
+        } else {
+            window.checkFirebase = initApp;
+        }
+    }
+
+    async function initApp() {
+        try {
+            const confSnap = await window.getDoc(window.doc(window.db, "config", "utama"));
+            if (confSnap.exists()) {
+                GLOBAL_CONFIG = confSnap.data();
+                if (GLOBAL_CONFIG.OrgName) el('login-org').innerText = GLOBAL_CONFIG.OrgName;
+                if (GLOBAL_CONFIG.Logo) { 
+                    el('login-logo').src = GLOBAL_CONFIG.Logo; 
+                    el('login-logo').style.display = 'block'; 
+                    el('login-logo-div').style.display = 'none'; 
+                    el('live-logo').src = GLOBAL_CONFIG.Logo; 
+                }
+            }
+
+            const sesiLokal = localStorage.getItem('evote_session'); 
+            if (sesiLokal) { 
+                ME = JSON.parse(sesiLokal); 
+                if (ME.role === 'admin') { nav('admin'); refAdmin(); } else { nav('voter'); refVoter(); } 
+            }
+            load(0);
+        } catch(e) { 
+            load(0); 
+        }
+    }
+
+    // LOGIN
+    async function login() {
+        const u = el('logUser').value.trim(); const p = el('logPass').value.trim(); 
+        if(!u || !p) { Swal.fire('Peringatan', 'Username dan Password tidak boleh kosong', 'warning'); return; }
+        load(1);
+        try {
+            let querySnap = await window.getDocs(window.collection(window.db, "admins"));
+            let isFound = false;
+            querySnap.forEach((doc) => {
+                const data = doc.data();
+                if (data.user === u && data.pass === p) {
+                    isFound = true; ME = { status: 'success', role: 'admin', token: doc.id, data: { nama: data.nama, user: data.user } };
+                }
+            });
+
+            if (!isFound) {
+                const hashPass = await makeHash(p);
+                const vDoc = await window.getDoc(window.doc(window.db, "voters", u));
+                if (vDoc.exists()) {
+                    const data = vDoc.data();
+                    if (data.pass === hashPass || data.pass === p) {
+                        isFound = true; ME = { status: 'success', role: 'voter', token: vDoc.id, data: data, voted: data.voted };
+                    }
+                }
+            }
+
+            load(0);
+            if (isFound) {
+                localStorage.setItem('evote_session', JSON.stringify(ME));
+                if (ME.role === 'admin') { nav('admin'); refAdmin(); } else { nav('voter'); refVoter(); }
+                Swal.fire('Berhasil', 'Selamat datang', 'success');
+            } else { 
+                Swal.fire('Gagal', 'Username atau Password salah!', 'error'); 
+            }
+        } catch (error) { load(0); Swal.fire('Error DB', error.message, 'error'); }
+    }
+
+    function logout(){ localStorage.removeItem('evote_session'); ME={}; nav('login'); }
+    function checkLogin(){ if(ME.role) { if(ME.role=='admin')nav('admin'); else nav('voter'); } else nav('login'); }
+
+    // ADMIN NAV
+    function admNav(p) { 
+        document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); 
+        event.currentTarget.classList.add('active'); 
+        ['dash','cand','voter','set'].forEach(x=>el('pg-'+x).classList.add('d-none')); 
+        el('pg-'+p).classList.remove('d-none'); 
+        if(window.innerWidth<768) toggleMenu(); 
+    }
+    
+    async function refAdmin(page=1, src='') {
+        load(1);
+        try {
+            const confSnap = await window.getDoc(window.doc(window.db, "config", "utama"));
+            let c = confSnap.exists() ? confSnap.data() : {};
+            GLOBAL_CONFIG = c;
+
+            const candSnap = await window.getDocs(window.collection(window.db, "candidates"));
+            let cands = []; let totValid = 0;
+            candSnap.forEach(d => { let data = d.data(); data.id = d.id; cands.push(data); totValid += (data.suara || 0); });
+            cands.sort((a,b) => a.no - b.no); 
+            GLOBAL_CANDS = cands;
+
+            const votSnap = await window.getDocs(window.collection(window.db, "voters"));
+            ALL_VOTERS = []; let totVoted = 0;
+            const q = src.toLowerCase();
+            votSnap.forEach(d => { 
+                let data = d.data(); data.user = d.id; 
+                if(src==='' || data.user.toLowerCase().includes(q) || (data.nama && data.nama.toLowerCase().includes(q))) { ALL_VOTERS.push(data); }
+                if(data.voted === true) totVoted++; 
+            });
+
+            let stats = { tot: votSnap.size, vot: totVoted, valid: totValid, abstain: totVoted - totValid, belum: votSnap.size - totVoted };
+            GLOBAL_CONFIG.stats = stats;
+
+            if(c.OrgName) el('setOrg').value = c.OrgName; if(c.OrgFullName) el('setOrgFull').value = c.OrgFullName;
+            if(c.OrgLegal) el('setOrgLegal').value = c.OrgLegal; if(c.OrgAddress) el('setOrgAddr').value = c.OrgAddress;
+            if(c.Judul) el('setJudul').value = c.Judul; if(c.StartTime) el('setStart').value = c.StartTime;
+            if(c.EndTime) el('setEnd').value = c.EndTime; if(c.Web) el('setWeb').value = c.Web;
+            if(c.Email) el('setEmail').value = c.Email; if(c.HP) el('setHP').value = c.HP;
+            if(c.Logo) { el('logoPrev').src=c.Logo; el('logoPrev').style.display='block'; el('logoTxt').style.display='none'; }
+            
+            el('st-tot').innerText = stats.tot; el('st-vot').innerText = stats.vot; 
+            el('st-abstain').innerText = stats.abstain; el('st-belum').innerText = stats.belum;
+            
+            let dashHTML='';
+            if(cands.length > 0) { 
+                cands.forEach(x => { 
+                    dashHTML += `
+                    <div class="col-md-4">
+                        <div class="card-box p-3 border-start border-4 border-info d-flex align-items-center gap-3">
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center fw-bold text-primary" style="width:50px;height:50px;font-size:1.2rem">${x.no}</div>
+                            <div>
+                                <div class="fw-bold text-truncate" style="max-width:150px">${x.nama}</div>
+                                <div class="h5 fw-bold mb-0 text-primary">${x.suara || 0} Suara</div>
+                            </div>
+                        </div>
+                    </div>`; 
+                }); 
+            }
+            el('dash-cands').innerHTML = dashHTML || '<div class="col-12 text-center text-muted">Belum ada kandidat</div>';
+
+            let hc=''; 
+            cands.forEach(cand => { 
+                hc += `
+                <div class="col-md-6">
+                    <div class="card-box h-100 d-flex align-items-center gap-3">
+                        <img src="${cand.foto||''}" class="cand-admin-img shadow-sm" onerror="this.src='https://via.placeholder.com/80?text=IMG'">
+                        <div class="flex-fill overflow-hidden">
+                            <div class="badge bg-primary mb-1">No. ${cand.no}</div>
+                            <div class="fw-bold fs-5 text-dark text-truncate">${cand.nama}</div>
+                            <div class="text-muted small">${cand.suara || 0} Suara</div>
+                        </div>
+                        <div class="d-flex flex-column gap-2">
+                            <button class="btn btn-sm btn-light border" onclick='viewData(${JSON.stringify(cand)},"c")'><i class="bi bi-eye"></i></button>
+                            <button class="btn btn-sm btn-warning text-white" onclick='mdlCand(${JSON.stringify(cand)})'><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="del('candidates','${cand.id}')"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>
+                </div>`; 
+            }); 
+            el('g-cand').innerHTML = hc || '<div class="text-center text-muted col-12 py-5">Belum ada kandidat</div>';
+
+            PG = page;
+            const perPage = 20;
+            const totalPages = Math.ceil(ALL_VOTERS.length / perPage) || 1;
+            el('vPage').innerText = `${PG} dari ${totalPages}`;
+            
+            let hv=''; 
+            const paginatedVoters = ALL_VOTERS.slice((PG - 1) * perPage, PG * perPage);
+            
+            paginatedVoters.forEach(v => {
+                let badgeClass = v.voted ? 'bg-success' : 'bg-secondary';
+                let badgeText = v.voted ? 'SUDAH MEMILIH' : 'BELUM';
+                hv += `
+                <tr>
+                    <td class="ps-4 fw-bold font-monospace small">${v.user}</td>
+                    <td>${v.nama || '-'}</td>
+                    <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                    <td class="text-end pe-4">
+                        <button class="btn btn-sm btn-info text-white me-1" onclick="dlCard('${v.user}')" title="Cetak Kartu"><i class="bi bi-printer"></i></button>
+                        <button class="btn btn-sm btn-warning me-1" onclick='mdlVoter(${JSON.stringify(v)})'><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="del('voters','${v.user}')"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>`;
+            });
+            el('t-voter').innerHTML = hv || '<tr><td colspan="4" class="text-center py-4">Data tidak ditemukan</td></tr>';
+            
+            load(0);
+        } catch(e) { load(0); Swal.fire('Error Database', e.message, 'error'); }
+    }
+
+    function pg(d) { 
+        let n = PG + d; 
+        const maxPg = Math.ceil(ALL_VOTERS.length / 20) || 1; 
+        if(n < 1) n = 1; 
+        if(n > maxPg) n = maxPg; 
+        refAdmin(n, el('vSearch').value); 
+    }
+    
+    function searchVoter() { refAdmin(1, el('vSearch').value); }
+    
+    function viewData(d, type) {
+       let h = `
+       <div class="text-center mb-4">
+           <img src="${d.foto||''}" class="shadow rounded" style="width:150px;height:200px;object-fit:cover" onerror="this.style.display='none'">
+       </div>
+       <table class="table table-bordered align-middle">`;
+       
+       if(type == 'c') {
+           h += `
+           <tr><th width="30%">No Urut</th><td class="fw-bold text-primary fs-5">${d.no}</td></tr>
+           <tr><th>Nama Kandidat</th><td>${d.nama}</td></tr>
+           <tr><th>NIA</th><td>${d.nia||'-'}</td></tr>
+           <tr><th>Visi</th><td>${d.visi||'-'}</td></tr>
+           <tr><th>Misi</th><td>${d.misi||'-'}</td></tr>`;
+       } else {
+           let statusBadge = d.voted ? '<span class="badge bg-success">SUDAH MEMILIH</span>' : '<span class="badge bg-secondary">BELUM</span>';
+           h += `
+           <tr><th>Nama</th><td>${d.nama}</td></tr>
+           <tr><th>Username</th><td>${d.user}</td></tr>
+           <tr><th>Wilayah</th><td>${d.prov||'-'}, ${d.kab||'-'}</td></tr>
+           <tr><th>Status</th><td>${statusBadge}</td></tr>`;
+       }
+       h += '</table>'; 
+       el('viewBody').innerHTML = h; 
+       new bootstrap.Modal('#mView').show();
+    }
+
+    // CRUD ADMIN
+    async function subCand(e) {
+        e.preventDefault(); load(1); let id = el('cid').value;
+        const d = { 
+            no: parseInt(el('cno').value) || 0, 
+            nama: el('cnm').value, nia: el('cnia').value, 
+            tp_lahir: el('ctpl').value, tg_lahir: el('ctgl').value, 
+            jk: el('cjk').value, alamat: el('calm').value, 
+            visi: el('cvis').value, misi: el('cmis').value, 
+            foto: el('cfn').value ? el('cfn').value : el('cfo').value 
+        };
+        try {
+            if (id) { await window.updateDoc(window.doc(window.db, "candidates", id), d); } 
+            else { d.suara = 0; await window.setDoc(window.doc(window.collection(window.db, "candidates")), d); }
+            load(0); bootstrap.Modal.getInstance(el('mCand')).hide(); refAdmin(); Swal.fire('Sukses', 'Kandidat tersimpan!', 'success');
+        } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
+    }
+
+    async function subVoter(e) {
+        e.preventDefault(); load(1);
+        let id = el('vu').value.trim(); let passTxt = el('vp').value.trim();
+        const d = { 
+            nama: el('vnm').value, nia: el('vnia').value, 
+            tp_lahir: el('vtpl').value, tg_lahir: el('vtgl').value, 
+            jk: el('vjk').value, alamat: el('valm').value, 
+            prov: el('vprv').value, kab: el('vkb').value, 
+            foto: el('vfn').value ? el('vfn').value : el('vfo').value 
+        };
+        try {
+            if(passTxt !== "") d.pass = await makeHash(passTxt);
+            const docRef = window.doc(window.db, "voters", id); 
+            const docSnap = await window.getDoc(docRef);
+            if (docSnap.exists() && el('vu').readOnly === false) { load(0); Swal.fire('Gagal', 'Username/ID sudah dipakai', 'error'); return; }
+            if(!docSnap.exists()) d.voted = false;
+            await window.setDoc(docRef, d, { merge: true });
+            load(0); bootstrap.Modal.getInstance(el('mVoter')).hide(); refAdmin(); Swal.fire('Sukses', 'Pemilih tersimpan!', 'success');
+        } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
+    }
+
+    async function del(t,i) { 
+        Swal.fire({title:'Hapus data?',icon:'warning',showCancelButton:true}).then(async r=>{ 
+            if(r.isConfirmed){ 
+                load(1); 
+                try { 
+                    await window.deleteDoc(window.doc(window.db, t, i)); 
+                    load(0); refAdmin(); 
+                } catch(e) { 
+                    load(0); Swal.fire('Gagal',e.message,'error'); 
+                } 
+            } 
+        }); 
+    }
+
+    async function saveSet(e) {
+        e.preventDefault(); load(1);
+        const d = { 
+            OrgName: el('setOrg').value, OrgFullName: el('setOrgFull').value, 
+            OrgLegal: el('setOrgLegal').value, OrgAddress: el('setOrgAddr').value, 
+            Judul: el('setJudul').value, 
+            StartTime: el('setStart').value, StartTime_TS: getTimeStamp(el('setStart').value), 
+            EndTime: el('setEnd').value, EndTime_TS: getTimeStamp(el('setEnd').value), 
+            Web: el('setWeb').value, Email: el('setEmail').value, HP: el('setHP').value, 
+            Logo: el('logoNew').value ? el('logoNew').value : el('logoPrev').src 
+        };
+        try { 
+            await window.setDoc(window.doc(window.db, "config", "utama"), d, { merge: true }); 
+            load(0); Swal.fire('Sukses', 'Pengaturan tersimpan!', 'success'); 
+        } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
+    }
+    
+    async function changeAdmin(e) {
+        e.preventDefault(); load(1);
+        let nUser = el('admUser').value.trim(); let nPass = el('admPass').value.trim();
+        try {
+            if(nUser && nPass) {
+                const qSnap = await window.getDocs(window.collection(window.db, "admins"));
+                if(qSnap.empty) throw new Error("Tidak ada data admin awal.");
+                let oldDocId = qSnap.docs[0].id; 
+                await window.updateDoc(window.doc(window.db, "admins", oldDocId), { user: nUser, pass: nPass });
+                load(0); Swal.fire('Sukses', 'Akun admin diupdate. Silakan login ulang.', 'success').then(()=>logout());
+            }
+        } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
+    }
+
+    async function runImport() {
+        load(1);
+        try {
+            const csv = el('csvIn').value.split('\n'); let count = 0;
+            for (let i = 1; i < csv.length; i++) {
+                let row = csv[i].split(',');
+                if(row.length >= 3 && row[0]) {
+                    let vUser = row[0].trim(); let vPass = await makeHash(row[1] ? row[1].trim() : '123');
+                    await window.setDoc(window.doc(window.db, "voters", vUser), { 
+                        nama: row[2]?row[2].trim():'', nia: row[3]?row[3].trim():'', 
+                        pass: vPass, voted: false 
+                    }, {merge:true});
+                    count++;
+                }
+            }
+            load(0); bootstrap.Modal.getInstance(el('mImport')).hide(); refAdmin(); Swal.fire('Selesai', count + ' data diimpor', 'success');
+        } catch(e) { load(0); Swal.fire('Gagal', e.message, 'error'); }
+    }
+    function dlTemp(){ 
+        const b=new Blob(["Username,Password,Nama,NIA\nuser1,123,Budi,12345"],{type:'text/csv'}); 
+        const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Template.csv'; a.click(); 
+    }
+
+    // VOTER AREA
+    function voterNav(p) { 
+        ['vote','profil'].forEach(x=>el('vp-'+x).classList.add('d-none')); 
+        el('vp-'+p).classList.remove('d-none'); 
+        if(window.innerWidth<768) toggleMenu(); 
+    }
+
+    async function refVoter() {
+        if (!ME || !ME.token) return logout();
+        load(1);
+        try {
+            const uDoc = await window.getDoc(window.doc(window.db, "voters", ME.token));
+            const confSnap = await window.getDoc(window.doc(window.db, "config", "utama"));
+            const candSnap = await window.getDocs(window.collection(window.db, "candidates"));
+            
+            let c = confSnap.exists() ? confSnap.data() : {};
+            let d = uDoc.exists() ? uDoc.data() : ME.data;
+            GLOBAL_CONFIG = c; ME.data = d; ME.voted = d.voted;
+            localStorage.setItem('evote_session', JSON.stringify(ME));
+
+            if (el('v-name')) el('v-name').innerText = d.nama;
+            if (el('p-user')) el('p-user').value = ME.token;
+            if (el('p-tpl')) el('p-tpl').value = d.tp_lahir || '';
+            if (el('p-tgl')) el('p-tgl').value = d.tg_lahir || '';
+            if (el('p-alm')) el('p-alm').value = d.alamat || '';
+            if (d.foto && d.foto.length > 50) { el('p-img').src = d.foto; el('p-img').style.display='block'; el('p-txt').style.display='none'; }
+
+            if (el('p-prov')) {
+                el('p-prov').innerHTML = '<option value="">Pilih Provinsi</option>';
+                for (let k in WIL) { el('p-prov').innerHTML += `<option value="${k}">${k}</option>`; }
+                el('p-prov').value = d.prov || '';
+                ldKabProf(d.kab);
+            }
+
+            if (ME.voted) {
+                el('alert-ok').classList.remove('d-none'); el('vote-area').classList.add('d-none'); el('v-wait').classList.add('d-none');
+            } else {
+                el('alert-ok').classList.add('d-none');
+                let cands = []; candSnap.forEach(d => { let dx=d.data(); dx.id=d.id; cands.push(dx); }); cands.sort((a,b) => a.no - b.no);
+                let h = '';
+                cands.forEach(cand => {
+                    const sData = JSON.stringify(cand).replace(/'/g, "&#39;");
+                    h += `
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card-box v-card h-100 p-0 overflow-hidden position-relative shadow-sm">
+                            <div class="position-absolute top-0 start-0 bg-primary text-white px-3 py-1 rounded-bottom-end fw-bold z-1" style="font-size:1.2rem">No. ${cand.no}</div>
+                            <img src="${cand.foto||''}" style="width:100%;height:250px;object-fit:cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                            <div class="p-4 text-center">
+                                <h4 class="fw-bold mb-1">${cand.nama}</h4>
+                                <div class="text-muted small mb-3 text-truncate">${cand.visi||''}</div>
+                                <button class="btn btn-sm btn-outline-info w-100 mb-2 rounded-pill fw-bold" onclick='viewCandProfile(${sData})'><i class="bi bi-info-circle-fill me-1"></i> LIHAT PROFIL</button>
+                                <button class="btn btn-primary w-100 py-2 rounded-pill fw-bold" onclick="vote('${cand.id}','${cand.nama}')">COBLOS NO ${cand.no}</button>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                el('g-vote').innerHTML = h || '<div class="col-12 text-center py-5"><h4>Belum ada kandidat</h4></div>';
+            }
+
+            if(c.StartTime_TS) START_TIME = c.StartTime_TS; if(c.EndTime_TS) END_TIME = c.EndTime_TS;
+            updateVoterTimer(); if (window.POLL) clearInterval(window.POLL); window.POLL = setInterval(updateVoterTimer, 1000);
+            
+            load(0);
+        } catch(e) { load(0); Swal.fire('Error Database', e.message, 'error'); }
+    }
+
+    async function vote(id, n) {
+        const now = new Date().getTime();
+        if(START_TIME && now < START_TIME) { Swal.fire('BELUM DIBUKA', 'Mohon tunggu...', 'warning'); return; }
+        Swal.fire({title:'Pilih '+n+'?', icon:'question', showCancelButton:true, confirmButtonText:'YA'}).then(async r => {
+            if(r.isConfirmed) {
+                load(1);
+                try {
+                    const voterRef = window.doc(window.db, "voters", ME.token);
+                    const candRef = id === 'ABSTAIN' ? null : window.doc(window.db, "candidates", id);
+
+                    await window.runTransaction(window.db, async (transaction) => {
+                        const voterDoc = await transaction.get(voterRef);
+                        if (!voterDoc.exists() || voterDoc.data().voted) { throw "Anda sudah memilih!"; }
+                        if (candRef) { 
+                            const candDoc = await transaction.get(candRef); 
+                            const newSuara = (candDoc.data().suara || 0) + 1; 
+                            transaction.update(candRef, { suara: newSuara }); 
+                        }
+                        transaction.update(voterRef, { voted: true });
+                    });
+                    ME.voted = true; localStorage.setItem('evote_session', JSON.stringify(ME)); refVoter();
+                    load(0); Swal.fire('Berhasil','Suara Anda telah masuk.','success');
+                } catch(e) { load(0); Swal.fire('Gagal', typeof e === 'string' ? e : e.message, 'error'); }
+            }
+        });
+    }
+
+    async function saveProfile(e) {
+        e.preventDefault(); load(1); let passTxt = el('p-pass').value.trim();
+        const d = { tp_lahir: el('p-tpl').value, tg_lahir: el('p-tgl').value, alamat: el('p-alm').value, prov: el('p-prov').value, kab: el('p-kab').value, foto: el('p-b64').value };
+        try {
+            if(passTxt !== "") d.pass = await makeHash(passTxt);
+            await window.updateDoc(window.doc(window.db, "voters", ME.token), d);
+            ME.data = { ...ME.data, ...d }; localStorage.setItem('evote_session',JSON.stringify(ME));
+            load(0); Swal.fire('Sukses','Data berhasil disimpan','success'); refVoter();
+        } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
+    }
+
+    // LIVE COUNT
+    async function tick() {
+        try {
+            const confSnap = await window.getDoc(window.doc(window.db, "config", "utama"));
+            let c = confSnap.exists() ? confSnap.data() : {};
+            if (c.OrgFullName || c.OrgName) el('live-org').innerText = c.OrgFullName || c.OrgName; el('live-judul').innerText = c.Judul || 'LIVE COUNT';
+            if (c.Logo) { el('live-logo').src = c.Logo; el('live-logo').style.display = 'block'; }
+            START_TIME = c.StartTime_TS; END_TIME = c.EndTime_TS;
+
+            const candSnap = await window.getDocs(window.collection(window.db, "candidates"));
+            let cands = []; let totValid = 0;
+            candSnap.forEach(d => { let dx=d.data(); dx.id=d.id; cands.push(dx); totValid += (dx.suara || 0); });
+
+            const votSnap = await window.getDocs(window.collection(window.db, "voters"));
+            let totVoters = votSnap.size; let totVoted = 0;
+            votSnap.forEach(d => { if(d.data().voted) totVoted++; });
+
+            el('s-masuk').innerText = totVoted; el('s-abstain').innerText = totVoted - totValid;
+            el('s-belum').innerText = totVoters - totVoted; el('s-total').innerText = totVoters;
+
+            if (cands.length > 0) {
+                cands.sort((a, b) => { if (b.suara !== a.suara) return (b.suara||0) - (a.suara||0); return a.no - b.no; });
+                const topScore = cands[0].suara || 0;
+                const winnersCount = cands.filter(x => x.suara === topScore && x.suara > 0).length;
+
+                let h = '';
+                cands.forEach((cand, i) => {
+                    let pct = totVoted > 0 ? ((cand.suara || 0) / totVoted * 100).toFixed(2) : 0;
+                    let cls = (i === 0 && cand.suara > 0) ? 'rank-1' : 'border-0'; let barW = (pct < 1 && cand.suara > 0) ? 1 : pct;
+                    let trophyHTML = (cand.suara === topScore && cand.suara > 0) ? `<i class="bi bi-trophy-fill ${winnersCount > 1 ? 'text-secondary' : 'text-warning'} ms-2 fs-4"></i>` : '';
+                    
+                    h += `
+                    <div class="race-card ${cls} position-relative mb-3">
+                        <div class="fw-bold fs-3 text-secondary ms-2 text-center" style="min-width:40px">#${cand.no}</div>
+                        <img src="${cand.foto||''}" class="cand-thumb shadow-sm" onerror="this.src='https://via.placeholder.com/60'">
+                        <div class="flex-fill">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="fw-bold fs-5 text-dark d-flex align-items-center">${cand.nama} ${trophyHTML}</div>
+                                <div class="fw-bold fs-4 text-dark">${cand.suara||0}</div>
+                            </div>
+                            <div class="progress" style="height:10px;background:#e2e8f0;border-radius:5px">
+                                <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" style="width:${barW}%"></div>
+                            </div>
+                            <div class="text-end small text-muted mt-1 fw-bold">${pct}% Suara</div>
+                        </div>
+                    </div>`;
+                });
+                el('race-area').innerHTML = h;
+
+                const now = new Date().getTime();
+                if (END_TIME && now >= END_TIME && !isFinalizing && !window.shownResult) {
+                    el('live-final').style.display = 'flex'; isFinalizing = true;
+                    setTimeout(() => { el('live-final').style.display = 'none'; isFinalizing = false; showWinnerModal({c:cands}); }, 4000);
+                }
+            } else { el('race-area').innerHTML = '<div class="text-center text-white py-5">Belum ada data kandidat.</div>'; }
+            updateTimer();
+        } catch (err) { console.log('Tick Error:', err); }
+    }
+
+    // UI HELPERS & TIMERS
+    function togglePass(id) { 
+        const i=el(id),c=el('icon-'+id); 
+        if(i.type==="password"){ i.type="text"; c.classList.remove('bi-eye-slash'); c.classList.add('bi-eye'); }
+        else { i.type="password"; c.classList.remove('bi-eye'); c.classList.add('bi-eye-slash'); } 
+    }
+    
+    function formatTime(ms) { 
+        if(ms<0) return "00:00:00"; 
+        const h=Math.floor((ms%(1000*60*60*24))/(1000*60*60));
+        const m=Math.floor((ms%(1000*60*60))/(1000*60));
+        const s=Math.floor((ms%(1000*60))/1000); 
+        return `${h}j ${m}m ${s}d`; 
+    }
+    
+    function toggleMenu() { 
+        const sb=el('sb'), sbV=el('sb-voter'), over=el('sidebar-overlay'); 
+        if(sb){ sb.classList.toggle('show'); if(sb.classList.contains('show')) over.classList.add('show'); else over.classList.remove('show'); } 
+        if(sbV){ sbV.classList.toggle('show'); if(sbV.classList.contains('show')) over.classList.add('show'); else over.classList.remove('show'); } 
+    }
+    
+    window.onscroll = () => { 
+        const btn = el('btn-scroll-top'); 
+        if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) btn.style.display = "flex"; else btn.style.display = "none"; 
+    };
+    
+    function nav(id) {
+      document.querySelectorAll('.view-section').forEach(x=>x.classList.remove('view-active')); el('v-'+id).classList.add('view-active');
+      if(POLL) clearTimeout(POLL);
+      if(id=='live') { isEnded = false; isStarted = false; isFinalizing = false; tick(); const loopTick = () => { const t=Math.floor(Math.random()*5000)+20000; POLL=setTimeout(()=>{tick();loopTick();},t); }; loopTick(); setInterval(updateTimer, 1000); }
+    }
+
+    function updateVoterTimer() {
+        try {
+            const elArea = el('vote-area'), elWait = el('v-wait'), elClosed = el('v-closed'), elTxtWait = el('timer-voter-wait'), elTxtRun = el('timer-voter');
+            if (!elArea || !elWait) return;
+            if (ME.voted) { elArea.classList.add('d-none'); elWait.classList.add('d-none'); if(elClosed) elClosed.classList.add('d-none'); return; }
+            const now = new Date().getTime(); let status = 'OPEN', timeLeft = 0;
+            if (START_TIME && !isNaN(START_TIME)) {
+                if (now < START_TIME) { status = 'WAIT'; timeLeft = START_TIME - now; } else if (END_TIME && !isNaN(END_TIME) && now >= END_TIME) { status = 'CLOSED'; } else if (END_TIME) { timeLeft = END_TIME - now; }
+            }
+            if (status === 'WAIT') { elWait.classList.remove('d-none'); elArea.classList.add('d-none'); if(elClosed) elClosed.classList.add('d-none'); if(elTxtWait) elTxtWait.innerText = formatTime(timeLeft); } 
+            else if (status === 'CLOSED') { if(elClosed) elClosed.classList.remove('d-none'); elWait.classList.add('d-none'); elArea.classList.add('d-none'); } 
+            else { elArea.classList.remove('d-none'); elWait.classList.add('d-none'); if(elClosed) elClosed.classList.add('d-none'); if(elTxtRun) elTxtRun.innerText = END_TIME ? "Sisa: " + formatTime(timeLeft) : "BERLANGSUNG"; }
+        } catch (e) { }
+    }
+
+    function updateTimer() {
+        if(!START_TIME) return; const now = new Date().getTime(); const tm = el('timer-live'); if(!tm) return;
+        if(now < START_TIME) { el('live-wait').classList.remove('d-none'); el('race-area').classList.add('d-none'); tm.classList.add('text-danger'); tm.innerText = formatTime(START_TIME - now); if(el('timer-live-wait')) el('timer-live-wait').innerText = formatTime(START_TIME - now); } 
+        else if (END_TIME && now < END_TIME) { el('live-wait').classList.add('d-none'); el('race-area').classList.remove('d-none'); tm.classList.remove('text-danger'); tm.classList.add('text-success'); tm.innerText = formatTime(END_TIME - now); } 
+        else if (END_TIME && now >= END_TIME) { tm.innerText = "WAKTU HABIS"; tm.classList.add('text-danger'); if(!isEnded) { isEnded = true; isFinalizing = true; el('live-final').style.display = 'flex'; setTimeout(() => { isFinalizing = false; tick(); }, 4000); } } 
+        else { tm.innerText = "BERLANGSUNG"; if(!isStarted) { isStarted=true; tick(); } }
+    }
+
+    function showWinnerModal(d) {
+        if (window.shownResult) return; const topScore = d.c[0].suara || 0; if (topScore <= 0) return;
+        const winners = d.c.filter(x => x.suara === topScore); window.shownResult = true;
+        if (winners.length > 1) {
+            let drawListHTML = ''; 
+            winners.forEach(w => { 
+                drawListHTML += `
+                <div class="d-flex align-items-center gap-3 border p-2 rounded mb-2 bg-white shadow-sm">
+                    <img src="${w.foto||'https://via.placeholder.com/50'}" class="rounded-circle border" style="width:50px;height:50px;object-fit:cover">
+                    <div class="fw-bold text-dark text-start flex-fill">${w.nama}<div class="small text-muted">No: ${w.no}</div></div>
+                    <div class="fw-bold fs-5 text-secondary">${w.suara}</div>
+                </div>`; 
+            });
+            el('draw-list').innerHTML = drawListHTML; el('draw-score').innerText = topScore; new bootstrap.Modal('#mDraw').show();
+        } else {
+            const winner = winners[0]; el('win-img').src = winner.foto||'https://via.placeholder.com/150'; el('win-name').innerText = winner.nama; el('win-score').innerText = winner.suara; new bootstrap.Modal('#mWin').show();
+        }
+    }
+
+    // MODAL, WILAYAH, CROPPER
+    function mdlCand(c){ 
+        el('cid').value = c?c.id:''; el('cno').value = c?c.no:''; el('cnm').value = c?c.nama:''; el('cnia').value = c?c.nia||'':''; el('ctpl').value = c?c.tp_lahir||'':''; el('ctgl').value = c?c.tg_lahir||'':''; el('cjk').value = c?c.jk||'L':'L'; el('calm').value = c?c.alamat||'':''; el('cvis').value = c?c.visi||'':''; el('cmis').value = c?c.misi||'':''; el('cfo').value = c?c.foto||'':''; el('cfn').value = ''; 
+        if(c&&c.foto){ el('cpr').src=c.foto; el('cpr').style.display='block'; el('cpt').style.display='none'; } else { el('cpr').style.display='none'; el('cpt').style.display='block'; } 
+        new bootstrap.Modal('#mCand').show(); 
+    }
+    
+    function mdlVoter(v){ 
+        el('vu').value = v?v.user:''; el('vu').readOnly = !!v; el('vp').value = ''; el('vnm').value = v?v.nama||'':''; el('vnia').value = v?v.nia||'':''; el('vtpl').value = v?v.tp_lahir||'':''; el('vtgl').value = v?v.tg_lahir||'':''; el('vjk').value = v?v.jk||'L':'L'; el('valm').value = v?v.alamat||'':''; 
+        el('vprv').innerHTML='<option value="">Pilih Provinsi</option>';
+        for(let k in WIL) el('vprv').innerHTML += `<option value="${k}">${k}</option>`;
+        el('vprv').value = v?v.prov||'':'';
+        ldKab();
+        if(v) el('vkb').value = v.kab||'';
+        el('vfo').value = v?v.foto||'':''; el('vfn').value = ''; 
+        if(v&&v.foto){ el('vpr').src=v.foto; el('vpr').style.display='block'; el('vpt').style.display='none'; } else { el('vpr').style.display='none'; el('vpt').style.display='block'; } 
+        new bootstrap.Modal('#mVoter').show(); 
+    }
+
+    function ldKab(){
+        let p = el('vprv').value; let k = el('vkb');
+        k.innerHTML='<option value="">Pilih Kab/Kota</option>';
+        if(WIL[p]) WIL[p].sort().forEach(x=>k.innerHTML+=`<option value="${x}">${x}</option>`);
+    }
+
+    function ldKabProf(defaultVal = null) {
+        let p = el('p-prov').value; let k = el('p-kab');
+        k.innerHTML = '<option value="">Pilih Kab/Kota</option>';
+        if(p && WIL[p]) { WIL[p].sort().forEach(x => { k.innerHTML += `<option value="${x}">${x}</option>`; }); }
+        if (defaultVal) { k.value = defaultVal; }
+    }
+
+    function viewCandProfile(d) { 
+        let h = `
+        <div class="text-center mb-3"><h5 class="fw-bold text-primary">DETAIL KANDIDAT NO. ${d.no}</h5></div>
+        <div class="text-center mb-4"><img src="${d.foto||''}" class="shadow rounded border" style="width:160px;height:220px;object-fit:cover" onerror="this.src='https://via.placeholder.com/150'"></div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle small">
+                <tr><th width="35%" class="bg-light">Nama Lengkap</th><td class="fw-bold">${d.nama}</td></tr>
+                <tr><th class="bg-light">NIA</th><td>${d.nia||'-'}</td></tr>
+                <tr><th class="bg-light">TTL</th><td>${d.tp_lahir||'-'}, ${d.tg_lahir||'-'}</td></tr>
+                <tr><th class="bg-light">Jenis Kelamin</th><td>${d.jk==='L'?'Laki-Laki':'Perempuan'}</td></tr>
+                <tr><th class="bg-light">Visi</th><td>${d.visi||'-'}</td></tr>
+                <tr><th class="bg-light">Misi</th><td>${d.misi ? d.misi.replace(/\n/g, '<br>') : '-'}</td></tr>
+            </table>
+        </div>`; 
+        el('viewBody').innerHTML = h; new bootstrap.Modal('#mView').show(); 
+    }
+    
+    function initCrop(i,t){ 
+        if(i.files[0]){ 
+            TGT=t; const r=new FileReader(); 
+            r.onload=e=>{ 
+                el('img-crop').src = e.target.result; new bootstrap.Modal('#mCrop').show(); 
+                if(CROP){ CROP.destroy(); CROP=null; } 
+                setTimeout(()=>{ CROP=new Cropper(el('img-crop'),{aspectRatio:t=='logo'?1:0.75,viewMode:1,autoCropArea:1}); },300); 
+            }; 
+            r.readAsDataURL(i.files[0]); 
+        } 
+    }
+    
+    function doCrop(){ 
+        if(!CROP) return; 
+        const w=TGT=='logo'?150:300, h=TGT=='logo'?150:400; let b64; 
+        if(TGT=='logo') b64=CROP.getCroppedCanvas({width:w,height:h}).toDataURL('image/png'); 
+        else b64=CROP.getCroppedCanvas({width:w,height:h,fillColor:'#fff'}).toDataURL('image/jpeg',0.6); 
+        
+        if(TGT=='logo'){ el('logoNew').value=b64; el('logoPrev').src=b64; el('logoPrev').style.display='block'; el('logoTxt').style.display='none'; } 
+        else if(TGT=='p'){ el('p-b64').value=b64; el('p-img').src=b64; el('p-img').style.display='block'; el('p-txt').style.display='none'; } 
+        else if(TGT=='c'){ el('cfn').value=b64; el('cpr').src=b64; el('cpr').style.display='block'; el('cpt').style.display='none'; } 
+        else if(TGT=='v'){ el('vfn').value=b64; el('vpr').src=b64; el('vpr').style.display='block'; el('vpt').style.display='none'; } 
+        bootstrap.Modal.getInstance(el('mCrop')).hide(); 
+    }
+
+    // --- FITUR CETAK PDF ---
+    async function execPdf(htmlContent, filename) {
+        load(1);
+        const container = el('pdf-container');
+        container.innerHTML = htmlContent;
+        container.style.display = 'block';
+        
+        const opt = { 
+            margin: 0.5, filename: filename, image: { type: 'jpeg', quality: 0.98 }, 
+            html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } 
+        };
+        await html2pdf().set(opt).from(container).save();
+        container.style.display = 'none';
+        load(0);
+    }
+
+    function dlCard(username) {
+        const u = ALL_VOTERS.find(x => x.user === username) || ME.data;
+        if(!u) return Swal.fire('Error', 'Data pemilih tidak ditemukan', 'error');
+
+        const c = GLOBAL_CONFIG;
+        let html = `
+        <div style="font-family:'Helvetica',sans-serif; margin:0; padding:20px;">
+            <div style="width:550px; height:300px; padding:15px; border:2px solid #333; border-radius:10px; position:relative; overflow:hidden; background:#fff;">
+                <div style="border-bottom:2px solid #000; padding-bottom:10px; display:flex; align-items:center; gap:10px;">
+                    ${c.Logo ? `<img src="${c.Logo}" style="width:60px; height:60px; object-fit:contain;">` : ''}
+                    <div style="flex:1; text-align:center;">
+                        <h2 style="margin:0; font-size:14px; text-transform:uppercase;">${c.OrgFullName||'ORGANISASI'}</h2>
+                        <h1 style="margin:0; font-size:16px; text-transform:uppercase;">${c.OrgName||''}</h1>
+                        <p style="margin:2px 0 0; font-size:10px;">${c.OrgAddress||''}</p>
+                    </div>
+                </div>
+                <div style="text-align:center; margin:10px 0; font-weight:bold; font-size:14px; text-decoration:underline;">KARTU PESERTA PEMILIH</div>
+                <div style="display:flex; gap:15px; margin-top:10px; align-items:center;">
+                    <div style="width:100px; height:130px; border:1px solid #ddd; padding:3px; background:#fff; display:flex; justify-content:center; overflow:hidden;">
+                        <img src="${u.foto || 'https://via.placeholder.com/150'}" style="width:100%; height:100%; object-fit:cover;">
+                    </div>
+                    <div style="flex:1; font-size:12px;">
+                        <table style="width:100%; border-collapse:collapse;">
+                            <tr><td width="30%" style="padding:3px 0;"><b>Nama</b></td><td>: ${u.nama||'-'}</td></tr>
+                            <tr><td style="padding:3px 0;"><b>ID/NIA</b></td><td>: ${u.user||'-'}</td></tr>
+                            <tr><td style="padding:3px 0;"><b>TTL</b></td><td>: ${u.tp_lahir||'-'}, ${u.tg_lahir||'-'}</td></tr>
+                            <tr><td style="padding:3px 0;"><b>Wilayah</b></td><td>: ${u.prov||'-'}, ${u.kab||'-'}</td></tr>
+                        </table>
+                    </div>
+                </div>
+                <div style="position:absolute; bottom:0; left:0; right:0; background:#f1f5f9; padding:8px; font-size:10px; text-align:center; border-top:1px solid #ddd;">
+                    Kartu ini adalah bukti sah sebagai pemilih pada ${c.Judul||'Pemilihan'}.
+                </div>
+            </div>
+        </div>`;
+        execPdf(html, `Kartu_${username}.pdf`);
+    }
+
+    function dlPdf() {
+        const c = GLOBAL_CONFIG; const s = c.stats || {}; const cands = GLOBAL_CANDS || [];
+        let dateStr = new Date().toLocaleString('id-ID');
+        let html = `
+        <div style="font-family:sans-serif; padding:20px;">
+            <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">
+                ${c.Logo ? `<img src="${c.Logo}" style="width:80px;height:80px;object-fit:contain;"><br>` : ''}
+                <h3 style="margin:2px 0;">${c.OrgFullName||'ORGANISASI'}</h3>
+                <h2 style="margin:2px 0;">${c.OrgName||''}</h2>
+            </div>
+            <h3 style="text-align:center;">${c.Judul||'LAPORAN HASIL PEMILIHAN'}</h3>
+            <div style="margin-bottom:20px; font-size:12px;"><b>Waktu Cetak:</b> ${dateStr}<br><b>Total DPT:</b> ${s.tot||0} Pemilih</div>
+            <h4>A. PEROLEHAN SUARA KANDIDAT</h4>
+            <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:12px;">
+                <thead><tr><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">No</th><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">Nama Kandidat</th><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">Jumlah Suara</th><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">Persentase</th></tr></thead>
+                <tbody>`;
+        cands.forEach(cand => {
+            let pct = s.vot > 0 ? ((cand.suara/s.vot)*100).toFixed(2) : 0;
+            html += `<tr><td style="border:1px solid #000; padding:6px; text-align:center;">${cand.no}</td><td style="border:1px solid #000; padding:6px;">${cand.nama}</td><td style="border:1px solid #000; padding:6px; text-align:center;"><b>${cand.suara||0}</b></td><td style="border:1px solid #000; padding:6px; text-align:center;">${pct}%</td></tr>`;
+        });
+        html += `</tbody></table>
+            <h4 style="margin-top:30px;">B. REKAPITULASI SUARA</h4>
+            <table style="width:60%; border-collapse:collapse; font-size:12px;">
+                <tr><td style="border:1px solid #000; padding:6px;">Total Suara Sah</td><td style="border:1px solid #000; padding:6px; text-align:center;">${s.valid||0}</td></tr>
+                <tr><td style="border:1px solid #000; padding:6px;">Total Abstain</td><td style="border:1px solid #000; padding:6px; text-align:center;">${s.abstain||0}</td></tr>
+                <tr style="background:#eee;"><td style="border:1px solid #000; padding:6px;"><b>TOTAL SUARA MASUK</b></td><td style="border:1px solid #000; padding:6px; text-align:center;"><b>${s.vot||0}</b></td></tr>
+                <tr><td style="border:1px solid #000; padding:6px;">Belum Memilih</td><td style="border:1px solid #000; padding:6px; text-align:center;">${s.belum||0}</td></tr>
+            </table>
+        </div>`;
+        execPdf(html, 'Laporan_Resmi.pdf');
+    }
+
+    function dlCandPdf() {
+        const c = GLOBAL_CONFIG; const cands = GLOBAL_CANDS || [];
+        let html = `<div style="font-family:sans-serif; padding:20px;"><div style="text-align:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">${c.Logo ? `<img src="${c.Logo}" style="width:80px;height:80px;object-fit:contain;"><br>` : ''}<h3 style="margin:2px 0;">${c.OrgFullName||'ORGANISASI'}</h3><h2 style="margin:2px 0;">${c.OrgName||''}</h2></div><h3 style="text-align:center;">DAFTAR KANDIDAT</h3>`;
+        cands.forEach(cand => {
+            html += `<div style="border:1px solid #000; padding:15px; margin-bottom:15px; page-break-inside:avoid;"><table width="100%"><tr><td width="120" style="vertical-align:top;"><img src="${cand.foto||'https://via.placeholder.com/150'}" style="width:100px;height:130px;object-fit:cover;border:1px solid #ccc;"><h2 style="text-align:center;margin:5px 0;">NO: ${cand.no}</h2></td><td style="vertical-align:top;padding-left:15px;"><h3>${cand.nama}</h3><p><b>NIA:</b> ${cand.nia||'-'}<br><b>TTL:</b> ${cand.tp_lahir||'-'}, ${cand.tg_lahir||'-'}</p><hr><div style="text-decoration:underline;font-weight:bold;margin-bottom:5px;">VISI:</div><p>${cand.visi||'-'}</p><div style="text-decoration:underline;font-weight:bold;margin-bottom:5px;">MISI:</div><p>${cand.misi||'-'}</p></td></tr></table></div>`;
+        });
+        html += `</div>`;
+        execPdf(html, 'Data_Kandidat.pdf');
+    }
+  </script>
+</body>
+</html>
