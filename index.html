@@ -17,7 +17,6 @@
   .view-active { display: block !important; animation: fadeIn 0.4s; }
   @keyframes fadeIn { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
   
-  /* --- SIDEBAR & LAYOUT --- */
   .sidebar { width: 260px; height: 100vh; position: fixed; top: 0; left: 0; background: #0f172a; color: white; padding: 20px; z-index: 1050; transition: transform 0.3s; }
   .content { margin-left: 260px; padding: 20px; transition: margin-left 0.3s; width: auto; }
   .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1040; backdrop-filter: blur(2px); }
@@ -428,36 +427,27 @@
   <div class="modal fade" id="mCand">
       <div class="modal-dialog modal-lg">
           <div class="modal-content">
-              <div class="modal-header">
-                  <h5>Form Kandidat</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-              </div>
+              <div class="modal-header"><h5>Form Kandidat</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
               <div class="modal-body">
                   <form onsubmit="subCand(event)">
                       <input type="hidden" id="cid"><input type="hidden" id="cfo"><input type="hidden" id="cfn">
                       <div class="row">
                           <div class="col-md-4 text-center mb-3">
                               <div class="img-dummy mx-auto shadow-sm" style="width:140px;height:180px;cursor:pointer;border-radius:10px" onclick="el('cfl').click()">
-                                  <img id="cpr" src="" style="width:100%;height:100%;object-fit:cover;display:none;border-radius:10px">
-                                  <span id="cpt">FOTO</span>
+                                  <img id="cpr" src="" style="width:100%;height:100%;object-fit:cover;display:none;border-radius:10px"><span id="cpt">FOTO</span>
                               </div>
                               <input type="file" id="cfl" hidden onchange="initCrop(this,'c')">
                           </div>
                           <div class="col-md-8">
                               <div class="row g-2 mb-2">
-                                  <div class="col-3">
-                                      <div class="form-floating"><input type="number" id="cno" class="form-control" placeholder="No"><label>No Urut</label></div>
-                                  </div>
-                                  <div class="col">
-                                      <div class="form-floating"><input id="cnm" class="form-control" placeholder="Nama" required><label>Nama Lengkap</label></div>
-                                  </div>
+                                  <div class="col-3"><div class="form-floating"><input type="number" id="cno" class="form-control" placeholder="No"><label>No Urut</label></div></div>
+                                  <div class="col"><div class="form-floating"><input id="cnm" class="form-control" placeholder="Nama" required><label>Nama Lengkap</label></div></div>
                               </div>
                               <input id="cnia" class="form-control mb-2" placeholder="NIA">
                               <div class="row g-2 mb-2">
                                   <div class="col-5"><input id="ctpl" class="form-control" placeholder="Tempat Lahir"></div>
                                   <div class="col-4"><input type="date" id="ctgl" class="form-control"></div>
-                                  <div class="col-3">
-                                      <select id="cjk" class="form-select"><option value="L">L</option><option value="P">P</option></select>
-                                  </div>
+                                  <div class="col-3"><select id="cjk" class="form-select"><option value="L">L</option><option value="P">P</option></select></div>
                               </div>
                               <textarea id="calm" class="form-control mb-2" placeholder="Alamat Lengkap" rows="2"></textarea>
                               <textarea id="cvis" class="form-control mb-2" placeholder="Visi" rows="2"></textarea>
@@ -474,32 +464,21 @@
   <div class="modal fade" id="mVoter">
       <div class="modal-dialog modal-lg">
           <div class="modal-content">
-              <div class="modal-header">
-                  <h5>Form Pemilih</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-              </div>
+              <div class="modal-header"><h5>Form Pemilih</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
               <div class="modal-body">
                   <form onsubmit="subVoter(event)">
                       <input type="hidden" id="vfo"><input type="hidden" id="vfn">
                       <div class="row">
                           <div class="col-md-4 text-center mb-3">
                               <div class="img-dummy mx-auto shadow-sm" style="width:140px;height:180px;cursor:pointer;border-radius:10px" onclick="el('vfl').click()">
-                                  <img id="vpr" src="" style="width:100%;height:100%;object-fit:cover;display:none;border-radius:10px">
-                                  <span id="vpt">FOTO</span>
+                                  <img id="vpr" src="" style="width:100%;height:100%;object-fit:cover;display:none;border-radius:10px"><span id="vpt">FOTO</span>
                               </div>
                               <input type="file" id="vfl" hidden onchange="initCrop(this,'v')">
                           </div>
                           <div class="col-md-8">
                               <div class="row g-2 mb-2">
-                                  <div class="col">
-                                      <div class="form-floating"><input id="vu" class="form-control" placeholder="User" required><label>Username/ID</label></div>
-                                  </div>
-                                  <div class="col">
-                                      <div class="form-floating position-relative">
-                                          <input id="vp" type="password" class="form-control pe-5" placeholder="Pass">
-                                          <label>Password</label>
-                                          <span class="eye-icon" onclick="togglePass('vp')"><i class="bi bi-eye-slash" id="icon-vp"></i></span>
-                                      </div>
-                                  </div>
+                                  <div class="col"><div class="form-floating"><input id="vu" class="form-control" placeholder="User" required><label>Username/ID</label></div></div>
+                                  <div class="col"><div class="form-floating position-relative"><input id="vp" type="password" class="form-control pe-5" placeholder="Pass"><label>Password</label><span class="eye-icon" onclick="togglePass('vp')"><i class="bi bi-eye-slash" id="icon-vp"></i></span></div></div>
                               </div>
                               <input id="vnm" class="form-control mb-2" placeholder="Nama Lengkap" required>
                               <div class="row g-2 mb-2">
@@ -509,9 +488,7 @@
                               <div class="row g-2 mb-2">
                                   <div class="col-5"><input id="vtpl" class="form-control" placeholder="Tempat Lahir"></div>
                                   <div class="col-4"><input type="date" id="vtgl" class="form-control"></div>
-                                  <div class="col-3">
-                                      <select id="vjk" class="form-select"><option value="L">L</option><option value="P">P</option></select>
-                                  </div>
+                                  <div class="col-3"><select id="vjk" class="form-select"><option value="L">L</option><option value="P">P</option></select></div>
                               </div>
                               <textarea id="valm" class="form-control mb-2" placeholder="Alamat Lengkap" rows="2"></textarea>
                               <div class="row g-2 mb-2">
@@ -530,15 +507,11 @@
   <div class="modal fade" id="mPrivacy">
       <div class="modal-dialog modal-dialog-scrollable">
           <div class="modal-content">
-              <div class="modal-header">
-                  <h5 class="modal-title fw-bold"><i class="bi bi-shield-lock"></i> Kebijakan Privasi</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-              </div>
+              <div class="modal-header"><h5 class="modal-title fw-bold"><i class="bi bi-shield-lock"></i> Kebijakan Privasi</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
               <div class="modal-body">
-                  <h6>1. Pengumpulan Data</h6>
-                  <p class="small text-muted">Sistem ini mengumpulkan data berupa Username, Password (Enkripsi), Nama, NIA, dan Pilihan Suara Anda. Data digunakan semata-mata untuk keperluan verifikasi pemilihan.</p>
-                  <h6>2. Asas Kerahasiaan</h6>
-                  <p class="small text-muted">Pilihan suara Anda bersifat RAHASIA. Sistem memisahkan antara identitas pemilih dengan pilihan kandidat di database, sehingga admin pun tidak dapat melihat siapa memilih siapa (LUBER JURDIL).</p>
+                  <h6>1. Pengumpulan Data</h6><p class="small text-muted">Sistem ini mengumpulkan data berupa Username, Password (Enkripsi), Nama, NIA, dan Pilihan Suara Anda. Data digunakan semata-mata untuk keperluan verifikasi pemilihan.</p>
+                  <h6>2. Asas Kerahasiaan</h6><p class="small text-muted">Pilihan suara Anda bersifat RAHASIA. Sistem memisahkan antara identitas pemilih dengan pilihan kandidat di database, sehingga admin pun tidak dapat melihat siapa memilih siapa (LUBER JURDIL).</p>
+                  <h6>3. Keamanan Data</h6><p class="small text-muted">Password disimpan dalam bentuk Hash (terenkripsi satu arah). Kami menyarankan Anda segera mengganti password default setelah login pertama kali.</p>
               </div>
               <div class="modal-footer"><button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">SAYA MENGERTI</button></div>
           </div>
@@ -566,17 +539,7 @@
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app, "evoting-atas-indonesia");
 
-      window.db = db;
-      window.collection = collection;
-      window.getDocs = getDocs;
-      window.doc = doc;
-      window.getDoc = getDoc;
-      window.setDoc = setDoc;
-      window.updateDoc = updateDoc;
-      window.deleteDoc = deleteDoc;
-      window.runTransaction = runTransaction;
-      
-      // FIREBASE READY TRIGGER
+      window.db = db; window.collection = collection; window.getDocs = getDocs; window.doc = doc; window.getDoc = getDoc; window.setDoc = setDoc; window.updateDoc = updateDoc; window.deleteDoc = deleteDoc; window.runTransaction = runTransaction;
       window.firebaseLoaded = true;
       if (typeof window.checkFirebase === 'function') window.checkFirebase();
   </script>
@@ -591,10 +554,8 @@
     };
 
     let ME={}, CROP=null, TGT='', POLL=null, PG=1, START_TIME=null, END_TIME=null;
-    let isEnded = false, isStarted = false, isFinalizing = false;
-    let ALL_VOTERS = []; 
-    let GLOBAL_CONFIG = {}; 
-    let GLOBAL_CANDS = []; 
+    let isEnded = false, isStarted = false;
+    let ALL_VOTERS = []; let GLOBAL_CONFIG = {}; let GLOBAL_CANDS = []; 
     const el = i => document.getElementById(i);
 
     async function makeHash(message) {
@@ -604,45 +565,20 @@
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    setTimeout(() => { 
-        if(el('loader').style.display !== 'none') { 
-            el('spin').style.display='none'; 
-            el('error-box').style.display='block'; 
-        } 
-    }, 8000);
-
-    const load = s => { 
-        if(s) { el('loader').style.display = 'flex'; el('spin').style.display = 'block'; el('error-box').style.display = 'none'; } 
-        else { el('loader').style.display = 'none'; } 
-    }
-    
+    setTimeout(() => { if(el('loader').style.display !== 'none') { el('spin').style.display='none'; el('error-box').style.display='block'; } }, 8000);
+    const load = s => { if(s) { el('loader').style.display = 'flex'; el('spin').style.display = 'block'; el('error-box').style.display = 'none'; } else { el('loader').style.display = 'none'; } }
     function forceEnter(){ load(0); }
 
     function parseDateSafe(str) {
          if(!str) return null;
-         try { 
-             let t = new Date(str).getTime(); 
-             if(!isNaN(t)) return t; 
-             let parts = str.split('T'); 
-             if(parts.length < 2) return null; 
-             let d = parts[0].split('-'); let tm = parts[1].split(':'); 
-             return new Date(d[0], d[1]-1, d[2], tm[0], tm[1]).getTime(); 
-         } catch(e) { return null; }
+         try { let t = new Date(str).getTime(); if(!isNaN(t)) return t; let parts = str.split('T'); if(parts.length < 2) return null; let d = parts[0].split('-'); let tm = parts[1].split(':'); return new Date(d[0], d[1]-1, d[2], tm[0], tm[1]).getTime(); } catch(e) { return null; }
     }
-    function getTimeStamp(v) { 
-        if (!v) return null; 
-        if (typeof v === 'number') return v; 
-        return parseDateSafe(v); 
-    }
+    function getTimeStamp(v) { if (!v) return null; if (typeof v === 'number') return v; return parseDateSafe(v); }
 
     // INIT
     window.onload = function() {
         load(1);
-        if (window.firebaseLoaded) {
-            initApp();
-        } else {
-            window.checkFirebase = initApp;
-        }
+        if (window.firebaseLoaded) { initApp(); } else { window.checkFirebase = initApp; }
     }
 
     async function initApp() {
@@ -651,18 +587,10 @@
             if (confSnap.exists()) {
                 GLOBAL_CONFIG = confSnap.data();
                 if (GLOBAL_CONFIG.OrgName) el('login-org').innerText = GLOBAL_CONFIG.OrgName;
-                if (GLOBAL_CONFIG.Logo) { 
-                    el('login-logo').src = GLOBAL_CONFIG.Logo; 
-                    el('login-logo').style.display = 'block'; 
-                    el('login-logo-div').style.display = 'none'; 
-                    el('live-logo').src = GLOBAL_CONFIG.Logo; 
-                }
+                if (GLOBAL_CONFIG.Logo) { el('login-logo').src = GLOBAL_CONFIG.Logo; el('login-logo').style.display = 'block'; el('login-logo-div').style.display = 'none'; el('live-logo').src = GLOBAL_CONFIG.Logo; }
             }
             const sesiLokal = localStorage.getItem('evote_session'); 
-            if (sesiLokal) { 
-                ME = JSON.parse(sesiLokal); 
-                if (ME.role === 'admin') { nav('admin'); refAdmin(); } else { nav('voter'); refVoter(); } 
-            }
+            if (sesiLokal) { ME = JSON.parse(sesiLokal); if (ME.role === 'admin') { nav('admin'); refAdmin(); } else { nav('voter'); refVoter(); } }
             load(0);
         } catch(e) { load(0); }
     }
@@ -677,26 +605,18 @@
             let isFound = false;
             querySnap.forEach((doc) => {
                 const data = doc.data();
-                if (data.user === u && data.pass === p) {
-                    isFound = true; ME = { status: 'success', role: 'admin', token: doc.id, data: { nama: data.nama, user: data.user } };
-                }
+                if (data.user === u && data.pass === p) { isFound = true; ME = { status: 'success', role: 'admin', token: doc.id, data: { nama: data.nama, user: data.user } }; }
             });
             if (!isFound) {
                 const hashPass = await makeHash(p);
                 const vDoc = await window.getDoc(window.doc(window.db, "voters", u));
                 if (vDoc.exists()) {
                     const data = vDoc.data();
-                    if (data.pass === hashPass || data.pass === p) {
-                        isFound = true; ME = { status: 'success', role: 'voter', token: vDoc.id, data: data, voted: data.voted };
-                    }
+                    if (data.pass === hashPass || data.pass === p) { isFound = true; ME = { status: 'success', role: 'voter', token: vDoc.id, data: data, voted: data.voted }; }
                 }
             }
             load(0);
-            if (isFound) {
-                localStorage.setItem('evote_session', JSON.stringify(ME));
-                if (ME.role === 'admin') { nav('admin'); refAdmin(); } else { nav('voter'); refVoter(); }
-                Swal.fire('Berhasil', 'Selamat datang', 'success');
-            } else { Swal.fire('Gagal', 'Username atau Password salah!', 'error'); }
+            if (isFound) { localStorage.setItem('evote_session', JSON.stringify(ME)); if (ME.role === 'admin') { nav('admin'); refAdmin(); } else { nav('voter'); refVoter(); } Swal.fire('Berhasil', 'Selamat datang', 'success'); } else { Swal.fire('Gagal', 'Username atau Password salah!', 'error'); }
         } catch (error) { load(0); Swal.fire('Error DB', error.message, 'error'); }
     }
 
@@ -704,13 +624,7 @@
     function checkLogin(){ if(ME.role) { if(ME.role=='admin')nav('admin'); else nav('voter'); } else nav('login'); }
 
     // ADMIN
-    function admNav(p) { 
-        document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); 
-        event.currentTarget.classList.add('active'); 
-        ['dash','cand','voter','set'].forEach(x=>el('pg-'+x).classList.add('d-none')); 
-        el('pg-'+p).classList.remove('d-none'); 
-        if(window.innerWidth<768) toggleMenu(); 
-    }
+    function admNav(p) { document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); event.currentTarget.classList.add('active'); ['dash','cand','voter','set'].forEach(x=>el('pg-'+x).classList.add('d-none')); el('pg-'+p).classList.remove('d-none'); if(window.innerWidth<768) toggleMenu(); }
     
     async function refAdmin(page=1, src='') {
         load(1);
@@ -722,113 +636,41 @@
             const candSnap = await window.getDocs(window.collection(window.db, "candidates"));
             let cands = []; let totValid = 0;
             candSnap.forEach(d => { let data = d.data(); data.id = d.id; cands.push(data); totValid += (data.suara || 0); });
-            cands.sort((a,b) => a.no - b.no); 
-            GLOBAL_CANDS = cands;
+            cands.sort((a,b) => a.no - b.no); GLOBAL_CANDS = cands;
 
             const votSnap = await window.getDocs(window.collection(window.db, "voters"));
-            ALL_VOTERS = []; let totVoted = 0;
-            const q = src.toLowerCase();
-            votSnap.forEach(d => { 
-                let data = d.data(); data.user = d.id; 
-                if(src==='' || data.user.toLowerCase().includes(q) || (data.nama && data.nama.toLowerCase().includes(q))) { ALL_VOTERS.push(data); }
-                if(data.voted === true) totVoted++; 
-            });
-
+            ALL_VOTERS = []; let totVoted = 0; const q = src.toLowerCase();
+            votSnap.forEach(d => { let data = d.data(); data.user = d.id; if(src==='' || data.user.toLowerCase().includes(q) || (data.nama && data.nama.toLowerCase().includes(q))) { ALL_VOTERS.push(data); } if(data.voted === true) totVoted++; });
+            
             let stats = { tot: votSnap.size, vot: totVoted, valid: totValid, abstain: totVoted - totValid, belum: votSnap.size - totVoted };
             GLOBAL_CONFIG.stats = stats;
 
-            if(c.OrgName) el('setOrg').value = c.OrgName; if(c.OrgFullName) el('setOrgFull').value = c.OrgFullName;
-            if(c.OrgLegal) el('setOrgLegal').value = c.OrgLegal; if(c.OrgAddress) el('setOrgAddr').value = c.OrgAddress;
-            if(c.Judul) el('setJudul').value = c.Judul; if(c.StartTime) el('setStart').value = c.StartTime;
-            if(c.EndTime) el('setEnd').value = c.EndTime; if(c.Web) el('setWeb').value = c.Web;
-            if(c.Email) el('setEmail').value = c.Email; if(c.HP) el('setHP').value = c.HP;
-            if(c.Logo) { el('logoPrev').src=c.Logo; el('logoPrev').style.display='block'; el('logoTxt').style.display='none'; }
+            if(c.OrgName) el('setOrg').value = c.OrgName; if(c.OrgFullName) el('setOrgFull').value = c.OrgFullName; if(c.OrgLegal) el('setOrgLegal').value = c.OrgLegal; if(c.OrgAddress) el('setOrgAddr').value = c.OrgAddress; if(c.Judul) el('setJudul').value = c.Judul; if(c.StartTime) el('setStart').value = c.StartTime; if(c.EndTime) el('setEnd').value = c.EndTime; if(c.Web) el('setWeb').value = c.Web; if(c.Email) el('setEmail').value = c.Email; if(c.HP) el('setHP').value = c.HP; if(c.Logo) { el('logoPrev').src=c.Logo; el('logoPrev').style.display='block'; el('logoTxt').style.display='none'; }
             
-            el('st-tot').innerText = stats.tot; el('st-vot').innerText = stats.vot; 
-            el('st-abstain').innerText = stats.abstain; el('st-belum').innerText = stats.belum;
+            el('st-tot').innerText = stats.tot; el('st-vot').innerText = stats.vot; el('st-abstain').innerText = stats.abstain; el('st-belum').innerText = stats.belum;
             
             let dashHTML='';
-            if(cands.length > 0) { 
-                cands.forEach(x => { 
-                    dashHTML += `
-                    <div class="col-md-4">
-                        <div class="card-box p-3 border-start border-4 border-info d-flex align-items-center gap-3">
-                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center fw-bold text-primary" style="width:50px;height:50px;font-size:1.2rem">${x.no}</div>
-                            <div>
-                                <div class="fw-bold text-truncate" style="max-width:150px">${x.nama}</div>
-                                <div class="h5 fw-bold mb-0 text-primary">${x.suara || 0} Suara</div>
-                            </div>
-                        </div>
-                    </div>`; 
-                }); 
-            }
+            if(cands.length > 0) { cands.forEach(x => { dashHTML += `<div class="col-md-4"><div class="card-box p-3 border-start border-4 border-info d-flex align-items-center gap-3"><div class="bg-light rounded-circle d-flex align-items-center justify-content-center fw-bold text-primary" style="width:50px;height:50px;font-size:1.2rem">${x.no}</div><div><div class="fw-bold text-truncate" style="max-width:150px">${x.nama}</div><div class="h5 fw-bold mb-0 text-primary">${x.suara || 0} Suara</div></div></div></div>`; }); }
             el('dash-cands').innerHTML = dashHTML || '<div class="col-12 text-center text-muted">Belum ada kandidat</div>';
 
             let hc=''; 
-            cands.forEach(cand => { 
-                hc += `
-                <div class="col-md-6">
-                    <div class="card-box h-100 d-flex align-items-center gap-3">
-                        <img src="${cand.foto||''}" class="cand-admin-img shadow-sm" onerror="this.src='https://via.placeholder.com/80?text=IMG'">
-                        <div class="flex-fill overflow-hidden">
-                            <div class="badge bg-primary mb-1">No. ${cand.no}</div>
-                            <div class="fw-bold fs-5 text-dark text-truncate">${cand.nama}</div>
-                            <div class="text-muted small">${cand.suara || 0} Suara</div>
-                        </div>
-                        <div class="d-flex flex-column gap-2">
-                            <button class="btn btn-sm btn-light border" onclick='viewData(${JSON.stringify(cand)},"c")'><i class="bi bi-eye"></i></button>
-                            <button class="btn btn-sm btn-warning text-white" onclick='mdlCand(${JSON.stringify(cand)})'><i class="bi bi-pencil"></i></button>
-                            <button class="btn btn-sm btn-danger" onclick="del('candidates','${cand.id}')"><i class="bi bi-trash"></i></button>
-                        </div>
-                    </div>
-                </div>`; 
-            }); 
+            cands.forEach(cand => { hc += `<div class="col-md-6"><div class="card-box h-100 d-flex align-items-center gap-3"><img src="${cand.foto||''}" class="cand-admin-img shadow-sm" onerror="this.src='https://via.placeholder.com/80?text=IMG'"><div class="flex-fill overflow-hidden"><div class="badge bg-primary mb-1">No. ${cand.no}</div><div class="fw-bold fs-5 text-dark text-truncate">${cand.nama}</div><div class="text-muted small">${cand.suara || 0} Suara</div></div><div class="d-flex flex-column gap-2"><button class="btn btn-sm btn-light border" onclick='viewData(${JSON.stringify(cand)},"c")'><i class="bi bi-eye"></i></button><button class="btn btn-sm btn-warning text-white" onclick='mdlCand(${JSON.stringify(cand)})'><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-danger" onclick="del('candidates','${cand.id}')"><i class="bi bi-trash"></i></button></div></div></div>`; }); 
             el('g-cand').innerHTML = hc || '<div class="text-center text-muted col-12 py-5">Belum ada kandidat</div>';
 
-            PG = page;
-            const perPage = 20;
-            const totalPages = Math.ceil(ALL_VOTERS.length / perPage) || 1;
-            el('vPage').innerText = `${PG} dari ${totalPages}`;
-            
-            let hv=''; 
-            const paginatedVoters = ALL_VOTERS.slice((PG - 1) * perPage, PG * perPage);
-            
-            paginatedVoters.forEach(v => {
-                let badgeClass = v.voted ? 'bg-success' : 'bg-secondary';
-                let badgeText = v.voted ? 'SUDAH MEMILIH' : 'BELUM';
-                hv += `
-                <tr>
-                    <td class="ps-4 fw-bold font-monospace small">${v.user}</td>
-                    <td>${v.nama || '-'}</td>
-                    <td><span class="badge ${badgeClass}">${badgeText}</span></td>
-                    <td class="text-end pe-4">
-                        <button class="btn btn-sm btn-info text-white me-1" onclick="dlCard('${v.user}')" title="Cetak Kartu"><i class="bi bi-printer"></i></button>
-                        <button class="btn btn-sm btn-warning me-1" onclick='mdlVoter(${JSON.stringify(v)})'><i class="bi bi-pencil"></i></button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="del('voters','${v.user}')"><i class="bi bi-trash"></i></button>
-                    </td>
-                </tr>`;
-            });
+            PG = page; const perPage = 20; const totalPages = Math.ceil(ALL_VOTERS.length / perPage) || 1; el('vPage').innerText = `${PG} dari ${totalPages}`;
+            let hv=''; const paginatedVoters = ALL_VOTERS.slice((PG - 1) * perPage, PG * perPage);
+            paginatedVoters.forEach(v => { let badgeClass = v.voted ? 'bg-success' : 'bg-secondary'; let badgeText = v.voted ? 'SUDAH MEMILIH' : 'BELUM'; hv += `<tr><td class="ps-4 fw-bold font-monospace small">${v.user}</td><td>${v.nama || '-'}</td><td><span class="badge ${badgeClass}">${badgeText}</span></td><td class="text-end pe-4"><button class="btn btn-sm btn-info text-white me-1" onclick="dlCard('${v.user}')" title="Cetak Kartu"><i class="bi bi-printer"></i></button><button class="btn btn-sm btn-warning me-1" onclick='mdlVoter(${JSON.stringify(v)})'><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger" onclick="del('voters','${v.user}')"><i class="bi bi-trash"></i></button></td></tr>`; });
             el('t-voter').innerHTML = hv || '<tr><td colspan="4" class="text-center py-4">Data tidak ditemukan</td></tr>';
             load(0);
         } catch(e) { load(0); Swal.fire('Error Database', e.message, 'error'); }
     }
 
-    function pg(d) { 
-        let n = PG + d; const maxPg = Math.ceil(ALL_VOTERS.length / 20) || 1; 
-        if(n < 1) n = 1; if(n > maxPg) n = maxPg; refAdmin(n, el('vSearch').value); 
-    }
+    function pg(d) { let n = PG + d; const maxPg = Math.ceil(ALL_VOTERS.length / 20) || 1; if(n < 1) n = 1; if(n > maxPg) n = maxPg; refAdmin(n, el('vSearch').value); }
     function searchVoter() { refAdmin(1, el('vSearch').value); }
     
     function viewData(d, type) {
-       let h = `
-       <div class="text-center mb-4"><img src="${d.foto||''}" class="shadow rounded" style="width:150px;height:200px;object-fit:cover" onerror="this.style.display='none'"></div>
-       <table class="table table-bordered align-middle">`;
-       if(type == 'c') {
-           h += `<tr><th width="30%">No Urut</th><td class="fw-bold text-primary fs-5">${d.no}</td></tr><tr><th>Nama Kandidat</th><td>${d.nama}</td></tr><tr><th>NIA</th><td>${d.nia||'-'}</td></tr><tr><th>Visi</th><td>${d.visi||'-'}</td></tr><tr><th>Misi</th><td>${d.misi||'-'}</td></tr>`;
-       } else {
-           let statusBadge = d.voted ? '<span class="badge bg-success">SUDAH MEMILIH</span>' : '<span class="badge bg-secondary">BELUM</span>';
-           h += `<tr><th>Nama</th><td>${d.nama}</td></tr><tr><th>Username</th><td>${d.user}</td></tr><tr><th>Wilayah</th><td>${d.prov||'-'}, ${d.kab||'-'}</td></tr><tr><th>Status</th><td>${statusBadge}</td></tr>`;
-       }
+       let h = `<div class="text-center mb-4"><img src="${d.foto||''}" class="shadow rounded" style="width:150px;height:200px;object-fit:cover" onerror="this.style.display='none'"></div><table class="table table-bordered align-middle">`;
+       if(type == 'c') { h += `<tr><th width="30%">No Urut</th><td class="fw-bold text-primary fs-5">${d.no}</td></tr><tr><th>Nama Kandidat</th><td>${d.nama}</td></tr><tr><th>NIA</th><td>${d.nia||'-'}</td></tr><tr><th>Visi</th><td>${d.visi||'-'}</td></tr><tr><th>Misi</th><td>${d.misi||'-'}</td></tr>`; } else { let statusBadge = d.voted ? '<span class="badge bg-success">SUDAH MEMILIH</span>' : '<span class="badge bg-secondary">BELUM</span>'; h += `<tr><th>Nama</th><td>${d.nama}</td></tr><tr><th>Username</th><td>${d.user}</td></tr><tr><th>Wilayah</th><td>${d.prov||'-'}, ${d.kab||'-'}</td></tr><tr><th>Status</th><td>${statusBadge}</td></tr>`; }
        h += '</table>'; el('viewBody').innerHTML = h; new bootstrap.Modal('#mView').show();
     }
 
@@ -836,33 +678,16 @@
     async function subCand(e) {
         e.preventDefault(); load(1); let id = el('cid').value;
         const d = { no: parseInt(el('cno').value) || 0, nama: el('cnm').value, nia: el('cnia').value, tp_lahir: el('ctpl').value, tg_lahir: el('ctgl').value, jk: el('cjk').value, alamat: el('calm').value, visi: el('cvis').value, misi: el('cmis').value, foto: el('cfn').value ? el('cfn').value : el('cfo').value };
-        try {
-            if (id) { await window.updateDoc(window.doc(window.db, "candidates", id), d); } 
-            else { d.suara = 0; await window.setDoc(window.doc(window.collection(window.db, "candidates")), d); }
-            load(0); bootstrap.Modal.getInstance(el('mCand')).hide(); refAdmin(); Swal.fire('Sukses', 'Kandidat tersimpan!', 'success');
-        } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
+        try { if (id) { await window.updateDoc(window.doc(window.db, "candidates", id), d); } else { d.suara = 0; await window.setDoc(window.doc(window.collection(window.db, "candidates")), d); } load(0); bootstrap.Modal.getInstance(el('mCand')).hide(); refAdmin(); Swal.fire('Sukses', 'Kandidat tersimpan!', 'success'); } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
     }
 
     async function subVoter(e) {
-        e.preventDefault(); load(1);
-        let id = el('vu').value.trim(); let passTxt = el('vp').value.trim();
+        e.preventDefault(); load(1); let id = el('vu').value.trim(); let passTxt = el('vp').value.trim();
         const d = { nama: el('vnm').value, nia: el('vnia').value, tp_lahir: el('vtpl').value, tg_lahir: el('vtgl').value, jk: el('vjk').value, alamat: el('valm').value, prov: el('vprv').value, kab: el('vkb').value, foto: el('vfn').value ? el('vfn').value : el('vfo').value };
-        try {
-            if(passTxt !== "") d.pass = await makeHash(passTxt);
-            const docRef = window.doc(window.db, "voters", id); 
-            const docSnap = await window.getDoc(docRef);
-            if (docSnap.exists() && el('vu').readOnly === false) { load(0); Swal.fire('Gagal', 'Username/ID sudah dipakai', 'error'); return; }
-            if(!docSnap.exists()) d.voted = false;
-            await window.setDoc(docRef, d, { merge: true });
-            load(0); bootstrap.Modal.getInstance(el('mVoter')).hide(); refAdmin(); Swal.fire('Sukses', 'Pemilih tersimpan!', 'success');
-        } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
+        try { if(passTxt !== "") d.pass = await makeHash(passTxt); const docRef = window.doc(window.db, "voters", id); const docSnap = await window.getDoc(docRef); if (docSnap.exists() && el('vu').readOnly === false) { load(0); Swal.fire('Gagal', 'Username/ID sudah dipakai', 'error'); return; } if(!docSnap.exists()) d.voted = false; await window.setDoc(docRef, d, { merge: true }); load(0); bootstrap.Modal.getInstance(el('mVoter')).hide(); refAdmin(); Swal.fire('Sukses', 'Pemilih tersimpan!', 'success'); } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
     }
 
-    async function del(t,i) { 
-        Swal.fire({title:'Hapus data?',icon:'warning',showCancelButton:true}).then(async r=>{ 
-            if(r.isConfirmed){ load(1); try { await window.deleteDoc(window.doc(window.db, t, i)); load(0); refAdmin(); } catch(e) { load(0); Swal.fire('Gagal',e.message,'error'); } } 
-        }); 
-    }
+    async function del(t,i) { Swal.fire({title:'Hapus data?',icon:'warning',showCancelButton:true}).then(async r=>{ if(r.isConfirmed){ load(1); try { await window.deleteDoc(window.doc(window.db, t, i)); load(0); refAdmin(); } catch(e) { load(0); Swal.fire('Gagal',e.message,'error'); } } }); }
 
     async function saveSet(e) {
         e.preventDefault(); load(1);
@@ -871,37 +696,15 @@
     }
     
     async function changeAdmin(e) {
-        e.preventDefault(); load(1);
-        let nUser = el('admUser').value.trim(); let nPass = el('admPass').value.trim();
-        try {
-            if(nUser && nPass) {
-                const qSnap = await window.getDocs(window.collection(window.db, "admins"));
-                if(qSnap.empty) throw new Error("Tidak ada data admin awal.");
-                let oldDocId = qSnap.docs[0].id; 
-                await window.updateDoc(window.doc(window.db, "admins", oldDocId), { user: nUser, pass: nPass });
-                load(0); Swal.fire('Sukses', 'Akun admin diupdate. Silakan login ulang.', 'success').then(()=>logout());
-            }
-        } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
+        e.preventDefault(); load(1); let nUser = el('admUser').value.trim(); let nPass = el('admPass').value.trim();
+        try { if(nUser && nPass) { const qSnap = await window.getDocs(window.collection(window.db, "admins")); if(qSnap.empty) throw new Error("Tidak ada data admin awal."); let oldDocId = qSnap.docs[0].id; await window.updateDoc(window.doc(window.db, "admins", oldDocId), { user: nUser, pass: nPass }); load(0); Swal.fire('Sukses', 'Akun admin diupdate. Silakan login ulang.', 'success').then(()=>logout()); } } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
     }
 
-    function readCSVFile(input) {
-        const file = input.files[0];
-        if (file) { const reader = new FileReader(); reader.onload = function(e) { el('csvIn').value = e.target.result; }; reader.readAsText(file); }
-    }
+    function readCSVFile(input) { const file = input.files[0]; if (file) { const reader = new FileReader(); reader.onload = function(e) { el('csvIn').value = e.target.result; }; reader.readAsText(file); } }
 
     async function runImport() {
         load(1);
-        try {
-            const csv = el('csvIn').value.split('\n'); let count = 0;
-            for (let i = 1; i < csv.length; i++) {
-                let row = csv[i].split(',');
-                if(row.length >= 3 && row[0]) {
-                    let vUser = row[0].trim(); let vPass = await makeHash(row[1] ? row[1].trim() : '123');
-                    await window.setDoc(window.doc(window.db, "voters", vUser), { nama: row[2]?row[2].trim():'', nia: row[3]?row[3].trim():'', pass: vPass, voted: false }, {merge:true}); count++;
-                }
-            }
-            load(0); bootstrap.Modal.getInstance(el('mImport')).hide(); refAdmin(); Swal.fire('Selesai', count + ' data diimpor', 'success');
-        } catch(e) { load(0); Swal.fire('Gagal', e.message, 'error'); }
+        try { const csv = el('csvIn').value.split('\n'); let count = 0; for (let i = 1; i < csv.length; i++) { let row = csv[i].split(','); if(row.length >= 3 && row[0]) { let vUser = row[0].trim(); let vPass = await makeHash(row[1] ? row[1].trim() : '123'); await window.setDoc(window.doc(window.db, "voters", vUser), { nama: row[2]?row[2].trim():'', nia: row[3]?row[3].trim():'', pass: vPass, voted: false }, {merge:true}); count++; } } load(0); bootstrap.Modal.getInstance(el('mImport')).hide(); refAdmin(); Swal.fire('Selesai', count + ' data diimpor', 'success'); } catch(e) { load(0); Swal.fire('Gagal', e.message, 'error'); }
     }
     function dlTemp(){ const b=new Blob(["Username,Password,Nama,NIA\nuser1,123,Budi,12345"],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Template.csv'; a.click(); }
 
@@ -909,88 +712,38 @@
     function voterNav(p) { ['vote','profil'].forEach(x=>el('vp-'+x).classList.add('d-none')); el('vp-'+p).classList.remove('d-none'); if(window.innerWidth<768) toggleMenu(); }
 
     async function refVoter() {
-        if (!ME || !ME.token) return logout();
-        load(1);
+        if (!ME || !ME.token) return logout(); load(1);
         try {
-            const uDoc = await window.getDoc(window.doc(window.db, "voters", ME.token));
-            const confSnap = await window.getDoc(window.doc(window.db, "config", "utama"));
-            const candSnap = await window.getDocs(window.collection(window.db, "candidates"));
-            
-            let c = confSnap.exists() ? confSnap.data() : {};
-            let d = uDoc.exists() ? uDoc.data() : ME.data;
-            GLOBAL_CONFIG = c; ME.data = d; ME.voted = d.voted;
-            localStorage.setItem('evote_session', JSON.stringify(ME));
-
-            if (el('v-name')) el('v-name').innerText = d.nama;
-            if (el('p-user')) el('p-user').value = ME.token;
-            if (el('p-tpl')) el('p-tpl').value = d.tp_lahir || '';
-            if (el('p-tgl')) el('p-tgl').value = d.tg_lahir || '';
-            if (el('p-alm')) el('p-alm').value = d.alamat || '';
-            if (d.foto && d.foto.length > 50) { el('p-img').src = d.foto; el('p-img').style.display='block'; el('p-txt').style.display='none'; }
-
-            if (el('p-prov')) {
-                el('p-prov').innerHTML = '<option value="">Pilih Provinsi</option>';
-                for (let k in WIL) { el('p-prov').innerHTML += `<option value="${k}">${k}</option>`; }
-                el('p-prov').value = d.prov || '';
-                ldKabProf(d.kab);
-            }
-
-            if (ME.voted) {
-                el('alert-ok').classList.remove('d-none'); el('vote-area').classList.add('d-none'); el('v-wait').classList.add('d-none');
-            } else {
-                el('alert-ok').classList.add('d-none');
-                let cands = []; candSnap.forEach(d => { let dx=d.data(); dx.id=d.id; cands.push(dx); }); cands.sort((a,b) => a.no - b.no);
-                let h = '';
-                cands.forEach(cand => {
-                    const sData = JSON.stringify(cand).replace(/'/g, "&#39;");
-                    h += `<div class="col-md-6 col-lg-4 mb-4"><div class="card-box v-card h-100 p-0 overflow-hidden position-relative shadow-sm"><div class="position-absolute top-0 start-0 bg-primary text-white px-3 py-1 rounded-bottom-end fw-bold z-1" style="font-size:1.2rem">No. ${cand.no}</div><img src="${cand.foto||''}" style="width:100%;height:250px;object-fit:cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"><div class="p-4 text-center"><h4 class="fw-bold mb-1">${cand.nama}</h4><div class="text-muted small mb-3 text-truncate">${cand.visi||''}</div><button class="btn btn-sm btn-outline-info w-100 mb-2 rounded-pill fw-bold" onclick='viewCandProfile(${sData})'><i class="bi bi-info-circle-fill me-1"></i> LIHAT PROFIL</button><button class="btn btn-primary w-100 py-2 rounded-pill fw-bold" onclick="vote('${cand.id}','${cand.nama}')">COBLOS NO ${cand.no}</button></div></div></div>`;
-                });
-                el('g-vote').innerHTML = h || '<div class="col-12 text-center py-5"><h4>Belum ada kandidat</h4></div>';
-            }
-
-            if(c.StartTime_TS) START_TIME = c.StartTime_TS; if(c.EndTime_TS) END_TIME = c.EndTime_TS;
-            updateVoterTimer(); if (window.POLL) clearInterval(window.POLL); window.POLL = setInterval(updateVoterTimer, 1000);
-            
-            load(0);
+            const uDoc = await window.getDoc(window.doc(window.db, "voters", ME.token)); const confSnap = await window.getDoc(window.doc(window.db, "config", "utama")); const candSnap = await window.getDocs(window.collection(window.db, "candidates"));
+            let c = confSnap.exists() ? confSnap.data() : {}; let d = uDoc.exists() ? uDoc.data() : ME.data; GLOBAL_CONFIG = c; ME.data = d; ME.voted = d.voted; localStorage.setItem('evote_session', JSON.stringify(ME));
+            if (el('v-name')) el('v-name').innerText = d.nama; if (el('p-user')) el('p-user').value = ME.token; if (el('p-tpl')) el('p-tpl').value = d.tp_lahir || ''; if (el('p-tgl')) el('p-tgl').value = d.tg_lahir || ''; if (el('p-alm')) el('p-alm').value = d.alamat || ''; if (d.foto && d.foto.length > 50) { el('p-img').src = d.foto; el('p-img').style.display='block'; el('p-txt').style.display='none'; }
+            if (el('p-prov')) { el('p-prov').innerHTML = '<option value="">Pilih Provinsi</option>'; for (let k in WIL) { el('p-prov').innerHTML += `<option value="${k}">${k}</option>`; } el('p-prov').value = d.prov || ''; ldKabProf(d.kab); }
+            if (ME.voted) { el('alert-ok').classList.remove('d-none'); el('vote-area').classList.add('d-none'); el('v-wait').classList.add('d-none'); } else { el('alert-ok').classList.add('d-none'); let cands = []; candSnap.forEach(d => { let dx=d.data(); dx.id=d.id; cands.push(dx); }); cands.sort((a,b) => a.no - b.no); let h = ''; cands.forEach(cand => { const sData = JSON.stringify(cand).replace(/'/g, "&#39;"); h += `<div class="col-md-6 col-lg-4 mb-4"><div class="card-box v-card h-100 p-0 overflow-hidden position-relative shadow-sm"><div class="position-absolute top-0 start-0 bg-primary text-white px-3 py-1 rounded-bottom-end fw-bold z-1" style="font-size:1.2rem">No. ${cand.no}</div><img src="${cand.foto||''}" style="width:100%;height:250px;object-fit:cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"><div class="p-4 text-center"><h4 class="fw-bold mb-1">${cand.nama}</h4><div class="text-muted small mb-3 text-truncate">${cand.visi||''}</div><button class="btn btn-sm btn-outline-info w-100 mb-2 rounded-pill fw-bold" onclick='viewCandProfile(${sData})'><i class="bi bi-info-circle-fill me-1"></i> LIHAT PROFIL</button><button class="btn btn-primary w-100 py-2 rounded-pill fw-bold" onclick="vote('${cand.id}','${cand.nama}')">COBLOS NO ${cand.no}</button></div></div></div>`; }); el('g-vote').innerHTML = h || '<div class="col-12 text-center py-5"><h4>Belum ada kandidat</h4></div>'; }
+            if(c.StartTime_TS) START_TIME = c.StartTime_TS; if(c.EndTime_TS) END_TIME = c.EndTime_TS; updateVoterTimer(); if (window.POLL) clearInterval(window.POLL); window.POLL = setInterval(updateVoterTimer, 1000); load(0);
         } catch(e) { load(0); Swal.fire('Error Database', e.message, 'error'); }
     }
 
     async function vote(id, n) {
-        const now = new Date().getTime();
-        if(START_TIME && now < START_TIME) { Swal.fire('BELUM DIBUKA', 'Mohon tunggu...', 'warning'); return; }
+        const now = new Date().getTime(); if(START_TIME && now < START_TIME) { Swal.fire('BELUM DIBUKA', 'Mohon tunggu...', 'warning'); return; }
         Swal.fire({title:'Pilih '+n+'?', icon:'question', showCancelButton:true, confirmButtonText:'YA'}).then(async r => {
             if(r.isConfirmed) {
                 load(1);
                 try {
-                    const voterRef = window.doc(window.db, "voters", ME.token);
-                    const candRef = id === 'ABSTAIN' ? null : window.doc(window.db, "candidates", id);
-
-                    await window.runTransaction(window.db, async (transaction) => {
-                        const voterDoc = await transaction.get(voterRef);
-                        if (!voterDoc.exists() || voterDoc.data().voted) { throw "Anda sudah memilih!"; }
-                        if (candRef) { const candDoc = await transaction.get(candRef); const newSuara = (candDoc.data().suara || 0) + 1; transaction.update(candRef, { suara: newSuara }); }
-                        transaction.update(voterRef, { voted: true });
-                    });
-                    ME.voted = true; localStorage.setItem('evote_session', JSON.stringify(ME)); refVoter();
-                    load(0); Swal.fire('Berhasil','Suara Anda telah masuk.','success');
+                    const voterRef = window.doc(window.db, "voters", ME.token); const candRef = id === 'ABSTAIN' ? null : window.doc(window.db, "candidates", id);
+                    await window.runTransaction(window.db, async (transaction) => { const voterDoc = await transaction.get(voterRef); if (!voterDoc.exists() || voterDoc.data().voted) { throw "Anda sudah memilih!"; } if (candRef) { const candDoc = await transaction.get(candRef); const newSuara = (candDoc.data().suara || 0) + 1; transaction.update(candRef, { suara: newSuara }); } transaction.update(voterRef, { voted: true }); });
+                    ME.voted = true; localStorage.setItem('evote_session', JSON.stringify(ME)); refVoter(); load(0); Swal.fire('Berhasil','Suara Anda telah masuk.','success');
                 } catch(e) { load(0); Swal.fire('Gagal', typeof e === 'string' ? e : e.message, 'error'); }
             }
         });
     }
 
-    async function saveProfile(e) {
-        e.preventDefault(); load(1); let passTxt = el('p-pass').value.trim();
-        const d = { tp_lahir: el('p-tpl').value, tg_lahir: el('p-tgl').value, alamat: el('p-alm').value, prov: el('p-prov').value, kab: el('p-kab').value, foto: el('p-b64').value };
-        try {
-            if(passTxt !== "") d.pass = await makeHash(passTxt);
-            await window.updateDoc(window.doc(window.db, "voters", ME.token), d);
-            ME.data = { ...ME.data, ...d }; localStorage.setItem('evote_session',JSON.stringify(ME));
-            load(0); Swal.fire('Sukses','Data berhasil disimpan','success'); refVoter();
-        } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
-    }
+    async function saveProfile(e) { e.preventDefault(); load(1); let passTxt = el('p-pass').value.trim(); const d = { tp_lahir: el('p-tpl').value, tg_lahir: el('p-tgl').value, alamat: el('p-alm').value, prov: el('p-prov').value, kab: el('p-kab').value, foto: el('p-b64').value }; try { if(passTxt !== "") d.pass = await makeHash(passTxt); await window.updateDoc(window.doc(window.db, "voters", ME.token), d); ME.data = { ...ME.data, ...d }; localStorage.setItem('evote_session',JSON.stringify(ME)); load(0); Swal.fire('Sukses','Data berhasil disimpan','success'); refVoter(); } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); } }
 
-    // LIVE COUNT TICK
+    // --- LIVE COUNT TICK (ANTI TUMPUK & ANTI NYANGKUT) ---
     async function tick() {
+        if (window.isTickRunning) return; 
+        window.isTickRunning = true;
+
         try {
             const confSnap = await window.getDoc(window.doc(window.db, "config", "utama"));
             let c = confSnap.exists() ? confSnap.data() : {};
@@ -1001,54 +754,47 @@
             const candSnap = await window.getDocs(window.collection(window.db, "candidates"));
             let cands = []; let totValid = 0;
             candSnap.forEach(d => { let dx=d.data(); dx.id=d.id; cands.push(dx); totValid += (dx.suara || 0); });
+            GLOBAL_CANDS = cands; // Simpan untuk backup
 
             const votSnap = await window.getDocs(window.collection(window.db, "voters"));
             let totVoters = votSnap.size; let totVoted = 0;
             votSnap.forEach(d => { if(d.data().voted) totVoted++; });
 
-            el('s-masuk').innerText = totVoted; el('s-abstain').innerText = totVoted - totValid;
-            el('s-belum').innerText = totVoters - totVoted; el('s-total').innerText = totVoters;
+            el('s-masuk').innerText = totVoted; el('s-abstain').innerText = totVoted - totValid; el('s-belum').innerText = totVoters - totVoted; el('s-total').innerText = totVoters;
 
             if (cands.length > 0) {
                 cands.sort((a, b) => { if (b.suara !== a.suara) return (b.suara||0) - (a.suara||0); return a.no - b.no; });
-                let h = '';
-                const topScore = cands[0].suara || 0;
-                const winnersCount = cands.filter(x => x.suara === topScore && x.suara > 0).length;
-
+                let h = ''; const topScore = cands[0].suara || 0; const winnersCount = cands.filter(x => x.suara === topScore && x.suara > 0).length;
                 cands.forEach((cand, i) => {
                     let pct = totVoted > 0 ? ((cand.suara || 0) / totVoted * 100).toFixed(2) : 0;
                     let cls = (i === 0 && cand.suara > 0) ? 'rank-1' : 'border-0'; let barW = (pct < 1 && cand.suara > 0) ? 1 : pct;
                     let trophyHTML = (cand.suara === topScore && cand.suara > 0) ? `<i class="bi bi-trophy-fill ${winnersCount > 1 ? 'text-secondary' : 'text-warning'} ms-2 fs-4"></i>` : '';
-                    
                     h += `<div class="race-card ${cls} position-relative mb-3"><div class="fw-bold fs-3 text-secondary ms-2 text-center" style="min-width:40px">#${cand.no}</div><img src="${cand.foto||''}" class="cand-thumb shadow-sm" onerror="this.src='https://via.placeholder.com/60'"><div class="flex-fill"><div class="d-flex justify-content-between align-items-center mb-1"><div class="fw-bold fs-5 text-dark d-flex align-items-center">${cand.nama} ${trophyHTML}</div><div class="fw-bold fs-4 text-dark">${cand.suara||0}</div></div><div class="progress" style="height:10px;background:#e2e8f0;border-radius:5px"><div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" style="width:${barW}%"></div></div><div class="text-end small text-muted mt-1 fw-bold">${pct}% Suara</div></div></div>`;
                 });
                 el('race-area').innerHTML = h;
+            } else { el('race-area').innerHTML = '<div class="text-center text-white py-5">Belum ada data kandidat.</div>'; }
 
-            
-                // LOGIKA BARU FINALISASI TANPA DELAY!
-                // LOGIKA BARU FINALISASI TANPA DELAY!
-                const now = new Date().getTime();
-                if (END_TIME && now >= END_TIME) {
-                    if (POLL) { clearTimeout(POLL); clearInterval(POLL); } 
-                    el('live-final').style.display = 'none'; // WAJIB DIMATIKAN APAPUN YANG TERJADI!
-                    if (!window.shownResult) {
-                        showWinnerModal({c: cands}); 
-                    }
-                }
-                 
-            } else { 
-                el('race-area').innerHTML = '<div class="text-center text-white py-5">Belum ada data kandidat.</div>'; 
-                // Proteksi jika data kosong saat waktu habis
-                // Proteksi jika data kosong saat waktu habis
-                const now = new Date().getTime();
-                if (END_TIME && now >= END_TIME) {
-                    if (POLL) { clearTimeout(POLL); clearInterval(POLL); }
-                    el('live-final').style.display = 'none'; // WAJIB DIMATIKAN
-                    if (!window.shownResult) { showWinnerModal({c: []}); }
-                }
+            // CEK WAKTU HABIS (PASTI MATIKAN LAYAR HITAM)
+            const now = new Date().getTime();
+            if (END_TIME && now >= END_TIME) {
+                if (POLL) { clearTimeout(POLL); clearInterval(POLL); }
+                el('live-final').style.display = 'none';
+                if (!window.shownResult) { showWinnerModal({c: GLOBAL_CANDS}); }
             }
+
+        } catch (err) { 
+            console.error('Tick Error:', err); 
+            // FAILSAFE: JIKA FIREBASE ERROR KARENA RATE LIMIT DI DETIK TERAKHIR
+            const now = new Date().getTime();
+            if (END_TIME && now >= END_TIME) {
+                if (POLL) { clearTimeout(POLL); clearInterval(POLL); }
+                el('live-final').style.display = 'none'; // WAJIB MATI
+                if (!window.shownResult) { showWinnerModal({c: GLOBAL_CANDS || []}); } // MUNCULKAN BACKUP
+            }
+        } finally {
+            window.isTickRunning = false;
             updateTimer();
-        } catch (err) { console.log('Tick Error:', err); }
+        }
     }
 
     // TIMERS & UI HELPERS
@@ -1060,47 +806,34 @@
         } 
         else if (END_TIME && now < END_TIME) { 
             el('live-wait').classList.add('d-none'); el('race-area').classList.remove('d-none'); tm.classList.remove('text-danger'); tm.classList.add('text-success'); 
-            
             let timeLeft = END_TIME - now;
             tm.innerText = formatTime(timeLeft); 
             
-            // --- TURBO MODE 20 DETIK TERAKHIR ---
+            // TURBO MODE (20 DETIK TERAKHIR)
             if (timeLeft <= 20000 && !window.fastPollActive) {
                 window.fastPollActive = true;
-                if(POLL) clearTimeout(POLL); // Matikan sistem refresh lambat
-                console.log("TURBO MODE AKTIF: Sedot data tiap 2 detik!");
-                tick(); // Sedot instan sekarang
-                POLL = setInterval(() => { tick(); }, 2000); // Gas pol tiap 2 detik
+                if(POLL) { clearTimeout(POLL); clearInterval(POLL); }
+                tick(); 
+                POLL = setInterval(() => { tick(); }, 2000); 
             }
         } 
         else if (END_TIME && now >= END_TIME) { 
             tm.innerText = "WAKTU HABIS"; tm.classList.add('text-danger'); 
             if(!isEnded) { 
                 isEnded = true; 
-                if(POLL) { clearTimeout(POLL); clearInterval(POLL); } // Rem mendadak, matikan semua tarikan data
+                if(POLL) { clearTimeout(POLL); clearInterval(POLL); } 
                 el('live-final').style.display = 'flex'; 
-                tick(); // Pukulan penutup! Tarik data detik terakhir.
+                setTimeout(() => { tick(); }, 500); 
             } 
         } 
-        else { 
-            tm.innerText = "BERLANGSUNG"; if(!isStarted) { isStarted=true; tick(); } 
-        }
+        else { tm.innerText = "BERLANGSUNG"; if(!isStarted) { isStarted=true; tick(); } }
     }
 
     function showWinnerModal(d) {
-        if (window.shownResult) return; 
-        window.shownResult = true; 
-        
-        if (!d.c || d.c.length === 0) {
-            Swal.fire('Data Kosong', 'Waktu habis, tapi belum ada kandidat terdaftar.', 'info');
-            return;
-        }
-
+        if (window.shownResult) return; window.shownResult = true; 
+        if (!d.c || d.c.length === 0) { Swal.fire('Data Kosong', 'Waktu habis, tapi belum ada kandidat terdaftar.', 'info'); return; }
         const topScore = d.c[0].suara || 0; 
-        if (topScore <= 0) {
-            Swal.fire('Hasil Kosong', 'Waktu pemilihan habis, tapi tidak ada suara yang masuk.', 'info');
-            return;
-        }
+        if (topScore <= 0) { Swal.fire('Hasil Kosong', 'Waktu pemilihan habis, tapi tidak ada suara yang masuk.', 'info'); return; }
         
         const winners = d.c.filter(x => x.suara === topScore);
         if (winners.length > 1) {
@@ -1117,23 +850,9 @@
     window.onscroll = () => { const btn = el('btn-scroll-top'); if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) btn.style.display = "flex"; else btn.style.display = "none"; };
     
     function nav(id) {
-      document.querySelectorAll('.view-section').forEach(x=>x.classList.remove('view-active')); 
-      el('v-'+id).classList.add('view-active');
-      
+      document.querySelectorAll('.view-section').forEach(x=>x.classList.remove('view-active')); el('v-'+id).classList.add('view-active');
       if(POLL) { clearTimeout(POLL); clearInterval(POLL); }
-      
-      if(id=='live') { 
-          isEnded = false; isStarted = false; isFinalizing = false; 
-          window.fastPollActive = false; window.shownResult = false;
-          tick(); 
-          const loopTick = () => { 
-              const t = Math.floor(Math.random()*5000)+20000; 
-              POLL = setTimeout(()=>{ tick(); loopTick(); }, t); 
-          }; 
-          loopTick(); 
-          if(window.TIMER_INT) clearInterval(window.TIMER_INT);
-          window.TIMER_INT = setInterval(updateTimer, 1000); 
-      }
+      if(id=='live') { isEnded = false; isStarted = false; window.fastPollActive = false; window.shownResult = false; tick(); const loopTick = () => { const t=Math.floor(Math.random()*5000)+20000; POLL=setTimeout(()=>{tick();loopTick();},t); }; loopTick(); if(window.TIMER_INT) clearInterval(window.TIMER_INT); window.TIMER_INT = setInterval(updateTimer, 1000); }
     }
 
     // MODAL, WILAYAH, CROPPER
@@ -1145,30 +864,16 @@
     function initCrop(i,t){ if(i.files[0]){ TGT=t; const r=new FileReader(); r.onload=e=>{ el('img-crop').src = e.target.result; new bootstrap.Modal('#mCrop').show(); if(CROP){ CROP.destroy(); CROP=null; } setTimeout(()=>{ CROP=new Cropper(el('img-crop'),{aspectRatio:t=='logo'?1:0.75,viewMode:1,autoCropArea:1}); },300); }; r.readAsDataURL(i.files[0]); } }
     function doCrop(){ if(!CROP) return; const w=TGT=='logo'?150:300, h=TGT=='logo'?150:400; let b64; if(TGT=='logo') b64=CROP.getCroppedCanvas({width:w,height:h}).toDataURL('image/png'); else b64=CROP.getCroppedCanvas({width:w,height:h,fillColor:'#fff'}).toDataURL('image/jpeg',0.6); if(TGT=='logo'){ el('logoNew').value=b64; el('logoPrev').src=b64; el('logoPrev').style.display='block'; el('logoTxt').style.display='none'; } else if(TGT=='p'){ el('p-b64').value=b64; el('p-img').src=b64; el('p-img').style.display='block'; el('p-txt').style.display='none'; } else if(TGT=='c'){ el('cfn').value=b64; el('cpr').src=b64; el('cpr').style.display='block'; el('cpt').style.display='none'; } else if(TGT=='v'){ el('vfn').value=b64; el('vpr').src=b64; el('vpr').style.display='block'; el('vpt').style.display='none'; } bootstrap.Modal.getInstance(el('mCrop')).hide(); }
 
-    
-    // --- FITUR CETAK PDF ---
+    // --- FITUR CETAK PDF (ANTI POTONG BAWAH & BISA GAMBAR LUAR) ---
     async function execPdf(htmlContent, filename) {
         load(1);
-        
-        // Buat elemen bayangan di memori, BUKAN elemen yang disembunyikan di HTML
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = htmlContent;
-        
-        const opt = { 
-            margin: 0.5, 
-            filename: filename, 
-            image: { type: 'jpeg', quality: 0.98 }, 
-            // useCORS: true INI NYAWANYA! Biar foto dari link luar bisa masuk ke PDF
-            html2canvas: { scale: 2, useCORS: true, logging: false }, 
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } 
-        };
-        
-        // Hasilkan PDF langsung dari elemen bayangan
+        const opt = { margin: 0.5, filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, logging: false }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
         await html2pdf().set(opt).from(tempDiv).save();
-        
         load(0);
     }
-
+    
     function dlCard(username) {
         const u = ALL_VOTERS.find(x => x.user === username) || ME.data;
         if(!u) return Swal.fire('Error', 'Data pemilih tidak ditemukan', 'error');
@@ -1176,29 +881,16 @@
         let html = `<div style="font-family:'Helvetica',sans-serif; margin:0; padding:20px;"><div style="width:550px; height:300px; padding:15px; border:2px solid #333; border-radius:10px; position:relative; overflow:hidden; background:#fff;"><div style="border-bottom:2px solid #000; padding-bottom:10px; display:flex; align-items:center; gap:10px;">${c.Logo ? `<img src="${c.Logo}" style="width:60px; height:60px; object-fit:contain;">` : ''}<div style="flex:1; text-align:center;"><h2 style="margin:0; font-size:14px; text-transform:uppercase;">${c.OrgFullName||'ORGANISASI'}</h2><h1 style="margin:0; font-size:16px; text-transform:uppercase;">${c.OrgName||''}</h1><p style="margin:2px 0 0; font-size:10px;">${c.OrgAddress||''}</p></div></div><div style="text-align:center; margin:10px 0; font-weight:bold; font-size:14px; text-decoration:underline;">KARTU PESERTA PEMILIH</div><div style="display:flex; gap:15px; margin-top:10px; align-items:center;"><div style="width:100px; height:130px; border:1px solid #ddd; padding:3px; background:#fff; display:flex; justify-content:center; overflow:hidden;"><img src="${u.foto || 'https://via.placeholder.com/150'}" style="width:100%; height:100%; object-fit:cover;"></div><div style="flex:1; font-size:12px;"><table style="width:100%; border-collapse:collapse;"><tr><td width="30%" style="padding:3px 0;"><b>Nama</b></td><td>: ${u.nama||'-'}</td></tr><tr><td style="padding:3px 0;"><b>ID/NIA</b></td><td>: ${u.user||'-'}</td></tr><tr><td style="padding:3px 0;"><b>TTL</b></td><td>: ${u.tp_lahir||'-'}, ${u.tg_lahir||'-'}</td></tr><tr><td style="padding:3px 0;"><b>Wilayah</b></td><td>: ${u.prov||'-'}, ${u.kab||'-'}</td></tr></table></div></div><div style="position:absolute; bottom:0; left:0; right:0; background:#f1f5f9; padding:8px; font-size:10px; text-align:center; border-top:1px solid #ddd;">Kartu ini adalah bukti sah sebagai pemilih pada ${c.Judul||'Pemilihan'}.</div></div></div>`;
         execPdf(html, `Kartu_${username}.pdf`);
     }
+    
     function dlPdf() {
         const c = GLOBAL_CONFIG; const s = c.stats || {}; const cands = GLOBAL_CANDS || [];
         let dateStr = new Date().toLocaleString('id-ID');
         let html = `<div style="font-family:sans-serif; padding:20px;"><div style="text-align:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">${c.Logo ? `<img src="${c.Logo}" style="width:80px;height:80px;object-fit:contain;"><br>` : ''}<h3 style="margin:2px 0;">${c.OrgFullName||'ORGANISASI'}</h3><h2 style="margin:2px 0;">${c.OrgName||''}</h2></div><h3 style="text-align:center;">${c.Judul||'LAPORAN HASIL PEMILIHAN'}</h3><div style="margin-bottom:20px; font-size:12px;"><b>Waktu Cetak:</b> ${dateStr}<br><b>Total DPT:</b> ${s.tot||0} Pemilih</div><h4>A. PEROLEHAN SUARA KANDIDAT</h4><table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:12px;"><thead><tr><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">No</th><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">Nama Kandidat</th><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">Jumlah Suara</th><th style="border:1px solid #000; padding:6px; background:#f0f0f0;">Persentase</th></tr></thead><tbody>`;
-        
-        cands.forEach(cand => { 
-            let pct = s.vot > 0 ? ((cand.suara/s.vot)*100).toFixed(2) : 0; 
-            html += `<tr><td style="border:1px solid #000; padding:6px; text-align:center;">${cand.no}</td><td style="border:1px solid #000; padding:6px;">${cand.nama}</td><td style="border:1px solid #000; padding:6px; text-align:center;"><b>${cand.suara||0}</b></td><td style="border:1px solid #000; padding:6px; text-align:center;">${pct}%</td></tr>`; 
-        });
-        
-        // Perbaikan Tabel Bawah: Lebar 100% dan Anti Terpotong Halaman
-        html += `</tbody></table>
-        <div style="page-break-inside: avoid; margin-top:30px;">
-            <h4>B. REKAPITULASI SUARA</h4>
-            <table style="width:100%; border-collapse:collapse; font-size:12px;">
-                <tr><td style="border:1px solid #000; padding:6px; width:75%;">Total Suara Sah</td><td style="border:1px solid #000; padding:6px; text-align:center;">${s.valid||0}</td></tr>
-                <tr><td style="border:1px solid #000; padding:6px;">Total Abstain</td><td style="border:1px solid #000; padding:6px; text-align:center;">${s.abstain||0}</td></tr>
-                <tr style="background:#eee;"><td style="border:1px solid #000; padding:6px;"><b>TOTAL SUARA MASUK</b></td><td style="border:1px solid #000; padding:6px; text-align:center;"><b>${s.vot||0}</b></td></tr>
-                <tr><td style="border:1px solid #000; padding:6px;">Belum Memilih</td><td style="border:1px solid #000; padding:6px; text-align:center;">${s.belum||0}</td></tr>
-            </table>
-        </div></div>`;
+        cands.forEach(cand => { let pct = s.vot > 0 ? ((cand.suara/s.vot)*100).toFixed(2) : 0; html += `<tr><td style="border:1px solid #000; padding:6px; text-align:center;">${cand.no}</td><td style="border:1px solid #000; padding:6px;">${cand.nama}</td><td style="border:1px solid #000; padding:6px; text-align:center;"><b>${cand.suara||0}</b></td><td style="border:1px solid #000; padding:6px; text-align:center;">${pct}%</td></tr>`; });
+        html += `</tbody></table><div style="page-break-inside: avoid; margin-top:30px;"><h4>B. REKAPITULASI SUARA</h4><table style="width:100%; border-collapse:collapse; font-size:12px;"><tr><td style="border:1px solid #000; padding:6px; width:75%;">Total Suara Sah</td><td style="border:1px solid #000; padding:6px; text-align:center;">${s.valid||0}</td></tr><tr><td style="border:1px solid #000; padding:6px;">Total Abstain</td><td style="border:1px solid #000; padding:6px; text-align:center;">${s.abstain||0}</td></tr><tr style="background:#eee;"><td style="border:1px solid #000; padding:6px;"><b>TOTAL SUARA MASUK</b></td><td style="border:1px solid #000; padding:6px; text-align:center;"><b>${s.vot||0}</b></td></tr><tr><td style="border:1px solid #000; padding:6px;">Belum Memilih</td><td style="border:1px solid #000; padding:6px; text-align:center;">${s.belum||0}</td></tr></table></div></div>`;
         execPdf(html, 'Laporan_Resmi.pdf');
     }
+    
     function dlCandPdf() {
         const c = GLOBAL_CONFIG; const cands = GLOBAL_CANDS || [];
         let html = `<div style="font-family:sans-serif; padding:20px;"><div style="text-align:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">${c.Logo ? `<img src="${c.Logo}" style="width:80px;height:80px;object-fit:contain;"><br>` : ''}<h3 style="margin:2px 0;">${c.OrgFullName||'ORGANISASI'}</h3><h2 style="margin:2px 0;">${c.OrgName||''}</h2></div><h3 style="text-align:center;">DAFTAR KANDIDAT</h3>`;
