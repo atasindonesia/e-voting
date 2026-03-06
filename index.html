@@ -63,8 +63,7 @@
       .sidebar{ transform:translateX(-100%); } 
       .sidebar.show{ transform:translateX(0); } 
       
-   
-/* Hilangkan sidebar asli di HP untuk Pemilih & Admin */
+      /* Hilangkan sidebar asli di HP untuk Pemilih & Admin */
       #v-voter .sidebar, #v-admin .sidebar { display: none !important; }
       
       /* Ruang ekstra agar konten tidak tertutup bar atas/bawah */
@@ -226,6 +225,8 @@
       <div class="d-md-none mb-3 border-bottom pb-2 text-center">
           <h5 class="fw-bold m-0 text-dark">Data Statistik Server</h5>
       </div>
+
+      <div id="pg-dash">
         <h3 class="fw-bold mb-4 text-dark">Ringkasan Pemilihan</h3>
         <div class="row g-3 mb-4">
           <div class="col-6 col-md-3"><div class="card-box bg-primary text-white h-100"><h3 class="fw-bold m-0" id="st-tot">0</h3><small>Total DPT</small></div></div>
@@ -236,7 +237,6 @@
         <h5 class="fw-bold mb-3 border-bottom pb-2">Perolehan Suara Kandidat</h5>
         <div class="row g-3" id="dash-cands"></div>
       </div>
-
       <div id="pg-cand" class="d-none">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="fw-bold m-0">Data Kandidat</h3>
@@ -837,19 +837,16 @@
 
     function logout(){ localStorage.removeItem('evote_session'); ME={}; nav('login'); }
     
-    // Navigasi & Redirect jika belum Login
     function checkLoginRedirect(){ 
         if(ME && ME.role) { if(ME.role==='admin') nav('admin'); else nav('voter'); } else nav('login'); 
     }
-    // Fungsi khusus top bar desktop Live count
     function checkLogin(){ 
         if(ME && ME.role) { if(ME.role=='admin')nav('admin'); else nav('voter'); } else nav('login'); 
     }
 
-    // Ubah Tampilan Tombol Login jadi Logout di Live Count (Khusus HP/Native)
     function updateLiveAuthBtn() {
-        const btnBtm = el('btn-live-login'); // Tombol mobile
-        const btnTop = el('btn-live-login-top'); // Tombol PC
+        const btnBtm = el('btn-live-login'); 
+        const btnTop = el('btn-live-login-top'); 
         
         if (ME && ME.token) {
             if(btnBtm) {
@@ -868,7 +865,7 @@
         }
     }
 
-// ADMIN NAV & REFRESH (VERSI ANTI ERROR)
+    // ADMIN NAV & REFRESH (VERSI ANTI ERROR)
     function admNav(p) { 
         try {
             // 1. Sembunyikan semua halaman dengan aman
@@ -934,20 +931,25 @@
 
             if(c.OrgName) el('setOrg').value = c.OrgName; if(c.OrgFullName) el('setOrgFull').value = c.OrgFullName; if(c.OrgLegal) el('setOrgLegal').value = c.OrgLegal; if(c.OrgAddress) el('setOrgAddr').value = c.OrgAddress; if(c.Judul) el('setJudul').value = c.Judul; if(c.StartTime) el('setStart').value = c.StartTime; if(c.EndTime) el('setEnd').value = c.EndTime; if(c.Web) el('setWeb').value = c.Web; if(c.Email) el('setEmail').value = c.Email; if(c.HP) el('setHP').value = c.HP; if(c.Logo) { el('logoPrev').src=c.Logo; el('logoPrev').style.display='block'; el('logoTxt').style.display='none'; }
             
-            el('st-tot').innerText = stats.tot; el('st-vot').innerText = stats.vot; el('st-abstain').innerText = stats.abstain; el('st-belum').innerText = stats.belum;
+            if(el('st-tot')) el('st-tot').innerText = stats.tot; 
+            if(el('st-vot')) el('st-vot').innerText = stats.vot; 
+            if(el('st-abstain')) el('st-abstain').innerText = stats.abstain; 
+            if(el('st-belum')) el('st-belum').innerText = stats.belum;
             
             let dashHTML='';
             if(cands.length > 0) { cands.forEach(x => { dashHTML += `<div class="col-md-4"><div class="card-box p-3 border-start border-4 border-info d-flex align-items-center gap-3"><div class="bg-light rounded-circle d-flex align-items-center justify-content-center fw-bold text-primary" style="width:50px;height:50px;font-size:1.2rem">${x.no}</div><div><div class="fw-bold text-truncate" style="max-width:150px">${x.nama}</div><div class="h5 fw-bold mb-0 text-primary">${x.suara || 0} Suara</div></div></div></div>`; }); }
-            el('dash-cands').innerHTML = dashHTML || '<div class="col-12 text-center text-muted">Belum ada kandidat</div>';
+            if(el('dash-cands')) el('dash-cands').innerHTML = dashHTML || '<div class="col-12 text-center text-muted">Belum ada kandidat</div>';
 
             let hc=''; 
             cands.forEach(cand => { let fUrl = cand.foto || 'https://via.placeholder.com/80?text=IMG'; hc += `<div class="col-md-6"><div class="card-box h-100 d-flex align-items-center gap-3"><img src="${fUrl}" class="cand-admin-img shadow-sm" onerror="this.src='https://via.placeholder.com/80?text=IMG'"><div class="flex-fill overflow-hidden"><div class="badge bg-primary mb-1">No. ${cand.no}</div><div class="fw-bold fs-5 text-dark text-truncate">${cand.nama}</div><div class="text-muted small">${cand.suara || 0} Suara</div></div><div class="d-flex flex-column gap-2"><button class="btn btn-sm btn-light border" onclick="viewData('${cand.id}', 'c')"><i class="bi bi-eye"></i></button><button class="btn btn-sm btn-warning text-white" onclick="mdlCand('${cand.id}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-danger" onclick="del('candidates','${cand.id}')"><i class="bi bi-trash"></i></button></div></div></div>`; }); 
-            el('g-cand').innerHTML = hc || '<div class="text-center text-muted col-12 py-5">Belum ada kandidat</div>';
+            if(el('g-cand')) el('g-cand').innerHTML = hc || '<div class="text-center text-muted col-12 py-5">Belum ada kandidat</div>';
 
-            PG = page; const perPage = 20; const totalPages = Math.ceil(ALL_VOTERS.length / perPage) || 1; el('vPage').innerText = `${PG} dari ${totalPages}`;
+            PG = page; const perPage = 20; const totalPages = Math.ceil(ALL_VOTERS.length / perPage) || 1; 
+            if(el('vPage')) el('vPage').innerText = `${PG} dari ${totalPages}`;
+            
             let hv=''; const paginatedVoters = ALL_VOTERS.slice((PG - 1) * perPage, PG * perPage);
             paginatedVoters.forEach(v => { let badgeClass = v.voted ? 'bg-success' : 'bg-secondary'; let badgeText = v.voted ? 'SUDAH MEMILIH' : 'BELUM'; hv += `<tr><td class="ps-4 fw-bold font-monospace small">${v.user}</td><td>${v.nama || '-'}</td><td><span class="badge ${badgeClass}">${badgeText}</span></td><td class="text-end pe-4"><button class="btn btn-sm btn-info text-white me-1" onclick="dlCard('${v.user}')" title="Cetak Kartu"><i class="bi bi-printer"></i></button><button class="btn btn-sm btn-warning me-1" onclick="mdlVoter('${v.user}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger" onclick="del('voters','${v.user}')"><i class="bi bi-trash"></i></button></td></tr>`; });
-            el('t-voter').innerHTML = hv || '<tr><td colspan="4" class="text-center py-4">Data tidak ditemukan</td></tr>';
+            if(el('t-voter')) el('t-voter').innerHTML = hv || '<tr><td colspan="4" class="text-center py-4">Data tidak ditemukan</td></tr>';
             load(0);
         } catch(e) { load(0); Swal.fire('Error Database', e.message, 'error'); }
     }
@@ -1063,7 +1065,6 @@
             if (el('p-alm')) el('p-alm').value = d.alamat || ''; 
             if (d.foto && d.foto.length > 50) { el('p-img').src = d.foto; el('p-img').style.display='block'; el('p-txt').style.display='none'; }
             
-            // Populasikan Logo dan Judul di Top Bar Mobile
             if(c.Logo) { el('voter-logo-top').src = c.Logo; el('voter-logo-top').style.display='block'; }
             if(c.OrgName) el('voter-org-top').innerText = c.OrgName;
             if(c.Judul) el('voter-judul-top').innerText = c.Judul;
@@ -1129,7 +1130,6 @@
         try { if(passTxt !== "") d.pass = await makeHash(passTxt); await window.updateDoc(window.doc(window.db, "voters", ME.token), d); ME.data = { ...ME.data, ...d }; localStorage.setItem('evote_session',JSON.stringify(ME)); load(0); Swal.fire('Sukses','Data berhasil disimpan','success'); refVoter(); } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); } 
     }
 
-    // --- LIVE COUNT TICK (AGREGATOR & HEMAT KUOTA) ---
     async function tick() {
         if (window.isTickRunning) return; window.isTickRunning = true;
         try {
@@ -1216,7 +1216,7 @@
       if(POLL) { clearTimeout(POLL); clearInterval(POLL); }
       if(id=='live') { 
           isEnded = false; isStarted = false; window.fastPollActive = false; window.shownResult = false; 
-          tick(); updateLiveAuthBtn(); // Panggil fungsi ubah tombol Login/Logout khusus HP
+          tick(); updateLiveAuthBtn(); 
           
           if (ME && ME.role === 'admin') {
               const loopTick = () => { const t=Math.floor(Math.random()*5000)+20000; POLL=setTimeout(()=>{tick();loopTick();},t); }; loopTick(); 
