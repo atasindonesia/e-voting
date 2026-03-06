@@ -1057,11 +1057,6 @@
         a.click(); 
     }
 
-    function dlTemp(){ 
-        const b=new Blob(["Username,Password,Nama,NIA\nuser1,123,Budi,12345"],{type:'text/csv'}); 
-        const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Template.csv'; a.click(); 
-    }
-
     // VOTER AREA
     function voterNav(p) { 
         ['vote','profil'].forEach(x=>el('vp-'+x).classList.add('d-none')); 
