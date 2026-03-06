@@ -868,27 +868,43 @@
         }
     }
 
-    // ADMIN NAV & REFRESH
-    // ADMIN NAV & REFRESH
+// ADMIN NAV & REFRESH (VERSI ANTI ERROR)
     function admNav(p) { 
-        // 1. Sembunyikan semua konten
-        ['dash','cand','voter','set'].forEach(x => el('pg-'+x).classList.add('d-none')); 
-        // 2. Tampilkan halaman yang di-klik
-        el('pg-'+p).classList.remove('d-none'); 
-        
-        // 3. Update Animasi Menu Bawah (HP)
-        ['cand','voter','set'].forEach(x => {
-            if(el('bnav-adm-'+x)) el('bnav-adm-'+x).classList.remove('active');
-        });
-        if(p !== 'dash' && el('bnav-adm-'+p)) el('bnav-adm-'+p).classList.add('active');
+        try {
+            // 1. Sembunyikan semua halaman dengan aman
+            ['dash','cand','voter','set'].forEach(x => {
+                let page = document.getElementById('pg-' + x);
+                if (page) page.classList.add('d-none'); 
+            }); 
+            
+            // 2. Tampilkan halaman yang di-klik
+            let targetPage = document.getElementById('pg-' + p);
+            if (targetPage) targetPage.classList.remove('d-none'); 
+            
+            // 3. Update Animasi Menu Bawah (Mobile)
+            ['dash','cand','voter','set'].forEach(x => {
+                let btnMobile = document.getElementById('bnav-adm-' + x);
+                if (btnMobile) btnMobile.classList.remove('active');
+            });
+            let targetBtnMobile = document.getElementById('bnav-adm-' + p);
+            if (targetBtnMobile && p !== 'dash') targetBtnMobile.classList.add('active');
 
-        // 4. Update Animasi Sidebar (Desktop PC)
-        const items = document.querySelectorAll('#sb .nav-item');
-        items.forEach(x => x.classList.remove('active'));
-        if(p === 'dash' && items[0]) items[0].classList.add('active');
-        if(p === 'cand' && items[1]) items[1].classList.add('active');
-        if(p === 'voter' && items[2]) items[2].classList.add('active');
-        if(p === 'set' && items[3]) items[3].classList.add('active');
+            // 4. Update Animasi Sidebar (Desktop PC)
+            const items = document.querySelectorAll('#sb .nav-item');
+            if (items.length >= 4) {
+                items.forEach(x => x.classList.remove('active'));
+                if(p === 'dash') items[0].classList.add('active');
+                if(p === 'cand') items[1].classList.add('active');
+                if(p === 'voter') items[2].classList.add('active');
+                if(p === 'set') items[3].classList.add('active');
+            }
+            
+            // 5. Gulir otomatis ke atas saat pindah menu di HP
+            window.scrollTo({top:0, behavior:'smooth'});
+            
+        } catch(error) {
+            console.log("Aman, sistem menahan error navigasi:", error);
+        }
     }
     
     async function refAdmin(page=1, src='') {
