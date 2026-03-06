@@ -422,6 +422,10 @@
         <p class="lead text-white-50">Mohon bersabar, data kandidat akan muncul otomatis.</p>
         <div class="display-3 fw-bold text-danger mt-4 font-monospace blink-red" id="timer-live-wait">--:--:--</div>
     </div>
+
+    <div class="live-footer mt-5 mb-3 text-center text-white-50 small" style="padding: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+        Keterangan: Untuk menjaga kestabilan server, klik tombol <b>Refresh (Panah Melingkar)</b> di pojok kanan atas untuk melihat hasil suara terbaru. Sistem akan otomatis melakukan sinkronisasi massal pada 20 detik terakhir penutupan waktu voting.
+    </div>
   </div>
 
   <div class="modal fade" id="mWin" data-bs-backdrop="static">
@@ -813,6 +817,9 @@
             let stats = { tot: votSnap.size, vot: totVoted, valid: totValid, abstain: totVoted - totValid, belum: votSnap.size - totVoted };
             GLOBAL_CONFIG.stats = stats;
 
+            // --- KODE AGREGATOR: SIMPAN TOTAL KE BUKU PUSAT ---
+            await window.setDoc(window.doc(window.db, "config", "utama"), { tot_dpt: votSnap.size, tot_voted: totVoted }, {merge: true});
+
             if(c.OrgName) el('setOrg').value = c.OrgName; 
             if(c.OrgFullName) el('setOrgFull').value = c.OrgFullName; 
             if(c.OrgLegal) el('setOrgLegal').value = c.OrgLegal; 
@@ -833,16 +840,7 @@
             let dashHTML='';
             if(cands.length > 0) { 
                 cands.forEach(x => { 
-                    dashHTML += `
-                    <div class="col-md-4">
-                        <div class="card-box p-3 border-start border-4 border-info d-flex align-items-center gap-3">
-                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center fw-bold text-primary" style="width:50px;height:50px;font-size:1.2rem">${x.no}</div>
-                            <div>
-                                <div class="fw-bold text-truncate" style="max-width:150px">${x.nama}</div>
-                                <div class="h5 fw-bold mb-0 text-primary">${x.suara || 0} Suara</div>
-                            </div>
-                        </div>
-                    </div>`; 
+                    dashHTML += `<div class="col-md-4"><div class="card-box p-3 border-start border-4 border-info d-flex align-items-center gap-3"><div class="bg-light rounded-circle d-flex align-items-center justify-content-center fw-bold text-primary" style="width:50px;height:50px;font-size:1.2rem">${x.no}</div><div><div class="fw-bold text-truncate" style="max-width:150px">${x.nama}</div><div class="h5 fw-bold mb-0 text-primary">${x.suara || 0} Suara</div></div></div></div>`; 
                 }); 
             }
             el('dash-cands').innerHTML = dashHTML || '<div class="col-12 text-center text-muted">Belum ada kandidat</div>';
@@ -850,22 +848,7 @@
             let hc=''; 
             cands.forEach(cand => { 
                 let fUrl = cand.foto || 'https://via.placeholder.com/80?text=IMG';
-                hc += `
-                <div class="col-md-6">
-                    <div class="card-box h-100 d-flex align-items-center gap-3">
-                        <img src="${fUrl}" class="cand-admin-img shadow-sm" onerror="this.src='https://via.placeholder.com/80?text=IMG'">
-                        <div class="flex-fill overflow-hidden">
-                            <div class="badge bg-primary mb-1">No. ${cand.no}</div>
-                            <div class="fw-bold fs-5 text-dark text-truncate">${cand.nama}</div>
-                            <div class="text-muted small">${cand.suara || 0} Suara</div>
-                        </div>
-                        <div class="d-flex flex-column gap-2">
-                            <button class="btn btn-sm btn-light border" onclick="viewData('${cand.id}', 'c')"><i class="bi bi-eye"></i></button>
-                            <button class="btn btn-sm btn-warning text-white" onclick="mdlCand('${cand.id}')"><i class="bi bi-pencil"></i></button>
-                            <button class="btn btn-sm btn-danger" onclick="del('candidates','${cand.id}')"><i class="bi bi-trash"></i></button>
-                        </div>
-                    </div>
-                </div>`; 
+                hc += `<div class="col-md-6"><div class="card-box h-100 d-flex align-items-center gap-3"><img src="${fUrl}" class="cand-admin-img shadow-sm" onerror="this.src='https://via.placeholder.com/80?text=IMG'"><div class="flex-fill overflow-hidden"><div class="badge bg-primary mb-1">No. ${cand.no}</div><div class="fw-bold fs-5 text-dark text-truncate">${cand.nama}</div><div class="text-muted small">${cand.suara || 0} Suara</div></div><div class="d-flex flex-column gap-2"><button class="btn btn-sm btn-light border" onclick="viewData('${cand.id}', 'c')"><i class="bi bi-eye"></i></button><button class="btn btn-sm btn-warning text-white" onclick="mdlCand('${cand.id}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-danger" onclick="del('candidates','${cand.id}')"><i class="bi bi-trash"></i></button></div></div></div>`; 
             }); 
             el('g-cand').innerHTML = hc || '<div class="text-center text-muted col-12 py-5">Belum ada kandidat</div>';
 
@@ -875,17 +858,7 @@
             paginatedVoters.forEach(v => { 
                 let badgeClass = v.voted ? 'bg-success' : 'bg-secondary'; 
                 let badgeText = v.voted ? 'SUDAH MEMILIH' : 'BELUM'; 
-                hv += `
-                <tr>
-                    <td class="ps-4 fw-bold font-monospace small">${v.user}</td>
-                    <td>${v.nama || '-'}</td>
-                    <td><span class="badge ${badgeClass}">${badgeText}</span></td>
-                    <td class="text-end pe-4">
-                        <button class="btn btn-sm btn-info text-white me-1" onclick="dlCard('${v.user}')" title="Cetak Kartu"><i class="bi bi-printer"></i></button>
-                        <button class="btn btn-sm btn-warning me-1" onclick="mdlVoter('${v.user}')"><i class="bi bi-pencil"></i></button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="del('voters','${v.user}')"><i class="bi bi-trash"></i></button>
-                    </td>
-                </tr>`; 
+                hv += `<tr><td class="ps-4 fw-bold font-monospace small">${v.user}</td><td>${v.nama || '-'}</td><td><span class="badge ${badgeClass}">${badgeText}</span></td><td class="text-end pe-4"><button class="btn btn-sm btn-info text-white me-1" onclick="dlCard('${v.user}')" title="Cetak Kartu"><i class="bi bi-printer"></i></button><button class="btn btn-sm btn-warning me-1" onclick="mdlVoter('${v.user}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger" onclick="del('voters','${v.user}')"><i class="bi bi-trash"></i></button></td></tr>`; 
             });
             el('t-voter').innerHTML = hv || '<tr><td colspan="4" class="text-center py-4">Data tidak ditemukan</td></tr>';
             load(0);
@@ -1159,15 +1132,22 @@
                 try {
                     const voterRef = window.doc(window.db, "voters", ME.token); 
                     const candRef = id === 'ABSTAIN' ? null : window.doc(window.db, "candidates", id);
+                    const confRef = window.doc(window.db, "config", "utama"); // Referensi Agregator Pusat
+
                     await window.runTransaction(window.db, async (transaction) => { 
                         const voterDoc = await transaction.get(voterRef); 
                         if (!voterDoc.exists() || voterDoc.data().voted) { throw "Anda sudah memilih!"; } 
+                        
+                        const confDoc = await transaction.get(confRef); 
+                        let currVoted = (confDoc.exists() && confDoc.data().tot_voted) ? confDoc.data().tot_voted : 0;
+
                         if (candRef) { 
                             const candDoc = await transaction.get(candRef); 
                             const newSuara = (candDoc.data().suara || 0) + 1; 
                             transaction.update(candRef, { suara: newSuara }); 
                         } 
                         transaction.update(voterRef, { voted: true }); 
+                        transaction.update(confRef, { tot_voted: currVoted + 1 }); // +1 Suara Masuk di Pusat
                     });
                     ME.voted = true; localStorage.setItem('evote_session', JSON.stringify(ME)); refVoter(); 
                     load(0); Swal.fire('Berhasil','Suara Anda telah masuk.','success');
@@ -1188,6 +1168,7 @@
     }
 
     // --- LIVE COUNT TICK ---
+    // --- LIVE COUNT TICK (DENGAN AGREGATOR ANTI JEBOL) ---
     async function tick() {
         if (window.isTickRunning) return; 
         window.isTickRunning = true;
@@ -1203,14 +1184,16 @@
             const candSnap = await window.getDocs(window.collection(window.db, "candidates"));
             let cands = []; let totValid = 0;
             candSnap.forEach(d => { let dx=d.data(); dx.id=d.id; cands.push(dx); totValid += (dx.suara || 0); });
-            GLOBAL_CANDS = cands; // Simpan untuk backup
+            GLOBAL_CANDS = cands; 
 
-            const votSnap = await window.getDocs(window.collection(window.db, "voters"));
-            let totVoters = votSnap.size; let totVoted = 0;
-            votSnap.forEach(d => { if(d.data().voted) totVoted++; });
+            // --- KODE AGREGATOR: CUKUP BACA BUKU PUSAT, HEMAT 1000 BACAAN! ---
+            let totVoters = c.tot_dpt || 0; 
+            let totVoted = c.tot_voted || 0;
 
-            el('s-masuk').innerText = totVoted; el('s-abstain').innerText = totVoted - totValid; 
-            el('s-belum').innerText = totVoters - totVoted; el('s-total').innerText = totVoters;
+            el('s-masuk').innerText = totVoted; 
+            el('s-abstain').innerText = totVoted - totValid; 
+            el('s-belum').innerText = totVoters - totVoted; 
+            el('s-total').innerText = totVoters;
 
             if (cands.length > 0) {
                 cands.sort((a, b) => { if (b.suara !== a.suara) return (b.suara||0) - (a.suara||0); return a.no - b.no; });
@@ -1239,7 +1222,6 @@
                 el('race-area').innerHTML = h;
             } else { el('race-area').innerHTML = '<div class="text-center text-white py-5">Belum ada data kandidat.</div>'; }
 
-            // CEK WAKTU HABIS
             const now = new Date().getTime();
             if (END_TIME && now >= END_TIME) {
                 if (POLL) { clearTimeout(POLL); clearInterval(POLL); }
@@ -1249,7 +1231,6 @@
 
         } catch (err) { 
             console.error('Tick Error:', err); 
-            // FAILSAFE
             const now = new Date().getTime();
             if (END_TIME && now >= END_TIME) {
                 if (POLL) { clearTimeout(POLL); clearInterval(POLL); }
