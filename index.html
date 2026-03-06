@@ -476,6 +476,7 @@
               <div class="modal-body">
                   <button class="btn btn-sm btn-outline-success w-100 mb-3" onclick="dlTemp()"><i class="bi bi-download"></i> Download Template CSV</button>
                   <p class="small text-muted mb-1">Upload File CSV:</p>
+                  <p class="small text-muted mb-1">Catatan: Data isian CSV tidak boleh menggunakan tanda koma (",").</p>
                   <input type="file" id="csvFileInput" class="form-control mb-3" accept=".csv" onchange="readCSVFile(this)">
                   <textarea id="csvIn" class="form-control mb-2 font-monospace small" rows="4" placeholder="Atau paste isi CSV di sini..."></textarea>
                   <button class="btn btn-success w-100 mt-2" onclick="runImport()">Proses Import</button>
