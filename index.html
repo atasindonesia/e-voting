@@ -63,12 +63,13 @@
       .sidebar{ transform:translateX(-100%); } 
       .sidebar.show{ transform:translateX(0); } 
       
-      /* Hilangkan sidebar asli di HP untuk Pemilih */
-      #v-voter .sidebar { display: none !important; }
+   
+/* Hilangkan sidebar asli di HP untuk Pemilih & Admin */
+      #v-voter .sidebar, #v-admin .sidebar { display: none !important; }
       
       /* Ruang ekstra agar konten tidak tertutup bar atas/bawah */
       .content{ margin-left:0; width: 100%; padding: 15px; } 
-      #v-voter .content { padding: 80px 15px 95px 15px !important; }
+      #v-voter .content, #v-admin .content { padding: 80px 15px 95px 15px !important; }
       #v-live { padding-bottom: 90px; }
       
       .race-card { flex-direction: column !important; text-align: center; } 
@@ -172,9 +173,10 @@
   </div>
 
   <div id="v-admin" class="view-section">
-    <div class="sidebar" id="sb">
+    
+    <div class="sidebar d-none d-md-block" id="sb">
       <div class="d-flex align-items-center gap-2 mb-5 px-2">
-          <div class="bg-primary rounded px-2 py-1 fw-bold">E</div> 
+          <div class="bg-primary rounded px-2 py-1 fw-bold text-white">E</div> 
           <h5 class="fw-bold m-0">ADMIN PANEL</h5>
       </div>
       <div class="nav-item active" onclick="admNav('dash')"><i class="bi bi-grid-fill"></i> Dashboard</div>
@@ -183,13 +185,47 @@
       <div class="nav-item" onclick="admNav('set')"><i class="bi bi-gear-fill"></i> Pengaturan</div>
       <div class="nav-item text-danger mt-5" onclick="logout()"><i class="bi bi-power"></i> Logout</div>
     </div>
+
+    <div class="mobile-top-bar d-md-none shadow-sm">
+        <div class="d-flex align-items-center gap-2">
+            <div class="bg-primary rounded px-2 py-1 fw-bold text-white">E</div> 
+            <div>
+                <div class="fw-bold text-dark" style="font-size:14px; line-height:1.2">Admin Panel</div>
+                <div class="small text-muted" style="font-size:10px">Control System</div>
+            </div>
+        </div>
+        <button class="btn btn-sm btn-light border shadow-sm rounded-circle d-flex justify-content-center align-items-center" onclick="refAdmin()" style="width:38px;height:38px;"><i class="bi bi-arrow-clockwise fs-5 text-primary"></i></button>
+    </div>
+
+    <div class="bottom-nav d-md-none">
+        <div class="nav-item-m" onclick="admNav('cand')" id="bnav-adm-cand">
+            <i class="bi bi-person-badge-fill"></i><span>Kandidat</span>
+        </div>
+        <div class="nav-item-m" onclick="admNav('voter')" id="bnav-adm-voter">
+            <i class="bi bi-people-fill"></i><span>Pemilih</span>
+        </div>
+        
+        <div class="nav-item-m nav-fab" onclick="admNav('dash')" id="bnav-adm-dash">
+            <i class="bi bi-house-door-fill"></i><span>Home</span>
+        </div>
+        
+        <div class="nav-item-m" onclick="admNav('set')" id="bnav-adm-set">
+            <i class="bi bi-gear-fill"></i><span>Seting</span>
+        </div>
+        <div class="nav-item-m text-danger" onclick="logout()">
+            <i class="bi bi-box-arrow-right"></i><span>Keluar</span>
+        </div>
+    </div>
+
     <div class="content">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-         <button class="btn btn-dark d-md-none shadow" onclick="toggleMenu()"><i class="bi bi-list"></i> Menu</button>
+      <div class="d-none d-md-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+         <h4 class="fw-bold m-0 text-dark">Sistem Administrasi</h4>
          <button class="btn btn-sm btn-outline-primary" onclick="refAdmin()"><i class="bi bi-arrow-clockwise"></i> Refresh Data</button>
       </div>
       
-      <div id="pg-dash">
+      <div class="d-md-none mb-3 border-bottom pb-2 text-center">
+          <h5 class="fw-bold m-0 text-dark">Data Statistik Server</h5>
+      </div>
         <h3 class="fw-bold mb-4 text-dark">Ringkasan Pemilihan</h3>
         <div class="row g-3 mb-4">
           <div class="col-6 col-md-3"><div class="card-box bg-primary text-white h-100"><h3 class="fw-bold m-0" id="st-tot">0</h3><small>Total DPT</small></div></div>
@@ -833,12 +869,26 @@
     }
 
     // ADMIN NAV & REFRESH
+    // ADMIN NAV & REFRESH
     function admNav(p) { 
-        document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); 
-        event.currentTarget.classList.add('active'); 
-        ['dash','cand','voter','set'].forEach(x=>el('pg-'+x).classList.add('d-none')); 
+        // 1. Sembunyikan semua konten
+        ['dash','cand','voter','set'].forEach(x => el('pg-'+x).classList.add('d-none')); 
+        // 2. Tampilkan halaman yang di-klik
         el('pg-'+p).classList.remove('d-none'); 
-        if(window.innerWidth<768) toggleMenu(); 
+        
+        // 3. Update Animasi Menu Bawah (HP)
+        ['cand','voter','set'].forEach(x => {
+            if(el('bnav-adm-'+x)) el('bnav-adm-'+x).classList.remove('active');
+        });
+        if(p !== 'dash' && el('bnav-adm-'+p)) el('bnav-adm-'+p).classList.add('active');
+
+        // 4. Update Animasi Sidebar (Desktop PC)
+        const items = document.querySelectorAll('#sb .nav-item');
+        items.forEach(x => x.classList.remove('active'));
+        if(p === 'dash' && items[0]) items[0].classList.add('active');
+        if(p === 'cand' && items[1]) items[1].classList.add('active');
+        if(p === 'voter' && items[2]) items[2].classList.add('active');
+        if(p === 'set' && items[3]) items[3].classList.add('active');
     }
     
     async function refAdmin(page=1, src='') {
