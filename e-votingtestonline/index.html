@@ -1282,30 +1282,42 @@
     function initCrop(i,t){ if(i.files[0]){ TGT=t; const r=new FileReader(); r.onload=e=>{ el('img-crop').src = e.target.result; new bootstrap.Modal('#mCrop').show(); if(CROP){ CROP.destroy(); CROP=null; } setTimeout(()=>{ CROP=new Cropper(el('img-crop'),{aspectRatio:t=='logo'?1:0.75,viewMode:1,autoCropArea:1}); },300); }; r.readAsDataURL(i.files[0]); } }
     function doCrop(){ if(!CROP) return; const w=TGT=='logo'?150:300, h=TGT=='logo'?150:400; let b64; if(TGT=='logo') b64=CROP.getCroppedCanvas({width:w,height:h}).toDataURL('image/png'); else b64=CROP.getCroppedCanvas({width:w,height:h,fillColor:'#fff'}).toDataURL('image/jpeg',0.6); if(TGT=='logo'){ el('logoNew').value=b64; el('logoPrev').src=b64; el('logoPrev').style.display='block'; el('logoTxt').style.display='none'; } else if(TGT=='p'){ el('p-b64').value=b64; el('p-img').src=b64; el('p-img').style.display='block'; el('p-txt').style.display='none'; } else if(TGT=='c'){ el('cfn').value=b64; el('cpr').src=b64; el('cpr').style.display='block'; el('cpt').style.display='none'; } else if(TGT=='v'){ el('vfn').value=b64; el('vpr').src=b64; el('vpr').style.display='block'; el('vpt').style.display='none'; } bootstrap.Modal.getInstance(el('mCrop')).hide(); }
 
-    async function execPdf(htmlContent, filename) { 
+   function execPdf(htmlContent, filename) { 
         load(1); 
         
-        // Panggil wadah rahasia yang sudah kita siapkan di HTML
         const container = document.getElementById('pdf-container');
         container.innerHTML = htmlContent;
-        container.style.display = 'block'; // Tampilkan di luar layar agar sistem bisa mengukur 100% nya
+        
+        // FIX 1: Jangan lempar ke luar layar (-9999px). 
+        // Kita taruh di koordinat 0,0 tapi disembunyikan di tumpukan paling belakang agar browser tetap me-rendernya!
+        container.style.display = 'block'; 
+        container.style.position = 'absolute';
+        container.style.top = '0px';
+        container.style.left = '0px';
+        container.style.zIndex = '-9999';
+        container.style.visibility = 'hidden';
         
         const opt = { 
             margin: 0.5, 
             filename: filename, 
             image: { type: 'jpeg', quality: 0.98 }, 
-            html2canvas: { scale: 2, useCORS: true, logging: false }, 
+            html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 800 }, 
             jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } 
         }; 
         
-        // Buat PDF
-        await html2pdf().set(opt).from(container).save(); 
-        
-        // Sembunyikan dan bersihkan lagi wadahnya
-        container.style.display = 'none'; 
-        container.innerHTML = '';
-        
-        load(0); 
+        // FIX 2: Beri jeda waktu 800ms agar browser selesai memuat & melukis gambar foto kandidat/logo sebelum di-capture
+        setTimeout(() => {
+            html2pdf().set(opt).from(container).save().then(() => {
+                // Sembunyikan dan bersihkan lagi wadahnya setelah sukses
+                container.style.display = 'none'; 
+                container.innerHTML = '';
+                load(0); 
+            }).catch(err => {
+                console.error("PDF Error: ", err);
+                load(0);
+                Swal.fire('Error', 'Gagal membuat PDF, coba lagi.', 'error');
+            });
+        }, 800);
     }
 
 
