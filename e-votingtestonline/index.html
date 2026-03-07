@@ -165,7 +165,7 @@
             <span class="eye-icon" onclick="togglePass('logPass')"><i class="bi bi-eye-slash" id="icon-logPass"></i></span>
         </div>
         <button class="btn btn-primary btn-lg w-100 mb-3 fw-bold" onclick="login()">MASUK <i class="bi bi-box-arrow-in-right"></i></button>
-        <button class="btn btn-outline-secondary w-100" onclick="nav('live')"><i class="bi bi-bar-chart-line"></i> LIVE COUNT</button>
+        <button class="btn btn-outline-danger w-100 fw-bold" onclick="goToYTLive()"><i class="bi bi-youtube"></i> NONTON LIVE COUNT</button>
         <div class="text-center mt-4 pt-3 border-top">
             <small class="text-muted" style="font-size:11px">&copy; 2026 E-Voting Realtime System. Hak Cipta Dilindungi. <br><a href="#" class="text-decoration-none text-muted" data-bs-toggle="modal" data-bs-target="#mPrivacy">Kebijakan Privasi</a> &bull; Created by : <a href="https://www.fary-edtech.my.id/" target="_blank">Fary EdTech</a></small>
         </div>
@@ -229,7 +229,9 @@
       </div>
 
       <div id="pg-dash">
-        <h3 class="fw-bold mb-4 text-dark">Ringkasan Pemilihan</h3>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold m-0 text-dark">Ringkasan Pemilihan</h3>
+    <button class="btn btn-danger shadow fw-bold" onclick="nav('live')"><i class="bi bi-broadcast"></i> STUDIO LIVE COUNT</button></div>
         <div class="row g-3 mb-4">
           <div class="col-6 col-md-3"><div class="card-box bg-primary text-white h-100"><h3 class="fw-bold m-0" id="st-tot">0</h3><small>Total DPT</small></div></div>
           <div class="col-6 col-md-3"><div class="card-box bg-success text-white h-100"><h3 class="fw-bold m-0" id="st-vot">0</h3><small>Suara Masuk</small></div></div>
@@ -302,6 +304,9 @@
                  <div class="mb-3"><label class="small fw-bold">Alamat Lengkap</label><textarea id="setOrgAddr" class="form-control" rows="2"></textarea></div>
                  <div class="row g-2 mb-3"><div class="col-md-6"><label class="small fw-bold">Website</label><input id="setWeb" class="form-control"></div><div class="col-md-6"><label class="small fw-bold">Email</label><input id="setEmail" class="form-control"></div></div>
                  <div class="mb-3"><label class="small fw-bold">HP Admin</label><input id="setHP" class="form-control"></div>
+                <div class="mb-3">
+                 <label class="small fw-bold text-danger"><i class="bi bi-youtube"></i> Link YouTube Live Count</label>
+                   <input id="setYT" class="form-control border-danger" placeholder="Masukkan link: https://youtu.be/..."></div>
                  <div class="row mb-4"><div class="col-6"><label class="small fw-bold">Waktu Mulai</label><input type="datetime-local" id="setStart" class="form-control"></div><div class="col-6"><label class="small fw-bold">Waktu Selesai</label><input type="datetime-local" id="setEnd" class="form-control"></div></div>
                  <button class="btn btn-primary w-100 fw-bold py-2"><i class="bi bi-save"></i> SIMPAN PENGATURAN</button>
                </form>
@@ -366,9 +371,8 @@
             <i class="bi bi-check2-circle"></i><span>Bilik</span>
         </div>
         
-        <div class="nav-item-m" onclick="nav('live')">
-            <i class="bi bi-bar-chart-line-fill"></i><span>Hasil</span>
-        </div>
+        <div class="nav-item-m text-danger" onclick="goToYTLive()">
+          <i class="bi bi-youtube"></i><span>Live</span></div>
         <div class="nav-item-m text-danger" onclick="logout()">
             <i class="bi bi-box-arrow-right"></i><span>Keluar</span>
         </div>
@@ -391,7 +395,7 @@
             <h1 class="display-1 text-success mb-3"><i class="bi bi-patch-check-fill"></i></h1>
             <h3 class="fw-bold">TERIMA KASIH!</h3>
             <p class="lead">Suara Anda telah berhasil dicatat.</p>
-            <button class="btn btn-outline-success mt-3 d-none d-md-inline-block" onclick="nav('live')">Lihat Hasil Sementara</button>
+            <button class="btn btn-outline-danger mt-3 d-none d-md-inline-block" onclick="goToYTLive()"><i class="bi bi-youtube"></i> Nonton Live Count</button>
         </div>
 
         <div id="v-wait" class="d-none text-center p-5">
@@ -886,6 +890,14 @@
 
     function logout(){ localStorage.removeItem('evote_session'); ME={}; nav('login'); }
     
+    function goToYTLive() {
+    if (GLOBAL_CONFIG && GLOBAL_CONFIG.YTLink) {
+        window.open(GLOBAL_CONFIG.YTLink, '_blank');
+    } else {
+        Swal.fire('Info', 'Link YouTube Live belum disiapkan oleh Panitia.', 'info');
+    }
+}
+
     function checkLoginRedirect(){ 
         if(ME && ME.role) { if(ME.role==='admin') nav('admin'); else nav('voter'); } else nav('login'); 
     }
@@ -978,7 +990,7 @@
 
             await window.setDoc(window.doc(window.db, "config", "utama"), { tot_dpt: votSnap.size, tot_voted: totVoted }, {merge: true});
 
-            if(c.OrgName) el('setOrg').value = c.OrgName; if(c.OrgFullName) el('setOrgFull').value = c.OrgFullName; if(c.OrgLegal) el('setOrgLegal').value = c.OrgLegal; if(c.OrgAddress) el('setOrgAddr').value = c.OrgAddress; if(c.Judul) el('setJudul').value = c.Judul; if(c.StartTime) el('setStart').value = c.StartTime; if(c.EndTime) el('setEnd').value = c.EndTime; if(c.Web) el('setWeb').value = c.Web; if(c.Email) el('setEmail').value = c.Email; if(c.HP) el('setHP').value = c.HP; if(c.Logo) { el('logoPrev').src=c.Logo; el('logoPrev').style.display='block'; el('logoTxt').style.display='none'; }
+            if(c.OrgName) el('setOrg').value = c.OrgName; if(c.OrgFullName) el('setOrgFull').value = c.OrgFullName; if(c.OrgLegal) el('setOrgLegal').value = c.OrgLegal; if(c.OrgAddress) el('setOrgAddr').value = c.OrgAddress; if(c.Judul) el('setJudul').value = c.Judul; if(c.StartTime) el('setStart').value = c.StartTime; if(c.EndTime) el('setEnd').value = c.EndTime; if(c.Web) el('setWeb').value = c.Web; if(c.Email) el('setEmail').value = c.Email; if(c.HP) el('setHP').value = c.HP; if(c.YTLink) el('setYT').value = c.YTLink; if(c.Logo) { el('logoPrev').src=c.Logo; el('logoPrev').style.display='block'; el('logoTxt').style.display='none'; }
             
             if(el('st-tot')) el('st-tot').innerText = stats.tot; 
             if(el('st-vot')) el('st-vot').innerText = stats.vot; 
@@ -1030,7 +1042,7 @@
 
     async function saveSet(e) {
         e.preventDefault(); load(1);
-        const d = { OrgName: el('setOrg').value, OrgFullName: el('setOrgFull').value, OrgLegal: el('setOrgLegal').value, OrgAddress: el('setOrgAddr').value, Judul: el('setJudul').value, StartTime: el('setStart').value, StartTime_TS: getTimeStamp(el('setStart').value), EndTime: el('setEnd').value, EndTime_TS: getTimeStamp(el('setEnd').value), Web: el('setWeb').value, Email: el('setEmail').value, HP: el('setHP').value, Logo: el('logoNew').value ? el('logoNew').value : el('logoPrev').src };
+        const d = { OrgName: el('setOrg').value, OrgFullName: el('setOrgFull').value, OrgLegal: el('setOrgLegal').value, OrgAddress: el('setOrgAddr').value, Judul: el('setJudul').value, StartTime: el('setStart').value, StartTime_TS: getTimeStamp(el('setStart').value), EndTime: el('setEnd').value, EndTime_TS: getTimeStamp(el('setEnd').value), Web: el('setWeb').value, Email: el('setEmail').value, HP: el('setHP').value, YTLink: el('setYT').value, Logo: el('logoNew').value ? el('logoNew').value : el('logoPrev').src };
         try { await window.setDoc(window.doc(window.db, "config", "utama"), d, { merge: true }); load(0); Swal.fire('Sukses', 'Pengaturan tersimpan!', 'success'); } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); }
     }
     
@@ -1227,18 +1239,49 @@
             let timeLeft = END_TIME - now; let txt = formatTime(timeLeft);
             if(tm) tm.innerText = txt; if(tmb) tmb.innerText = txt; 
             
-            if (timeLeft <= 20000 && !window.fastPollActive) {
-                window.fastPollActive = true; if(POLL) { clearTimeout(POLL); clearInterval(POLL); } tick(); POLL = setInterval(() => { tick(); }, 2000); 
+            // ==============================================================
+            // LOGIKA MASTER YOUTUBE LIVE: AUTO REFRESH DUAL-SPEED
+            // ==============================================================
+            if (timeLeft <= 20000) {
+                // Sisa <= 20 Detik: Masuk Mode Menegangkan! Refresh per 2 Detik (2000ms)
+                if (window.currentPollRate !== 2000) {
+                    window.currentPollRate = 2000;
+                    if(window.POLL) clearInterval(window.POLL);
+                    tick(); // Tarik data langsung saat gigi pindah
+                    window.POLL = setInterval(() => { tick(); }, 2000);
+                }
+            } else {
+                // Waktu Normal (> 20 detik): Refresh Santai per 5 Detik (5000ms)
+                if (window.currentPollRate !== 5000) {
+                    window.currentPollRate = 5000;
+                    if(window.POLL) clearInterval(window.POLL);
+                    tick(); // Tarik data langsung saat gigi pindah
+                    window.POLL = setInterval(() => { tick(); }, 5000);
+                }
             }
+            // ==============================================================
         } 
         else if (END_TIME && now >= END_TIME) { 
             if(tm) { tm.innerText = "WAKTU HABIS"; tm.classList.add('text-danger'); }
             if(tmb) { tmb.innerText = "WAKTU HABIS"; tmb.classList.add('text-danger'); }
-            if(!isEnded) { isEnded = true; if(POLL) { clearTimeout(POLL); clearInterval(POLL); } el('live-final').style.display = 'flex'; setTimeout(() => { tick(); }, 500); } 
+            if(!isEnded) { 
+                isEnded = true; 
+                // Matikan semua tarikan data saat waktu habis
+                if(window.POLL) { clearInterval(window.POLL); window.POLL = null; } 
+                el('live-final').style.display = 'flex'; 
+                setTimeout(() => { tick(); }, 500); 
+            } 
         } 
         else { 
             if(tm) tm.innerText = "BERLANGSUNG"; if(tmb) tmb.innerText = "BERLANGSUNG"; 
             if(!isStarted) { isStarted=true; tick(); } 
+            
+            // Jaga-jaga kalau Admin lupa set waktu selesai (Otomatis per 5 detik)
+            if (window.currentPollRate !== 5000) {
+                window.currentPollRate = 5000;
+                if(window.POLL) clearInterval(window.POLL);
+                window.POLL = setInterval(() => { tick(); }, 5000);
+            }
         }
     }
 
@@ -1262,15 +1305,18 @@
     
     function nav(id) {
       document.querySelectorAll('.view-section').forEach(x=>x.classList.remove('view-active')); el('v-'+id).classList.add('view-active');
-      if(POLL) { clearTimeout(POLL); clearInterval(POLL); }
+      
+      // Bersihkan sisa-sisa interval lama saat pindah halaman
+      if(window.POLL) { clearInterval(window.POLL); window.POLL = null; }
+      window.currentPollRate = null; 
+      
       if(id=='live') { 
-          isEnded = false; isStarted = false; window.fastPollActive = false; window.shownResult = false; 
+          isEnded = false; isStarted = false; window.shownResult = false; 
           tick(); updateLiveAuthBtn(); 
           
-          if (ME && ME.role === 'admin') {
-              const loopTick = () => { const t=Math.floor(Math.random()*5000)+20000; POLL=setTimeout(()=>{tick();loopTick();},t); }; loopTick(); 
-          }
-          if(window.TIMER_INT) clearInterval(window.TIMER_INT); window.TIMER_INT = setInterval(updateTimer, 1000); 
+          if(window.TIMER_INT) clearInterval(window.TIMER_INT); 
+          // Timer jam berdetak setiap 1 detik
+          window.TIMER_INT = setInterval(updateTimer, 1000); 
       }
     }
 
@@ -1282,7 +1328,7 @@
     function initCrop(i,t){ if(i.files[0]){ TGT=t; const r=new FileReader(); r.onload=e=>{ el('img-crop').src = e.target.result; new bootstrap.Modal('#mCrop').show(); if(CROP){ CROP.destroy(); CROP=null; } setTimeout(()=>{ CROP=new Cropper(el('img-crop'),{aspectRatio:t=='logo'?1:0.75,viewMode:1,autoCropArea:1}); },300); }; r.readAsDataURL(i.files[0]); } }
     function doCrop(){ if(!CROP) return; const w=TGT=='logo'?150:300, h=TGT=='logo'?150:400; let b64; if(TGT=='logo') b64=CROP.getCroppedCanvas({width:w,height:h}).toDataURL('image/png'); else b64=CROP.getCroppedCanvas({width:w,height:h,fillColor:'#fff'}).toDataURL('image/jpeg',0.6); if(TGT=='logo'){ el('logoNew').value=b64; el('logoPrev').src=b64; el('logoPrev').style.display='block'; el('logoTxt').style.display='none'; } else if(TGT=='p'){ el('p-b64').value=b64; el('p-img').src=b64; el('p-img').style.display='block'; el('p-txt').style.display='none'; } else if(TGT=='c'){ el('cfn').value=b64; el('cpr').src=b64; el('cpr').style.display='block'; el('cpt').style.display='none'; } else if(TGT=='v'){ el('vfn').value=b64; el('vpr').src=b64; el('vpr').style.display='block'; el('vpt').style.display='none'; } bootstrap.Modal.getInstance(el('mCrop')).hide(); }
 
-   function execPdf(htmlContent, filename) { 
+  function execPdf(htmlContent, filename) { 
         load(1); 
         
         // KUNCI 1: Paksa layar kembali ke paling atas sebelum mesin PDF memotret!
