@@ -666,16 +666,59 @@
       </div>
   </div>
 
-  <div class="modal fade" id="mPrivacy">
-      <div class="modal-dialog modal-dialog-scrollable">
-          <div class="modal-content">
-              <div class="modal-header"><h5 class="modal-title fw-bold"><i class="bi bi-shield-lock"></i> Kebijakan Privasi</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-              <div class="modal-body">
-                  <h6>1. Pengumpulan Data</h6><p class="small text-muted">Sistem ini mengumpulkan data berupa Username, Password (Enkripsi), Nama, NIA, dan Pilihan Suara Anda. Data digunakan semata-mata untuk keperluan verifikasi pemilihan.</p>
-                  <h6>2. Asas Kerahasiaan</h6><p class="small text-muted">Pilihan suara Anda bersifat RAHASIA. Sistem memisahkan antara identitas pemilih dengan pilihan kandidat di database, sehingga admin pun tidak dapat melihat siapa memilih siapa (LUBER JURDIL).</p>
-                  <h6>3. Keamanan Data</h6><p class="small text-muted">Password disimpan dalam bentuk Hash (terenkripsi satu arah). Kami menyarankan Anda segera mengganti password default setelah login pertama kali.</p>
+    <div class="modal fade" id="mPrivacy">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+          <div class="modal-content border-0 shadow-lg">
+              <div class="modal-header bg-primary text-white border-0">
+                  <h5 class="modal-title fw-bold"><i class="bi bi-shield-check me-2"></i> Kebijakan Privasi & Keamanan Data</h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
               </div>
-              <div class="modal-footer"><button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">SAYA MENGERTI</button></div>
+              <div class="modal-body" style="line-height: 1.6; text-align: justify;">
+                  
+                  <p class="text-muted small border-bottom pb-3">
+                      <strong>Pembaruan Terakhir:</strong> Maret 2026<br>
+                      Dokumen ini menguraikan bagaimana <strong>E-Voting Realtime System ATAS Indonesia</strong> mengumpulkan, menggunakan, menjaga, dan melindungi informasi pribadi Anda sesuai dengan <strong>Undang-Undang Perlindungan Data Pribadi (UU PDP) No. 27 Tahun 2022</strong>.
+                  </p>
+
+                  <h6 class="fw-bold text-dark mt-4"><i class="bi bi-1-circle text-primary me-1"></i> Pengumpulan Data Pribadi</h6>
+                  <p class="small text-muted mb-3">
+                      Sistem mengumpulkan data yang Anda masukkan (baik melalui proses import oleh Admin maupun pembaruan mandiri), meliputi: Username (ID/NIA), Nama Lengkap, Jabatan, Tempat & Tanggal Lahir, Jenis Kelamin, Alamat, Wilayah (Provinsi/Kab/Kota), dan Foto Profil. Sistem juga menyimpan jejak digital status partisipasi Anda (Sudah Memilih / Belum Memilih).
+                  </p>
+
+                  <h6 class="fw-bold text-dark mt-4"><i class="bi bi-2-circle text-primary me-1"></i> Kerahasiaan Suara (Asas LUBER JURDIL)</h6>
+                  <div class="alert alert-success border-success pb-0 pt-3 px-3 mb-3 shadow-sm" style="background-color: #f0fdf4;">
+                      <p class="small text-dark fw-bold mb-2">Pilihan Anda 100% Rahasia dan Tidak Dapat Dilacak.</p>
+                      <p class="small text-muted">
+                          Sistem ini dirancang menggunakan metode <em>Decoupled Architecture</em>. Saat Anda memberikan suara di Bilik Suara, database hanya akan mencatat bahwa <strong>"Akun Anda sudah menggunakan hak pilih"</strong> dan menambahkan <strong>"Angka +1 pada kandidat"</strong>. Sistem secara tegas memutus jalur (link) antara identitas pemilih dengan kandidat yang dipilih. Bahkan <em>Super Admin</em> maupun <em>Developer</em> tidak dapat mengetahui siapa memilih siapa.
+                      </p>
+                  </div>
+
+                  <h6 class="fw-bold text-dark mt-4"><i class="bi bi-3-circle text-primary me-1"></i> Keamanan Enkripsi Password</h6>
+                  <p class="small text-muted mb-3">
+                      Password yang Anda gunakan tidak disimpan dalam bentuk teks biasa (<em>plaintext</em>). Sistem mengamankan kata sandi menggunakan fungsi kriptografi <strong>SHA-256 (Hash)</strong>. Hal ini memastikan bahwa jika terjadi intervensi pada database, kata sandi Anda tetap terlindungi dan tidak dapat didekripsi oleh pihak manapun.
+                  </p>
+
+                  <h6 class="fw-bold text-dark mt-4"><i class="bi bi-4-circle text-primary me-1"></i> Penggunaan Memori Lokal (Cookies/Session)</h6>
+                  <p class="small text-muted mb-3">
+                      Sistem menggunakan <em>Local Storage</em> pada peramban (<em>browser</em>) perangkat Anda semata-mata untuk menyimpan sesi login aktif (<em>Token Session</em>). Kami tidak menggunakan pelacak iklan pihak ketiga atau mengumpulkan riwayat pencarian peramban Anda.
+                  </p>
+
+                  <h6 class="fw-bold text-dark mt-4"><i class="bi bi-5-circle text-primary me-1"></i> Pembagian Data (Data Sharing)</h6>
+                  <p class="small text-muted mb-3">
+                      Data pribadi pemilih hanya digunakan untuk kepentingan verifikasi Daftar Pemilih Tetap (DPT) dan pembuatan Kartu Peserta Pemilih ATAS Indonesia. Kami <strong>tidak akan pernah menjual, menyewakan, atau menukar</strong> data pribadi Anda kepada pihak ketiga. Data hanya dapat dibuka apabila ada permintaan resmi berkekuatan hukum dari otoritas negara.
+                  </p>
+
+                  <h6 class="fw-bold text-dark mt-4"><i class="bi bi-6-circle text-primary me-1"></i> Hak Anda sebagai Pemilih</h6>
+                  <p class="small text-muted mb-4">
+                      Sesuai dengan hukum yang berlaku, Anda memiliki hak untuk mengakses dan memperbaiki profil Anda selama masa pemilihan belum ditutup oleh Panitia/Admin. Setelah masa pemilihan selesai, seluruh data akan direkapitulasi secara administratif oleh Pengurus ATAS Indonesia.
+                  </p>
+
+              </div>
+              <div class="modal-footer border-top bg-light">
+                  <button type="button" class="btn btn-primary w-100 fw-bold py-2 rounded-pill" data-bs-dismiss="modal">
+                      <i class="bi bi-check2-all"></i> SAYA MEMAHAMI & MENYETUJUI
+                  </button>
+              </div>
           </div>
       </div>
   </div>
