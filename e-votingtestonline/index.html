@@ -1288,36 +1288,36 @@
         const container = document.getElementById('pdf-container');
         container.innerHTML = htmlContent;
         
-        // FIX 1: Jangan lempar ke luar layar (-9999px). 
-        // Kita taruh di koordinat 0,0 tapi disembunyikan di tumpukan paling belakang agar browser tetap me-rendernya!
+        // TRIK MASTER: Taruh di pojok atas persis, TAPI kasih z-index minus 100 
+        // agar dia bersembunyi di balik warna background web. html2canvas akan tetap bisa melihatnya!
         container.style.display = 'block'; 
         container.style.position = 'absolute';
         container.style.top = '0px';
         container.style.left = '0px';
-        container.style.zIndex = '-9999';
-        container.style.visibility = 'hidden';
+        container.style.width = '800px';
+        container.style.zIndex = '-100'; 
         
-        const opt = { 
-            margin: 0.5, 
-            filename: filename, 
-            image: { type: 'jpeg', quality: 0.98 }, 
-            html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 800 }, 
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } 
-        }; 
-        
-        // FIX 2: Beri jeda waktu 800ms agar browser selesai memuat & melukis gambar foto kandidat/logo sebelum di-capture
+        // Jeda 1.5 Detik (1500ms) untuk memastikan gambar logo/foto benar-benar selesai dilukis oleh browser
         setTimeout(() => {
+            const opt = { 
+                margin: 0.5, 
+                filename: filename, 
+                image: { type: 'jpeg', quality: 0.98 }, 
+                html2canvas: { scale: 2, useCORS: true, logging: false }, 
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } 
+            }; 
+            
             html2pdf().set(opt).from(container).save().then(() => {
-                // Sembunyikan dan bersihkan lagi wadahnya setelah sukses
+                // Bersihkan dan kembalikan ke awal setelah PDF sukses diunduh
                 container.style.display = 'none'; 
                 container.innerHTML = '';
                 load(0); 
             }).catch(err => {
                 console.error("PDF Error: ", err);
                 load(0);
-                Swal.fire('Error', 'Gagal membuat PDF, coba lagi.', 'error');
+                Swal.fire('Error', 'Gagal membuat PDF. Coba ulangi.', 'error');
             });
-        }, 800);
+        }, 1500);
     }
 
 
