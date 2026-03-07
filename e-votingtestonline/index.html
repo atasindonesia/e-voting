@@ -1285,39 +1285,40 @@
    function execPdf(htmlContent, filename) { 
         load(1); 
         
-        const container = document.getElementById('pdf-container');
-        container.innerHTML = htmlContent;
+        // 1. Buat elemen fisik sementara agar mesin PDF tidak bingung
+        let tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlContent;
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.left = '0px';
+        tempDiv.style.top = '0px';
+        tempDiv.style.width = '800px';
+        tempDiv.style.zIndex = '-1000'; // Ditumpuk di belakang layar agar tidak kelihatan user
+        tempDiv.style.background = '#ffffff';
+        document.body.appendChild(tempDiv);
         
-        // TRIK MASTER: Taruh di pojok atas persis, TAPI kasih z-index minus 100 
-        // agar dia bersembunyi di balik warna background web. html2canvas akan tetap bisa melihatnya!
-        container.style.display = 'block'; 
-        container.style.position = 'absolute';
-        container.style.top = '0px';
-        container.style.left = '0px';
-        container.style.width = '800px';
-        container.style.zIndex = '-100'; 
-        
-        // Jeda 1.5 Detik (1500ms) untuk memastikan gambar logo/foto benar-benar selesai dilukis oleh browser
+        // 2. Beri jeda 1.5 detik (1500ms). Ini KUNCI agar foto/logo selesai di-render sebelum dipotret!
         setTimeout(() => {
             const opt = { 
                 margin: 0.5, 
                 filename: filename, 
                 image: { type: 'jpeg', quality: 0.98 }, 
-                html2canvas: { scale: 2, useCORS: true, logging: false }, 
+                // allowTaint: true memaksa PDF membaca gambar beda server
+                html2canvas: { scale: 2, useCORS: true, allowTaint: true, logging: false }, 
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } 
             }; 
             
-            html2pdf().set(opt).from(container).save().then(() => {
-                // Bersihkan dan kembalikan ke awal setelah PDF sukses diunduh
-                container.style.display = 'none'; 
-                container.innerHTML = '';
+            // 3. Eksekusi PDF dari elemen sementara
+            html2pdf().set(opt).from(tempDiv).save().then(() => {
+                // 4. Buang elemen sementara agar memori HP tidak berat
+                document.body.removeChild(tempDiv);
                 load(0); 
             }).catch(err => {
                 console.error("PDF Error: ", err);
+                document.body.removeChild(tempDiv);
                 load(0);
-                Swal.fire('Error', 'Gagal membuat PDF. Coba ulangi.', 'error');
+                Swal.fire('Error', 'Gagal membuat PDF. Silakan coba lagi.', 'error');
             });
-        }, 1500);
+        }, 1500); 
     }
 
 
