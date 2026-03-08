@@ -485,11 +485,11 @@
              <div class="small opacity-50 font-monospace">WAKTU TERSISA</div>
              <h2 class="fw-bold m-0 font-monospace" id="timer-live">--:--:--</h2>
              <button class="btn btn-sm btn-outline-light mt-2 rounded-pill px-3 fw-bold" id="btn-live-login-top" onclick="checkLoginRedirect()">LOGIN SYSTEM</button>
-             <button class="btn btn-sm btn-light text-dark rounded-circle ms-2" onclick="tick()" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
+            <!-- <button class="btn btn-sm btn-light text-dark rounded-circle ms-2" onclick="tick()" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button> -->
          </div>
          
          <div class="d-md-none">
-             <button class="btn btn-light text-dark rounded-circle shadow-sm" onclick="tick()" style="width:40px;height:40px;"><i class="bi bi-arrow-clockwise fs-5"></i></button>
+            <!-- <button class="btn btn-light text-dark rounded-circle shadow-sm" onclick="tick()" style="width:40px;height:40px;"><i class="bi bi-arrow-clockwise fs-5"></i></button> -->
          </div>
        </div>
     </div>
@@ -738,7 +738,9 @@
   
   <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-      import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, runTransaction } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+      import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, runTransaction, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+      // TAMBAHKAN 3 BARIS INI UNTUK AUTH
+      import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyCpKoO7YTTUZDzjsrAwRLHsVK90D3r-VWA",
@@ -751,8 +753,14 @@
 
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app, "evoting-atas-indonesia");
+      const auth = getAuth(app); // INISIALISASI AUTH
 
-      window.db = db; window.collection = collection; window.getDocs = getDocs; window.doc = doc; window.getDoc = getDoc; window.setDoc = setDoc; window.updateDoc = updateDoc; window.deleteDoc = deleteDoc; window.runTransaction = runTransaction;
+      window.db = db; window.collection = collection; window.getDocs = getDocs; window.doc = doc; window.getDoc = getDoc; window.setDoc = setDoc; window.updateDoc = updateDoc; window.deleteDoc = deleteDoc; window.runTransaction = runTransaction; window.onSnapshot = onSnapshot;
+      
+      // DAFTARKAN AUTH KE WINDOW
+      window.auth = auth;
+      window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+      window.signOut = signOut;
       
       window.firebaseLoaded = true;
       if (typeof window.checkFirebase === 'function') window.checkFirebase();
@@ -861,34 +869,61 @@
     }
 
     // LOGIN
-    async function login() {
-        const u = el('logUser').value.trim(); const p = el('logPass').value.trim(); 
+   async function login() {
+        const u = el('logUser').value.trim(); 
+        const p = el('logPass').value.trim(); 
         if(!u || !p) { Swal.fire('Peringatan', 'Username dan Password tidak boleh kosong', 'warning'); return; }
+        
         load(1);
         try {
-            let querySnap = await window.getDocs(window.collection(window.db, "admins"));
-            let isFound = false;
-            querySnap.forEach((doc) => {
-                const data = doc.data();
-                if (data.user === u && data.pass === p) { isFound = true; ME = { status: 'success', role: 'admin', token: doc.id, data: { nama: data.nama, user: data.user } }; }
-            });
-            if (!isFound) {
-                const hashPass = await makeHash(p); const vDoc = await window.getDoc(window.doc(window.db, "voters", u));
-                if (vDoc.exists()) {
-                    const data = vDoc.data();
-                    if (data.pass === hashPass || data.pass === p) { isFound = true; ME = { status: 'success', role: 'voter', token: vDoc.id, data: data, voted: data.voted }; }
+            // 1. CEK SEBAGAI ADMIN VIA FIREBASE AUTH
+            const adminEmail = u + "@atasindonesia.or.id"; 
+            try {
+                await window.signInWithEmailAndPassword(window.auth, adminEmail, p);
+                const adminDoc = await window.getDoc(window.doc(window.db, "admins", u));
+                if (adminDoc.exists()) {
+                    ME = { status: 'success', role: 'admin', token: u, data: adminDoc.data() };
+                    localStorage.setItem('evote_session', JSON.stringify(ME));
+                    nav('admin'); refAdmin(); load(0);
+                    Swal.fire('Berhasil', 'Selamat datang, Admin!', 'success');
+                    return; 
+                }
+            } catch (e) {
+                // Abaikan error auth, berarti bukan admin, lanjut cek sebagai pemilih
+            }
+
+            // 2. CEK SEBAGAI PEMILIH VIA FIRESTORE (DPT)
+            const hashPass = await makeHash(p); 
+            const vDoc = await window.getDoc(window.doc(window.db, "voters", u));
+            
+            if (vDoc.exists()) {
+                const data = vDoc.data();
+                if (data.pass === hashPass || data.pass === p) { 
+                    ME = { status: 'success', role: 'voter', token: vDoc.id, data: data, voted: data.voted };
+                    localStorage.setItem('evote_session', JSON.stringify(ME));
+                    nav('voter'); refVoter(); load(0);
+                    Swal.fire('Berhasil', 'Selamat datang di Bilik Suara!', 'success');
+                    return; 
                 }
             }
+            throw new Error("Username atau Password salah!");
+        } catch (error) {
             load(0);
-            if (isFound) { 
-                localStorage.setItem('evote_session', JSON.stringify(ME)); 
-                if (ME.role === 'admin') { nav('admin'); refAdmin(); } else { nav('voter'); refVoter(); } 
-                Swal.fire('Berhasil', 'Selamat datang', 'success'); 
-            } else { Swal.fire('Gagal', 'Username atau Password salah!', 'error'); }
-        } catch (error) { load(0); Swal.fire('Error DB', error.message, 'error'); }
+            Swal.fire('Gagal', error.message, 'error');
+        }
     }
 
-    function logout(){ localStorage.removeItem('evote_session'); ME={}; nav('login'); }
+    function logout() { 
+        if(window.auth && window.auth.currentUser) {
+            window.signOut(window.auth).then(() => { clearSession(); });
+        } else {
+            clearSession();
+        }
+    }
+    
+    function clearSession() {
+        localStorage.removeItem('evote_session'); ME={}; nav('login');
+    }
     
     function goToYTLive() {
     if (GLOBAL_CONFIG && GLOBAL_CONFIG.YTLink) {
@@ -1166,61 +1201,120 @@
         } catch(e) { load(0); Swal.fire('Error Database', e.message, 'error'); }
     }
 
-    async function vote(id, n) {
-        const now = new Date().getTime(); if(START_TIME && now < START_TIME) { Swal.fire('BELUM DIBUKA', 'Mohon tunggu...', 'warning'); return; }
-        Swal.fire({title:'Pilih '+n+'?', icon:'question', showCancelButton:true, confirmButtonText:'YA'}).then(async r => {
-            if(r.isConfirmed) {
-                load(1);
-                try {
-                    const voterRef = window.doc(window.db, "voters", ME.token); const candRef = id === 'ABSTAIN' ? null : window.doc(window.db, "candidates", id);
-                    const confRef = window.doc(window.db, "config", "utama"); 
-                    await window.runTransaction(window.db, async (transaction) => { 
-                        const voterDoc = await transaction.get(voterRef); if (!voterDoc.exists() || voterDoc.data().voted) { throw "Anda sudah memilih!"; } 
-                        const confDoc = await transaction.get(confRef); let currVoted = (confDoc.exists() && confDoc.data().tot_voted) ? confDoc.data().tot_voted : 0;
-                        if (candRef) { const candDoc = await transaction.get(candRef); const newSuara = (candDoc.data().suara || 0) + 1; transaction.update(candRef, { suara: newSuara }); } 
-                        transaction.update(voterRef, { voted: true }); transaction.update(confRef, { tot_voted: currVoted + 1 }); 
-                    });
-                    ME.voted = true; localStorage.setItem('evote_session', JSON.stringify(ME)); refVoter(); load(0); Swal.fire('Berhasil','Suara Anda telah masuk.','success');
-                } catch(e) { load(0); Swal.fire('Gagal', typeof e === 'string' ? e : e.message, 'error'); }
+   async function vote(id, n) {
+    const now = new Date().getTime(); 
+    if(START_TIME && now < START_TIME) { Swal.fire('BELUM DIBUKA', 'Mohon tunggu...', 'warning'); return; }
+    
+    Swal.fire({title:'Pilih '+n+'?', icon:'question', showCancelButton:true, confirmButtonText:'YA'}).then(async r => {
+        if(r.isConfirmed) {
+            load(1);
+            try {
+                // 1. Kirim Data ke "Satpam" Google Apps Script
+                const GAS_URL = "https://script.google.com/macros/s/AKfycbzojEYhI71-R4Y8sOC-Xo-zdItRiGNvmX6YU_a6W1lLFxKmA5vC7xDuug5XVpF2XdFJ/exec";
+                
+                const response = await fetch(GAS_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "text/plain;charset=utf-8",
+        },
+        body: JSON.stringify({
+            voterId: ME.token,
+            password: ME.data.pass,
+            candidateId: id
+        })
+    });
+                
+                
+                const resData = await response.json();
+
+                // 2. Jika Satpam bilang OK, tandai sukses di layar HP
+                if(resData.status === "success") {
+                    ME.voted = true; 
+                    localStorage.setItem('evote_session', JSON.stringify(ME)); 
+                    refVoter(); 
+                    Swal.fire('Berhasil','Suara Anda telah masuk ke Server.','success');
+                } else {
+                    throw new Error(resData.message);
+                }
+            } catch(e) { 
+                Swal.fire('Gagal', e.message, 'error'); 
+            } finally {
+                load(0);
             }
-        });
-    }
+        }
+    });
+}
 
     async function saveProfile(e) { 
         e.preventDefault(); load(1); let passTxt = el('p-pass').value.trim(); const d = { tp_lahir: el('p-tpl').value, tg_lahir: el('p-tgl').value, alamat: el('p-alm').value, prov: el('p-prov').value, kab: el('p-kab').value, foto: el('p-b64').value }; 
         try { if(passTxt !== "") d.pass = await makeHash(passTxt); await window.updateDoc(window.doc(window.db, "voters", ME.token), d); ME.data = { ...ME.data, ...d }; localStorage.setItem('evote_session',JSON.stringify(ME)); load(0); Swal.fire('Sukses','Data berhasil disimpan','success'); refVoter(); } catch(error) { load(0); Swal.fire('Gagal', error.message, 'error'); } 
     }
 
-    async function tick() {
-        if (window.isTickRunning) return; window.isTickRunning = true;
-        try {
-            const confSnap = await window.getDoc(window.doc(window.db, "config", "utama")); let c = confSnap.exists() ? confSnap.data() : {};
-            if (c.OrgFullName || c.OrgName) el('live-org').innerText = c.OrgFullName || c.OrgName; el('live-judul').innerText = c.Judul || 'LIVE COUNT';
+    let unsubCandidates = null;
+let unsubConfig = null;
+
+function startLiveCount() {
+    // 1. Pantau Total Suara & Config secara Real-time
+    unsubConfig = window.onSnapshot(window.doc(window.db, "config", "utama"), (docSnap) => {
+        if(docSnap.exists()){
+            let c = docSnap.data();
+            GLOBAL_CONFIG = c;
+            
+            // Update Teks Header
+            if (c.OrgFullName || c.OrgName) el('live-org').innerText = c.OrgFullName || c.OrgName; 
+            el('live-judul').innerText = c.Judul || 'LIVE COUNT';
             if (c.Logo) { el('live-logo').src = c.Logo; el('live-logo').style.display = 'block'; }
-            START_TIME = c.StartTime_TS; END_TIME = c.EndTime_TS;
+            
+            // Update Waktu
+            START_TIME = c.StartTime_TS; 
+            END_TIME = c.EndTime_TS;
 
-            const candSnap = await window.getDocs(window.collection(window.db, "candidates")); let cands = []; let totValid = 0;
-            candSnap.forEach(d => { let dx=d.data(); dx.id=d.id; cands.push(dx); totValid += (dx.suara || 0); }); GLOBAL_CANDS = cands; 
+            // Update Statistik Kotak Atas
+            let totVoters = c.tot_dpt || 0; 
+            let totVoted = c.tot_voted || 0;
+            el('s-masuk').innerText = totVoted; 
+            el('s-belum').innerText = totVoters - totVoted; 
+            el('s-total').innerText = totVoters;
+        }
+    });
 
-            let totVoters = c.tot_dpt || 0; let totVoted = c.tot_voted || 0;
-            el('s-masuk').innerText = totVoted; el('s-abstain').innerText = totVoted - totValid; el('s-belum').innerText = totVoters - totVoted; el('s-total').innerText = totVoters;
+    // 2. Pantau Pergerakan Suara Kandidat secara Real-time
+    unsubCandidates = window.onSnapshot(window.collection(window.db, "candidates"), (snapshot) => {
+        let cands = [];
+        let totValid = 0;
+        
+        snapshot.forEach(d => { 
+            let dx = d.data(); 
+            dx.id = d.id; 
+            cands.push(dx); 
+            totValid += (dx.suara || 0); 
+        });
+        
+        GLOBAL_CANDS = cands;
+        
+        // Update total Abstain
+        el('s-abstain').innerText = (GLOBAL_CONFIG.tot_voted || 0) - totValid;
 
-            if (cands.length > 0) {
-                cands.sort((a, b) => { if (b.suara !== a.suara) return (b.suara||0) - (a.suara||0); return a.no - b.no; });
-                let h = ''; const topScore = cands[0].suara || 0; const winnersCount = cands.filter(x => x.suara === topScore && x.suara > 0).length;
-                cands.forEach((cand, i) => {
-                    let pct = totVoted > 0 ? ((cand.suara || 0) / totVoted * 100).toFixed(2) : 0; let cls = (i === 0 && cand.suara > 0) ? 'rank-1' : 'border-0'; let barW = (pct < 1 && cand.suara > 0) ? 1 : pct; let trophyHTML = (cand.suara === topScore && cand.suara > 0) ? `<i class="bi bi-trophy-fill ${winnersCount > 1 ? 'text-secondary' : 'text-warning'} ms-2 fs-4"></i>` : ''; let fUrl = cand.foto || 'https://via.placeholder.com/60';
-                    h += `<div class="race-card ${cls} position-relative mb-3"><div class="fw-bold fs-3 text-secondary ms-2 text-center" style="min-width:40px">#${cand.no}</div><img src="${fUrl}" class="cand-thumb shadow-sm" onerror="this.src='https://via.placeholder.com/60'"><div class="flex-fill"><div class="d-flex justify-content-between align-items-center mb-1"><div class="fw-bold fs-5 text-dark d-flex align-items-center">${cand.nama} ${trophyHTML}</div><div class="fw-bold fs-4 text-dark">${cand.suara||0}</div></div><div class="progress" style="height:10px;background:#e2e8f0;border-radius:5px"><div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" style="width:${barW}%"></div></div><div class="text-end small text-muted mt-1 fw-bold">${pct}% Suara</div></div></div>`;
-                }); el('race-area').innerHTML = h;
-            } else { el('race-area').innerHTML = '<div class="text-center text-white py-5">Belum ada data kandidat.</div>'; }
-
-            const now = new Date().getTime();
-            if (END_TIME && now >= END_TIME) { if (POLL) { clearTimeout(POLL); clearInterval(POLL); } el('live-final').style.display = 'none'; if (!window.shownResult) { showWinnerModal({c: GLOBAL_CANDS}); } }
-        } catch (err) { 
-            console.error('Tick Error:', err); const now = new Date().getTime();
-            if (END_TIME && now >= END_TIME) { if (POLL) { clearTimeout(POLL); clearInterval(POLL); } el('live-final').style.display = 'none'; if (!window.shownResult) { showWinnerModal({c: GLOBAL_CANDS || []}); } }
-        } finally { window.isTickRunning = false; updateTimer(); }
-    }
+        // Render Ulang Balok Kandidat
+        if (cands.length > 0) {
+            cands.sort((a, b) => { if (b.suara !== a.suara) return (b.suara||0) - (a.suara||0); return a.no - b.no; });
+            let h = ''; 
+            const topScore = cands[0].suara || 0; 
+            const winnersCount = cands.filter(x => x.suara === topScore && x.suara > 0).length;
+            
+            cands.forEach((cand, i) => {
+                let pct = (GLOBAL_CONFIG.tot_voted || 0) > 0 ? ((cand.suara || 0) / GLOBAL_CONFIG.tot_voted * 100).toFixed(2) : 0; 
+                let cls = (i === 0 && cand.suara > 0) ? 'rank-1' : 'border-0'; 
+                let barW = (pct < 1 && cand.suara > 0) ? 1 : pct; 
+                let trophyHTML = (cand.suara === topScore && cand.suara > 0) ? `<i class="bi bi-trophy-fill ${winnersCount > 1 ? 'text-secondary' : 'text-warning'} ms-2 fs-4"></i>` : ''; 
+                let fUrl = cand.foto || 'https://via.placeholder.com/60';
+                
+                h += `<div class="race-card ${cls} position-relative mb-3"><div class="fw-bold fs-3 text-secondary ms-2 text-center" style="min-width:40px">#${cand.no}</div><img src="${fUrl}" class="cand-thumb shadow-sm" onerror="this.src='https://via.placeholder.com/60'"><div class="flex-fill"><div class="d-flex justify-content-between align-items-center mb-1"><div class="fw-bold fs-5 text-dark d-flex align-items-center">${cand.nama} ${trophyHTML}</div><div class="fw-bold fs-4 text-dark">${cand.suara||0}</div></div><div class="progress" style="height:10px;background:#e2e8f0;border-radius:5px"><div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" style="width:${barW}%"></div></div><div class="text-end small text-muted mt-1 fw-bold">${pct}% Suara</div></div></div>`;
+            }); 
+            el('race-area').innerHTML = h;
+        }
+    });
+}
 
     function updateTimer() {
         if(!START_TIME) return; const now = new Date().getTime(); const tm = el('timer-live'); const tmb = el('timer-live-bottom');
@@ -1311,13 +1405,16 @@
       window.currentPollRate = null; 
       
       if(id=='live') { 
-          isEnded = false; isStarted = false; window.shownResult = false; 
-          tick(); updateLiveAuthBtn(); 
-          
-          if(window.TIMER_INT) clearInterval(window.TIMER_INT); 
-          // Timer jam berdetak setiap 1 detik
-          window.TIMER_INT = setInterval(updateTimer, 1000); 
-      }
+    isEnded = false; isStarted = false; window.shownResult = false; 
+    startLiveCount(); // <-- Panggil di sini
+    updateLiveAuthBtn(); 
+    if(window.TIMER_INT) clearInterval(window.TIMER_INT); 
+    window.TIMER_INT = setInterval(updateTimer, 1000); 
+} else {
+    // Matikan pantauan jika keluar dari halaman Live agar hemat kuota
+    if(unsubCandidates) unsubCandidates();
+    if(unsubConfig) unsubConfig();
+}
     }
 
     function mdlCand(id){ let c = id ? GLOBAL_CANDS.find(x => x.id === id) : null; el('cid').value = c?c.id:''; el('cno').value = c?c.no:''; el('cnm').value = c?c.nama:''; el('cnia').value = c?c.nia||'':''; el('ctpl').value = c?c.tp_lahir||'':''; el('ctgl').value = c?c.tg_lahir||'':''; el('cjk').value = c?c.jk||'L':'L'; el('calm').value = c?c.alamat||'':''; el('cvis').value = c?c.visi||'':''; el('cmis').value = c?c.misi||'':''; el('cfo').value = c?c.foto||'':''; el('cfn').value = ''; if(c&&c.foto){ el('cpr').src=c.foto; el('cpr').style.display='block'; el('cpt').style.display='none'; } else { el('cpr').style.display='none'; el('cpt').style.display='block'; } new bootstrap.Modal('#mCand').show(); }
